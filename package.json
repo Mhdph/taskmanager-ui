@@ -1,0 +1,37 @@
+{
+  "name": "gr8r-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gr8r Studio: a calm, structured project management workspace.",
+  "type": "module",
+  "imports": {
+    "#lib/*": "./src/lib/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@sveltejs/adapter-vercel": "^7.0.0",
+    "@sveltejs/kit": "^3.0.1",
+    "eslint": "^9.39.5",
+    "globals": "^15.15.0",
+    "lucide": "^0.460.0",
+    "prettier": "^3.9.9",
+    "svelte": "^5.57.2",
+    "svelte-check": "^4.7.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vite": "^8.3.3",
+    "vite-preprocess": "^1.1.2"
+  }
+}
