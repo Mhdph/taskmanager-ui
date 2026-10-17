@@ -21,6 +21,7 @@
   // listeners on import. Static imports keep the action tables (A/IN/KEY)
   // in the client bundle next to the templates that reference them.
   import '../actions/actions';
+  import { hydrateWorkspace } from '#lib/hydrate';
   import '../actions/events';
   import '../actions/keyboard';
   import '../actions/drag-drop';
@@ -109,6 +110,13 @@
       l.setAttribute('aria-live', 'polite');
       document.body.appendChild(l);
     }
+    // Load the real workspace from the API when an identity is configured;
+    // resolves the initial skeleton (or falls back to the demo seed).
+    if (S.ui.loading) {
+      hydrateWorkspace().then(() => {
+        S.ui.loading = false;
+      });
+    }
     // Expose the same dev handle the vanilla entry point provided.
     if (import.meta.env.DEV) {
       import('../actions/actions').then(m => {
@@ -127,6 +135,23 @@
 <button class="skip" data-a="skipToContent">Skip to content</button>
 {#if showAuth}
   <AuthView />
+{:else if S.ui.bootFailed}
+  <!-- Hydration failed: no data, no shell. Blocking takeover only. -->
+  <div class="boot-failed" role="alert">
+    <div class="boot-card">
+      <div class="boot-glyph">{@html ic('wifi-off', 26)}</div>
+      <h1 class="boot-h">Can't reach the workspace server</h1>
+      <p class="boot-err">{S.ui.bootError || "The API didn't respond."}</p>
+      <p class="boot-note">
+        No workspace data is shown. Start the Go API (see
+        <code>taskmanager-api/README.md</code>) and make sure the UI dev server can reach it, then try again.
+      </p>
+      <div class="boot-actions">
+        <button class="btn btn-primary" data-a="retryOnline">Try again</button>
+        <button class="btn btn-secondary" onclick={() => location.reload()}>Reload page</button>
+      </div>
+    </div>
+  </div>
 {:else}
   <div class={shellClass}>
     <Sidebar />

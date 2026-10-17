@@ -14,6 +14,9 @@ import { TEMPLATES, closeModal, openModal } from '../overlays/modals';
 import { closePop, openPop, tgt } from '../overlays/popovers';
 import { PAL_FLAT } from '../overlays/palette';
 import { strengthMeter } from '../pages/settings';
+/* Server sync: optimistic local mutations forward to taskmanager-api here. */
+import { fillTaskDetail, hydrateWorkspace, rebuildFiles } from '#lib/hydrate';
+import * as sync from '#lib/sync';
 import type { ActionTable } from '#lib/types';
 /* SSR_GUARD: SvelteKit may import this module during builds; DOM listeners attach in browsers only. */
 const SSR_GUARD = typeof document !== 'undefined';
@@ -61,6 +64,8 @@ export function createTask(f) {
   D().tasks.push(t);
   fxSet({ added: t.id });
   logAct('created', t);
+  // Optimistic create → taskmanager-api (project, status uuid, dates…).
+  sync.createTask(t);
   return t;
 }
 export const RECUR_DAYS = { Daily: 1, Weekly: 7, 'Every 2 weeks': 14, Monthly: 30 };
@@ -124,8 +129,12 @@ export function updateTask(id, patch) {
     mutate(() => {
       msgs = applyPatch(t, patch);
     })
-  )
+  ) {
     msgs.forEach(m => toast(m, { kind: 'info' }));
+    // Forward the UI patch to the API (status→uuid, dates→RFC3339 …).
+    sync.updateTask(t, patch);
+    if ('labels' in patch) sync.setLabels(t, patch.labels);
+  }
 }
 export function confirmDlg(o) {
   S.ui.confirmText = '';
@@ -293,6 +302,7 @@ A.popPick = el => {
         k === 'assignee' ? (v ? `to ${mem(v).name}` : '(unassigned)') : v ? fmtDate(v) : '(cleared)',
       );
     });
+    sync.updateSubtask(t, sb, { [k]: v });
     return;
   }
   if (p.type === 'pstatus') {
@@ -319,6 +329,7 @@ A.popPick = el => {
     mutate(() => {
       m.role = v;
     });
+    sync.setMemberRole(p.id, v);
     S.ui.pop = null;
     render();
     toast(`${m.name} is now ${v === 'Admin' ? 'an' : 'a'} ${v}`);
@@ -350,7 +361,10 @@ A.popToggleDep = el => {
   const p = S.ui.pop;
   const t = task(p.id);
   const v = el.dataset.v;
+  const adding = !t.deps.includes(v);
   updateTask(p.id, { deps: t.deps.includes(v) ? t.deps.filter(x => x !== v) : [...t.deps, v] });
+  if (adding) sync.addDependency(p.id, v);
+  else sync.removeDependency(p.id, v);
 };
 A.popMonth = el => {
   const p = S.ui.pop;
@@ -395,6 +409,12 @@ A.openTask = el => {
   render();
   const dr = $('.drawer');
   if (dr && !dr.contains(document.activeElement)) dr.focus({ preventScroll: true });
+  // Lazy-fill comments/attachments/dependencies for the drawer.
+  const t2 = task(id);
+  if (t2 && !t2._detail)
+    fillTaskDetail(t2).then(() => {
+      if (S.ui.drawer === id) render();
+    });
 };
 A.closeDrawer = () => {
   S.ui.drawer = null;
@@ -440,6 +460,7 @@ A.toggleFavTask = el => {
     t.fav = !t.fav;
   });
   S.ui.pop = null;
+  sync.favorite('task', t.id, t.fav);
   toast(t.fav ? 'Added to favorites' : 'Removed from favorites', { ms: 1800 });
   render();
 };
@@ -449,6 +470,7 @@ A.toggleFavProj = el => {
     p.fav = !p.fav;
   });
   S.ui.pop = null;
+  sync.favorite('project', p.id, p.fav);
   render();
   toast(p.fav ? `Added ${p.name} to favorites` : 'Removed from favorites', { ms: 1800 });
 };
@@ -498,11 +520,15 @@ A.archiveTask = el => {
 };
 export function deleteTasks(ids) {
   const set = new Set(ids);
+  // Capture refs before removal — the API needs them for its side.
+  const removed = D().tasks.filter(t => set.has(t.id));
   D().tasks = D().tasks.filter(t => !set.has(t.id));
   D().tasks.forEach(t => (t.deps = t.deps.filter(d => !set.has(d))));
   D().comments = D().comments.filter(c => !set.has(c.task));
   if (set.has(S.ui.drawer)) S.ui.drawer = null;
   ids.forEach(i => S.ui.sel.delete(i));
+  // Server deletes are soft (archive); permanent purge doesn't exist.
+  removed.forEach(t => sync.setArchived(t, true));
 }
 A.delTask = el => {
   const t = task(el.dataset.id);
@@ -556,7 +582,7 @@ A.newTask = el => {
   S.ui.form = {
     title: '',
     desc: '',
-    project: canSee(proj(pid)) ? pid : 'p1',
+    project: canSee(proj(pid)) ? pid : visibleProjects().find(canSee)?.id || pid,
     status: 'todo',
     assignee: d.assignee || D().me,
     priority: 'medium',
@@ -628,6 +654,7 @@ A.submitTask = () => {
   };
   if (m.edit) {
     const t = task(m.edit);
+    const prevSubs = t.subtasks.slice();
     if (
       !mutate(() => {
         applyPatch(t, base);
@@ -643,6 +670,11 @@ A.submitTask = () => {
       })
     )
       return;
+    // Server funnel: base fields, then labels and subtask diffs.
+    if (t.desc) sync.updateTask(t, { ...base, desc: t.desc });
+    else sync.updateTask(t, base);
+    if ('labels' in base) sync.setLabels(t, base.labels);
+    diffSubtasks(t, prevSubs, t.subtasks);
     S.ui.modals.pop();
     render();
     toast('Changes saved');
@@ -691,7 +723,7 @@ A.commitComposer = () => {
     return;
   }
   const f = { title: v, ...c.gb };
-  f.project = f.project || projectFromKey(c.ctx) || curProjectId() || 'p1';
+  f.project = f.project || projectFromKey(c.ctx) || curProjectId() || visibleProjects()[0]?.id;
   if (c.ctx === 'mytasks') f.assignee = D().me;
   mutate(() => createTask(f));
   setTimeout(() => $('#composer-in')?.focus(), 0);
@@ -749,6 +781,24 @@ BLUR.commitDrawerTitle = el => {
 KEY.blur = el => el.blur();
 
 /* subtasks */
+/** Sync helper: diff a task's subtasks against the pre-edit snapshot. */
+function diffSubtasks(t, prevRefs, nextRefs) {
+  const was = new Set(prevRefs);
+  const now = new Set(nextRefs);
+  for (const s of prevRefs) {
+    if (now.has(s)) {
+      const on = nextRefs.find(x => x.id === s.id);
+      if (on) sync.updateSubtask(t, s, { title: s.title, done: s.done, assignee: s.assignee, due: s.due });
+      continue;
+    }
+    if (sync.lookUuid(s.id)) sync.removeSubtask(t, s);
+  }
+  for (const s of nextRefs) {
+    if (was.has(s)) continue;
+    sync.addSubtask(t, s);
+  }
+}
+
 A.toggleSub = el => {
   const t = task(el.dataset.id);
   const s = t.subtasks.find(x => x.id === el.dataset.sid);
@@ -757,12 +807,15 @@ A.toggleSub = el => {
     s.done = !s.done;
     logAct(s.done ? 'completed subtask on' : 'reopened subtask on', t, `“${s.title}”`);
   });
+  sync.updateSubtask(t, s, { done: s.done });
 };
 A.rmSub = el => {
   const t = task(el.dataset.id);
+  const s = t.subtasks.find(x => x.id === el.dataset.sid);
   mutate(() => {
     t.subtasks = t.subtasks.filter(x => x.id !== el.dataset.sid);
   });
+  if (s) sync.removeSubtask(t, s);
 };
 KEY.addSub = el => {
   const t = task(el.dataset.id);
@@ -770,10 +823,12 @@ KEY.addSub = el => {
   if (!v) return;
   const nid = uid('s');
   fxSet({ added: nid });
+  const sub = { id: nid, title: v, done: false };
   mutate(() => {
-    t.subtasks.push({ id: nid, title: v, done: false });
+    t.subtasks.push(sub);
     logAct('added subtask to', t, `“${v}”`);
   });
+  sync.addSubtask(t, sub);
   setTimeout(() => $('#d-sub')?.focus(), 0);
 };
 A.expandRow = el => {
@@ -789,6 +844,8 @@ A.rmAttach = el => {
     t.attachments = t.attachments.filter(a => a.id !== el.dataset.aid);
     logAct('removed a file from', t);
   });
+  rebuildFiles();
+  if (f?.raw) sync.deleteAttachment(t, f.id);
   toast(`Removed ${f.name}`);
 };
 A.filePreview = el => {
@@ -811,27 +868,41 @@ export function handleFiles(files, ctx) {
   [...files].forEach(file => {
     const up = { id: uid('u'), name: file.name, size: fsize(file.size), project: ctx.project, task: ctx.task, pct: 0 };
     S.ui.uploads.push(up);
-    const iv = setInterval(() => {
-      up.pct = Math.min(100, up.pct + 9 + Math.round(Math.random() * 22));
-      const bar = document.getElementById('upbar-' + up.id),
-        pc = document.getElementById('upct-' + up.id);
-      if (bar) bar.style.setProperty('--p', String(up.pct / 100));
-      if (pc) pc.textContent = up.pct + '%';
-      if (up.pct >= 100) {
-        clearInterval(iv);
+    sync
+      .upload(ctx.project, ctx.task, file, (pct: number) => {
+        up.pct = pct;
+        const bar = document.getElementById('upbar-' + up.id),
+          pc = document.getElementById('upct-' + up.id);
+        if (bar) bar.style.setProperty('--p', String(up.pct / 100));
+        if (pc) pc.textContent = up.pct + '%';
+      })
+      .then((res: Record<string, any>) => {
         S.ui.uploads = S.ui.uploads.filter(x => x !== up);
-        const rec = { id: uid('f'), name: up.name, type: fileType(up.name), size: up.size, by: D().me, at: Date.now() };
+        const rec = {
+          id: res.id,
+          name: up.name,
+          type: fileType(up.name),
+          size: up.size,
+          by: D().me,
+          at: Date.now(),
+          raw: { projectId: ctx.project, taskId: ctx.task },
+        };
         D().files.unshift({ ...rec, project: up.project, task: up.task || null });
         if (up.task) {
           const t = task(up.task);
           t.attachments.push(rec);
+          t._detail = true;
           logAct('added a file to', t, up.name);
         }
         save();
         render();
         toast(`Uploaded ${up.name}`);
-      }
-    }, 220);
+      })
+      .catch(() => {
+        S.ui.uploads = S.ui.uploads.filter(x => x !== up);
+        toast(`Upload failed — ${up.name}`, { kind: 'err' });
+        render();
+      });
   });
   render();
 }
@@ -893,6 +964,7 @@ A.postComment = el => {
       S.ui.drawerTab = 'comments';
     })
   ) {
+    sync.addComment(id, txt);
     if (S.ui.route === 'inbox') toast('Reply posted');
   }
 };
@@ -902,6 +974,7 @@ A.delComment = el => {
   mutate(() => {
     D().comments = D().comments.filter(x => x !== c);
   });
+  if (c) sync.deleteComment(c.task, c._serverId || c.id);
   toast('Comment deleted', { action: 'Undo', onAction: () => restore(snap) });
 };
 A.react = el => {
@@ -968,7 +1041,13 @@ A.bulkSet = el => {
   const v = el.dataset.v || null;
   const ids = [...S.ui.sel];
   S.ui.pop = null;
-  if (mutate(() => ids.forEach(id => applyPatch(task(id), { [f]: v })))) toast(`Updated ${ids.length} task${ids.length > 1 ? 's' : ''}`);
+  if (mutate(() => ids.forEach(id => applyPatch(task(id), { [f]: v })))) {
+    toast(`Updated ${ids.length} task${ids.length > 1 ? 's' : ''}`);
+    // Server-side: the API has a native bulk op for status/priority/assignee;
+    // everything else goes through the per-task patch.
+    if (['status', 'priority', 'assignee'].includes(f)) sync.bulk(ids, { [f]: v });
+    else ids.forEach(id => sync.updateTask(task(id), { [f]: v }));
+  }
 };
 A.bulkDelete = () => {
   const ids = [...S.ui.sel];
@@ -1094,12 +1173,19 @@ A.saveView = el => {
   const k = 'p:' + el.dataset.id;
   openModal({ type: 'saveView', pid: el.dataset.id, nf: viewOf(k).filters.length });
 };
-A.saveViewSubmit = () => {
+A.saveViewSubmit = async () => {
   const m = S.ui.modals[S.ui.modals.length - 1];
   const name = $('#sv-name').value.trim() || 'Untitled view';
   const type = $('#sv-type').value;
-  const sv = { id: uid('v'), project: m.pid, name, type, filters: JSON.parse(JSON.stringify(viewOf('p:' + m.pid).filters)) };
+  const filters = JSON.parse(JSON.stringify(viewOf('p:' + m.pid).filters));
+  const sv = { id: uid('v'), project: m.pid, name, type, filters };
   D().savedViews.push(sv);
+  // Create on the server and use its id for deep links ('v:{id}').
+  const id = await sync.createView(m.pid, { name, type, filters });
+  if (id && id !== sv.id) {
+    sv.id = id;
+    S.ui.params.tab = 'v:' + id;
+  }
   save();
   S.ui.modals.pop();
   go('project', { id: m.pid, tab: 'v:' + sv.id }, { tab: true });
@@ -1117,6 +1203,7 @@ A.renameView = el => {
       if (val) {
         v.name = val;
         save();
+        sync.renameView(v.project, v.id, val);
       }
     },
   });
@@ -1126,6 +1213,7 @@ A.delView = el => {
   S.ui.pop = null;
   D().savedViews = D().savedViews.filter(x => x !== v);
   save();
+  sync.deleteView(v.project, v.id);
   if (S.ui.params.tab === 'v:' + v.id) go('project', { id: v.project, tab: 'list' }, { tab: true });
   else render();
   toast(`Deleted view “${v.name}”`);
@@ -1159,8 +1247,13 @@ A.colDoneAll = el => {
     return;
   }
   const snap = snapshot();
-  if (mutate(() => ts.forEach(t => applyPatch(t, { status: 'done' }))))
+  if (mutate(() => ts.forEach(t => applyPatch(t, { status: 'done' })))) {
     toast(`Marked ${ts.length} tasks as done`, { action: 'Undo', onAction: () => restore(snap) });
+    sync.bulk(
+      ts.map(t => t.id),
+      { status: 'done' },
+    );
+  }
 };
 A.colArchive = () => {
   const ts = colTasks(S.ui.pop.key, 'done');
@@ -1173,14 +1266,26 @@ A.colArchive = () => {
         t.archivedAt = Date.now();
       }),
     )
-  )
+  ) {
     toast(`Archived ${ts.length} completed tasks`, { action: 'Undo', onAction: () => restore(snap) });
+    sync.bulk(
+      ts.map(t => t.id),
+      { archive: true },
+    );
+  }
 };
 A.colSortPrio = el => {
   const ts = colTasks(S.ui.pop.key, el.dataset.id).sort((a, b) => PR[b.priority].w - PR[a.priority].w);
   const base = Math.min(...ts.map(t => t.order));
   S.ui.pop = null;
   mutate(() => ts.forEach((t, i) => (t.order = base + i * 0.001)));
+  // Persist the new ordering (positions within the status column).
+  if (ts.length && proj(ts[0].project))
+    sync.reorder(
+      ts[0].project,
+      ts[0].status,
+      ts.map(t => t.id),
+    );
 };
 
 /* calendar & timeline */
@@ -1262,7 +1367,7 @@ export function makeKey(name) {
   while (D().projects.some(p => p.key === k)) k += 'X';
   return k;
 }
-export function createProject(f, tmplId) {
+export async function createProject(f, tmplId) {
   const p = {
     id: uid('p'),
     key: makeKey(f.name),
@@ -1280,9 +1385,15 @@ export function createProject(f, tmplId) {
     milestones: [],
     last: 0,
   };
-  D().projects.push(p);
-  D().projOrder.unshift(p.id);
-  D().activity.unshift({ id: uid('a'), by: D().me, verb: 'created project', task: null, project: p.id, at: Date.now(), extra: '' });
+  mutate(() => {
+    D().projects.push(p);
+    D().projOrder.unshift(p.id);
+    D().activity.unshift({ id: uid('a'), by: D().me, verb: 'created project', task: null, project: p.id, at: Date.now(), extra: '' });
+  });
+  // Create on the server first: the swap in sync.createProject updates
+  // p.id in place, so starter tasks reference the real project id.
+  if (sync.lookUuid(f.team) || !f.team) await sync.createProject(p);
+  else await sync.createProject({ ...p, team: null });
   const tm = TEMPLATES.find(t => t.id === tmplId);
   (tm?.tasks || []).forEach((title, i) =>
     createTask({
@@ -1297,7 +1408,7 @@ export function createProject(f, tmplId) {
   );
   return p;
 }
-A.submitProject = () => {
+A.submitProject = async () => {
   const m = S.ui.modals[S.ui.modals.length - 1];
   const f = S.ui.pform;
   f.name = ($('#p-name')?.value || '').trim();
@@ -1324,6 +1435,8 @@ A.submitProject = () => {
         }),
       )
     ) {
+      // Server knows name/description/team; visuals stay client-only.
+      sync.updateProject(p, { name: f.name, desc: f.desc, team: f.team });
       S.ui.modals.pop();
       render();
       toast('Project updated');
@@ -1331,24 +1444,25 @@ A.submitProject = () => {
     return;
   }
   let p;
-  if (
-    !mutate(() => {
-      p = createProject(f, f.tmpl);
-    })
-  )
+  try {
+    p = await createProject(f, f.tmpl);
+  } catch {
     return;
+  }
   S.ui.modals.pop();
   go('project', { id: p.id, tab: f.tmpl === 'blank' ? 'overview' : S.prefs.defaultTab || 'board' });
   toast(`Created ${p.name}${tasksOf(p.id).length ? ` with ${tasksOf(p.id).length} starter tasks` : ''}`);
 };
-A.dupProject = el => {
+A.dupProject = async el => {
   const p = proj(el.dataset.id);
   S.ui.pop = null;
   let n;
-  mutate(() => {
-    n = createProject({ ...p, name: p.name + ' copy' }, 'blank');
-    tasksOf(p.id).forEach(t => createTask({ ...JSON.parse(JSON.stringify(t)), id: uid('t'), key: undefined, project: n.id, status: 'todo' }));
-  });
+  try {
+    n = await createProject({ ...p, name: p.name + ' copy' }, 'blank');
+  } catch {
+    return;
+  }
+  tasksOf(p.id).forEach(t => createTask({ ...JSON.parse(JSON.stringify(t)), id: uid('t'), key: undefined, project: n.id, status: 'todo' }));
   toast(`Duplicated ${p.name}`, { action: 'Open', onAction: () => go('project', { id: n.id }) });
 };
 A.archiveProject = el => {
@@ -1368,6 +1482,7 @@ A.archiveProject = el => {
         })
       ) {
         if (S.ui.route === 'project' && S.ui.params.id === p.id) go('projects');
+        sync.archiveProject(p, true);
         toast(`Archived ${p.name}`, { action: 'Undo', onAction: () => restore(snap) });
       }
     },
@@ -1379,6 +1494,7 @@ A.restoreProject = el => {
     p.archived = false;
     p.archivedAt = null;
   });
+  sync.archiveProject(p, false);
   toast(`Restored ${p.name}`);
 };
 A.delProject = el => {
@@ -1406,6 +1522,9 @@ A.delProject = el => {
         })
       ) {
         if (S.ui.route === 'project' && S.ui.params.id === p.id) go('projects');
+        // The API archives rather than hard-deletes: best effort there,
+        // the project disappears locally either way.
+        sync.archiveProject(p, true);
         toast(`Deleted ${p.name}`, { action: 'Undo', onAction: () => restore(snap) });
       }
     },
@@ -1433,6 +1552,7 @@ A.shareAdd = el => {
   mutate(() => {
     p.members.push(m.id);
   });
+  sync.addProjectMember(p.id, m.id);
   S.ui.shareQ = '';
   render();
   toast(`${m.name} can now edit ${p.name}`);
@@ -1589,6 +1709,7 @@ A.removeMember = el => {
           D().projects.forEach(p => (p.members = p.members.filter(x => x !== m.id)));
         })
       ) {
+        sync.removeMember(m.id);
         if (S.ui.route === 'member') go('members');
         toast(`Removed ${m.name}`, { action: 'Undo', onAction: () => restore(snap) });
       }
@@ -1658,8 +1779,12 @@ A.delFile = el => {
           D().files = D().files.filter(x => x !== f);
           if (f.task && task(f.task)) task(f.task).attachments = task(f.task).attachments.filter(a => a.name !== f.name);
         })
-      )
+      ) {
+        rebuildFiles();
+        // Server side delete (real attachments carry `raw` context).
+        if (f?.raw) sync.deleteAttachment({ project: f.raw.projectId || f.project, id: f.task }, f.id);
         toast(`Deleted ${f.name}`, { action: 'Undo', onAction: () => restore(snap) });
+      }
     },
   });
 };
@@ -1786,13 +1911,17 @@ A.toggleOffline = () => {
   render();
   toast(S.ui.offline ? 'Offline mode on — edits will fail to save' : 'Back online', { kind: S.ui.offline ? 'err' : 'ok' });
 };
-A.retryOnline = el => {
+A.retryOnline = async el => {
   el.classList.add('is-loading');
-  setTimeout(() => {
-    S.ui.offline = false;
-    render();
-    toast('Reconnected. All changes are synced.');
-  }, 700);
+  // Re-runs the workspace hydration; the layout's boot-failed takeover
+  // clears automatically when it succeeds.
+  const ok = await hydrateWorkspace();
+  el.classList.remove('is-loading');
+  S.ui.bootFailed = !ok;
+  S.ui.loading = false;
+  S.ui.offline = false;
+  render();
+  if (ok) toast('Connected. Workspace synced.', { kind: 'ok' });
 };
 A.resetDemo = () => {
   S.ui.pop = null;
@@ -1957,8 +2086,12 @@ A.saveProfile = () => {
         me().name = n;
         me().title = tt;
       })
-    )
+    ) {
+      // Title lives in the server's member directory; the display name
+      // is a local preference.
+      sync.setMemberTitle(me().id, tt);
       toast('Profile updated');
+    }
   });
 };
 IN.pwStrength = el => {

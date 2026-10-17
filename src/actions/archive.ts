@@ -5,6 +5,7 @@ import { esc } from '../core/utils';
 import { logAct, task } from '../core/store';
 import { mutate, toast } from '../ui/toast';
 import { A, confirmDlg, deleteTasks } from './actions';
+import * as sync from '#lib/sync';
 
 A.restoreTask = el => {
   const t = task(el.dataset.id);
@@ -14,8 +15,10 @@ A.restoreTask = el => {
       t.archivedAt = null;
       logAct('restored', t);
     })
-  )
+  ) {
+    sync.setArchived(t, false);
     toast(`Restored “${t.title}”`, { action: 'Open', onAction: () => A.openTask({ dataset: { id: t.id } }) });
+  }
 };
 A.purgeTask = el => {
   const t = task(el.dataset.id);

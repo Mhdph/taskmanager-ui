@@ -6,6 +6,7 @@ import { S, logAct, save, task } from '../core/store';
 import { mutate, toast } from '../ui/toast';
 import { render } from '../shell/render';
 import { A, BLUR, IN, createTask } from './actions';
+import * as sync from '#lib/sync';
 
 export const subOf = (t, sid) => t && t.subtasks.find(s => s.id === sid);
 A.openSub = el => {
@@ -43,6 +44,7 @@ BLUR.commitSubTitle = el => {
       s.title = v;
       t.updated = Date.now();
     });
+  if (s && v && v !== s.title) sync.updateSubtask(t, s, { title: v });
 };
 IN.subNote = el => {
   const t = task(el.dataset.id);
@@ -74,6 +76,9 @@ A.promoteSub = el => {
     })
   )
     return;
+  // Server: the child task is retired (soft-deleted); the copy created
+  // above is its replacement.
+  sync.removeSubtask(t, s);
   S.ui.subOpen = null;
   render();
   toast(`Converted to ${n.key}`, { action: 'Open', onAction: () => A.openTask({ dataset: { id: n.id } }) });

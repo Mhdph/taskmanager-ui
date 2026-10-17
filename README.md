@@ -24,6 +24,43 @@ npm run lint      # ESLint
 npm run format    # Prettier
 ```
 
+## Live mode (taskmanager-api)
+
+Without a backend the app runs on its bundled demo seed exactly as before. When
+an identity is configured it hydrates the workspace from the Go API
+(`../taskmanager-api`) and every mutation (tasks, labels, comments,
+attachments, dependencies, favorites, saved views, teams, members, bulk ops,
+reordering) is forwarded to the server.
+
+For local development the API starts with a dev identity resolver (the hosted
+platform stays the auth source of truth in production):
+
+```bash
+cd ../taskmanager-api
+IDENTITY_DEV_MODE=true APP_PORT=8080 \
+DATABASE_URL=postgres://… ./taskmanager-api
+```
+
+The UI proxies same-origin `/api/*` to `http://localhost:8080`
+(`vite.config.js`; override the target with `VITE_API_URL_INTERNAL`, or point
+`VITE_API_URL` at a remote base URL). Identity headers come from:
+
+1. `localStorage.gr8r.api` → `{"apiKey","userId","appId"}` (set from the console),
+2. build-time `VITE_API_TOKEN` / `VITE_API_USER` / `VITE_API_APP`,
+3. a built-in dev identity (`dev-user`, `dev-tenant`) so `npm run dev`
+   against an API started with `IDENTITY_DEV_MODE=true` works out of the box.
+
+Contract notes: UI ids are the server UUIDs; board statuses map by name and
+category (`Backlog/To Do/In Progress/Review/Done` slots fall back gracefully
+for custom statuses); subtasks are child tasks (`parentTaskId`); estimates are
+seconds (`'2d'` ↔ `172800`); recurrence values are lowercase on the wire.
+Notifications, invites, files-page uploads, calendar events and invoices remain
+client-side demonstration data — they belong to the hosted platform, not this
+API. There is **no demo fallback in live mode**: if the API is unreachable at
+startup the workspace stays empty and a blocking "Can't reach the workspace
+server" screen is shown (Try again re-runs hydration) — made-up data is never
+displayed while the backend is down.
+
 ## Routes
 
 Real URLs replace the old in-memory router. `src/lib/router.js` maps between legacy

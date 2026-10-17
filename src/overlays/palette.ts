@@ -2,7 +2,7 @@
 import { MOD, clamp, esc } from '../core/utils';
 import { LOGO, ic, wsLogo } from '../core/icons';
 import { PSTAT } from '../core/constants';
-import { D, S, allTasks, pColor, proj, save, task } from '../core/store';
+import { D, S, allTasks, pColor, proj, save, task, visibleProjects } from '../core/store';
 import { FT, av, hl, stIcon } from '../ui/helpers';
 import { effectiveDark } from '../core/theme';
 import { go, render } from '../shell/render';
@@ -113,6 +113,7 @@ export function paletteItems() {
         },
       })),
     });
+    const firstProject = visibleProjects()[0];
     groups.push({
       name: 'Suggested',
       items: [
@@ -120,12 +121,18 @@ export function paletteItems() {
         { icon: 'user', name: 'Tasks assigned to me', run: () => go('mytasks') },
         {
           icon: 'signal-high',
-          name: 'High priority in Website Redesign',
+          name: 'High priority in ' + (firstProject?.name || 'a project'),
           run: () => {
-            go('project', { id: 'p1', tab: 'v:v1' });
+            if (firstProject) go('project', { id: firstProject.id, tab: 'board' });
           },
         },
-        { icon: 'paperclip', name: 'Files in Website Redesign', run: () => go('project', { id: 'p1', tab: 'files' }) },
+        {
+          icon: 'paperclip',
+          name: 'Files in ' + (firstProject?.name || 'a project'),
+          run: () => {
+            if (firstProject) go('project', { id: firstProject.id, tab: 'files' });
+          },
+        },
       ],
     });
     return groups;

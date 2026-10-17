@@ -8,6 +8,7 @@ import { browser } from '$app/env';
 import { TODAY, diffD, iso, parse, uid } from '../core/utils';
 import { PCOLORS, TEAMS_SEED } from '../core/constants';
 import { seed } from '../data/seed';
+import { getIdentity } from './api';
 
 export const STORE_KEY = 'gr8r.v2';
 export const DEFAULT_PREFS = {
@@ -41,6 +42,21 @@ export function load() {
 }
 
 const saved = browser ? load() : null;
+
+/** Skeleton the API hydrate() fills in; seed-shaped so every lookup is safe. */
+function skeletonData() {
+  const d = seed();
+  d.projects = [];
+  d.tasks = [];
+  d.members = [];
+  d.comments = [];
+  d.activity = [];
+  d.files = [];
+  d.savedViews = [];
+  d.projOrder = [];
+  d.me = '';
+  return d;
+}
 
 export interface Prefs extends Record<string, any> {
   theme: string;
@@ -96,6 +112,8 @@ export interface UIState {
   palette: Record<string, any> | null;
   loading: boolean;
   offline: boolean;
+  /** Hydration failure: the layout shows a blocking takeover, no data. */
+  bootFailed: boolean;
   sel: Set<string>;
   composer: Record<string, any> | null;
   editCell: Record<string, any> | null;
@@ -120,6 +138,8 @@ export interface UIState {
   collapsedCols: Record<string, boolean>;
   errors: Record<string, any>;
   drafts: Record<string, any>;
+  /** Detail of the hydration failure shown on the boot-failed takeover. */
+  bootError: string;
   [key: string]: any;
 }
 
@@ -132,7 +152,11 @@ export interface AppState {
 }
 
 function initialState() {
-  const data = saved?.data || seed();
+  // Live mode: an API identity is configured → start from a skeleton and
+  // hydrate from the API (layout onMount). Demo mode (no identity): the
+  // localStorage snapshot or seed data runs as before.
+  const live = browser && !!getIdentity().userId;
+  const data = saved?.data && !live ? saved.data : live ? skeletonData() : seed();
   // Lazy seeders (`teamsList`, palette recents) used to create these during
   // render; create them up front so templates never mutate state.
   if (!data.teams) data.teams = TEAMS_SEED.map(t => ({ ...t }));
@@ -160,8 +184,12 @@ function initialState() {
       modals: [],
       pop: null,
       palette: null,
-      loading: false,
+      // In live mode the layout shows the skeleton until hydrate settles.
+      loading: live,
       offline: false,
+      bootFailed: false,
+      bootError: '',
+      demo: browser && !live,
       sel: new Set<string>(),
       composer: null,
       editCell: null,

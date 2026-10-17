@@ -8,6 +8,7 @@ import { mutate, toast } from '../ui/toast';
 import { go, render } from '../shell/render';
 import { openModal } from '../overlays/modals';
 import { A, IN, confirmDlg, restore, snapshot } from './actions';
+import * as sync from '#lib/sync';
 
 A.newTeam = () => {
   S.ui.pop = null;
@@ -29,6 +30,9 @@ A.editTeam = el => {
       .members.filter(m => m.team === t.id)
       .map(m => m.id),
   };
+  // Remember the team membership at open time so the sync layer can
+  // decide whether the server's member list needs replacing.
+  (S.ui as Record<string, any>).tformPrev = [...S.ui.tform.members];
   openModal({ type: 'team', edit: t.id });
 };
 IN.tform = el => {
@@ -83,6 +87,10 @@ A.submitTeam = () => {
     });
   });
   if (!ok) return;
+  // Server: POST/PATCH the team, then PUT the full member list.
+  const memberIds = f.members.filter(id => mem(id));
+  if (m.edit) sync.updateTeam(t, memberIds, (S.ui as Record<string, any>).tformPrev || []);
+  else sync.createTeam(t, memberIds);
   S.ui.modals.pop();
   if (m.edit) {
     render();
@@ -116,6 +124,7 @@ A.delTeam = el => {
           });
         })
       ) {
+        sync.deleteTeam(t.id);
         if (S.ui.route === 'team') go('teams');
         toast(`Deleted ${t.name}`, { action: 'Undo', onAction: () => restore(snap) });
       }

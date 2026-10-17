@@ -55,5 +55,16 @@ function lucideSubset() {
 
 export default defineConfig({
   plugins: [lucideSubset(), sveltekit({ adapter: adapter(), preprocess: vitePreprocess() })],
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    // taskmanager-api in dev: same-origin `/api/*` proxy keeps the
+    // X-APIKEY/USER-ID/APP-ID headers cookie-free and simple.
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_URL_INTERNAL || 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: p => p.replace(/^\/api/, ''),
+      },
+    },
+  },
 });

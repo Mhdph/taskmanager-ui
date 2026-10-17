@@ -125,3 +125,66 @@
   color: var(--text-2);
   margin: 0 0 12px;
 }
+
+/* ---------- boot-failed takeover: no data until the backend answers ---------- */
+.boot-failed {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--bg, var(--surface-1));
+  padding: 24px;
+  z-index: 80;
+}
+.boot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  max-width: 460px;
+  padding: 40px 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg, 12px);
+  background: var(--surface-1);
+  box-shadow: 0 18px 48px -24px rgb(0 0 0 / 0.35);
+}
+.boot-card .boot-glyph {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--red);
+  margin-bottom: 2px;
+}
+.boot-card .boot-h {
+  font-size: var(--fs-xl, 20px);
+  font-weight: 650;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.boot-card .boot-err {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-family: var(--mono, monospace);
+  color: var(--red);
+  word-break: break-word;
+}
+.boot-card .boot-note {
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+}
+.boot-card .boot-note code {
+  font-size: 0.92em;
+}
+.boot-card .boot-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}

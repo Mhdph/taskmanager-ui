@@ -6,6 +6,7 @@ import { mutate, toast } from '../ui/toast';
 import { fxSet, render } from '../shell/render';
 import { viewOf } from '../shell/view-engine';
 import { applyPatch, handleFiles, updateTask } from './actions';
+import * as sync from '#lib/sync';
 /* SSR_GUARD: SvelteKit may import this module during builds; DOM listeners attach in browsers only. */
 const SSR_GUARD = typeof document !== 'undefined';
 
@@ -158,6 +159,14 @@ SSR_GUARD &&
         t.order = order;
         if (moved) applyPatch(t, { status: d.col });
       });
+      // Server: status change goes through the patch funnel; the new
+      // column order is persisted with the reorder endpoint.
+      if (moved) sync.updateTask(t, { status: d.col });
+      const col = D()
+        .tasks.filter(x => x.project === t.project && x.status === (moved ? d.col : t.status) && !x.archived)
+        .sort((a, b) => a.order - b.order)
+        .map(x => x.id);
+      if (col.length) sync.reorder(t.project, moved ? d.col : t.status, col);
       if (moved) toast(`Moved “${t.title}” to ${ST[d.col].name}`, { ms: 2200 });
     } else if (d.type === 'row' && d.target) {
       const t = task(d.id),
@@ -187,6 +196,17 @@ SSR_GUARD &&
           switched = true;
         }
       });
+      // Server funnel: status/priority/assignee patches (project moves
+      // stay local — the API has no cross-project move).
+      if (patch.status || patch.priority || patch.assignee !== undefined) sync.updateTask(t, patch);
+      // Persist new ordering within the task's status column.
+      {
+        const col = D()
+          .tasks.filter(x => x.project === t.project && x.status === t.status && !x.archived)
+          .sort((a, b) => a.order - b.order)
+          .map(x => x.id);
+        if (col.length) sync.reorder(t.project, t.status, col);
+      }
       if (switched) toast('Sorted manually to keep your order', { kind: 'info', ms: 2200 });
     } else if (d.type === 'cal' && d.day) {
       const t = task(d.id);
