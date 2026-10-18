@@ -110,7 +110,7 @@
   animation: growX 0.8s 0.12s var(--ease) both;
 }
 .fx-route .stackbar i {
-  transform-origin: left;
+  transform-origin: right;
   animation: growX 0.8s 0.12s var(--ease) both;
 }
 .fx-route .bar {
@@ -197,7 +197,7 @@
   animation-delay: 0.05s;
 }
 .steps i {
-  transform-origin: left;
+  transform-origin: right;
   transition: background 0.3s;
 }
 .onb.fx-step .steps i.cur {

@@ -14,24 +14,36 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+    "check": "tsc --noEmit",
+    "start": "node .output/server/index.mjs",
+    "test": "vitest run"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22.12.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
-    "@sveltejs/adapter-vercel": "^7.0.0",
-    "@sveltejs/kit": "^3.0.1",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
     "eslint": "^9.39.5",
     "globals": "^15.15.0",
     "lucide": "^0.460.0",
     "prettier": "^3.9.9",
-    "svelte": "^5.57.2",
-    "svelte-check": "^4.7.6",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.3",
-    "vite-preprocess": "^1.1.2"
+    "vitest": "^5.0.5"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.104.4",
+    "@tanstack/react-router": "^1.170.45",
+    "@tanstack/react-start": "^1.169.3",
+    "@tanstack/react-store": "^0.11.2",
+    "morphdom": "^2.7.8",
+    "nitro": "3.0.260903-beta",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   }
 }

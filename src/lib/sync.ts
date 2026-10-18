@@ -28,7 +28,7 @@ export function statusUuid(projectId: string, canonId: string): string | null {
 }
 
 function fail(label: string, e: unknown) {
-  const msg = e instanceof ApiError && e.status === 0 ? e.message : `${label} failed`;
+  const msg = e instanceof ApiError && e.status === 0 ? e.message : 'ذخیره تغییرات ناموفق بود؛ دوباره تلاش کنید.';
   toast(msg + (e instanceof ApiError && e.status === 0 ? '' : ''), { kind: 'err', ms: 5000 });
   console.warn('[gr8r]', label, e);
 }
@@ -61,7 +61,7 @@ async function createTask_impl(t: any, extra: Record<string, any> = {}) {
   try {
     const res = await api.post(`/projects/${t.project}/tasks`, body);
     id = res.id;
-    swapTaskId(t.id, id);
+    if (id) swapTaskId(t.id, id);
   } catch (e) {
     fail('Task creation', e);
     return;

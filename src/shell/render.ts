@@ -1,16 +1,10 @@
-/* =====================================================================
-   SHELL: router + render loop (SvelteKit edition)
-   ---------------------------------------------------------------------
-   Svelte owns the DOM now: `render()` no longer swaps `#app` innerHTML.
-   It only syncs prefs, document title, and one-shot motion flags; reactive
-   `{@html}` views re-render automatically because the runes store `S` is
-   mutated in place. `go()` performs real SvelteKit navigation via
-   `#lib/router.js`. All other exports keep their legacy signatures so the
-   action tables work unchanged.
-   ===================================================================== */
-import { browser } from '$app/env';
-import { D, S, mem, proj, team } from '#lib/state.svelte.js';
-import { bump } from '#lib/tick.svelte.js';
+import { faNumber } from '../core/locale';
+/* Shared navigation and DOM enhancements for the React workspace.
+   render() notifies TanStack Store after legacy actions; Workspace applies
+   enhancements after React commits the HTML view updates. */
+import { browser } from '#lib/environment';
+import { D, S, mem, proj, team } from '#lib/state';
+import { notifyWorkspace as bump } from '#lib/state';
 import { applyPrefs } from '../core/theme';
 import { enhanceSelects, selectMenu } from '../ui/select';
 import { PTABS } from '../pages/project';
@@ -61,8 +55,8 @@ export function tryFocus(key) {
 export function pageTitle() {
   const u = S.ui;
   if (u.auth) return 'Gr8r Studio';
-  let t = ROUTE_NAMES[u.route] || 'Not found';
-  if (u.route === 'project' && proj(u.params.id)) t = `${(PTABS.find(x => x[0] === u.params.tab) || [0, 'Saved view'])[1]} · ${proj(u.params.id).name}`;
+  let t = ROUTE_NAMES[u.route] || 'پیدا نشد';
+  if (u.route === 'project' && proj(u.params.id)) t = `${(PTABS.find(x => x[0] === u.params.tab) || [0, 'نمای ذخیره‌شده'])[1]} · ${proj(u.params.id).name}`;
   if (u.route === 'member' && mem(u.params.id)) t = mem(u.params.id).name;
   if (u.route === 'team' && team(u.params.id)) t = team(u.params.id).name;
   try {
@@ -80,15 +74,11 @@ export function makeFocusable(root = browser ? document : null) {
     if (!el.hasAttribute('role')) el.setAttribute('role', el.dataset.a === 'go' ? 'link' : 'button');
   }
 }
-/**
- * Lightweight render: Svelte re-renders `{@html}` views from reactive state,
- * so this only syncs theme prefs + document title and clears one-shot fx.
- * Safe to call from legacy action handlers at any time (no DOM teardown).
- */
+/** Notify React subscribers and synchronize browser preferences and title. */
 export function render() {
   if (!browser) return;
   applyPrefs();
-  // NOTE: one-shot S.ui.fx flags are cleared post-paint by +layout.svelte
+  // One-shot S.ui.fx flags are cleared post-paint by Workspace.tsx
   // (not here) so enter/count-up animations survive until first paint.
   const title = pageTitle();
   if (document.title !== title) {
@@ -101,7 +91,7 @@ export function render() {
 }
 export function afterRender() {
   if (!browser) return;
-  // Enhancements also run centrally in +layout.svelte's $effect (which
+  // Enhancements also run centrally in Workspace's layout effect (which
   // covers renders triggered outside legacy callers). Keep this direct path
   // for legacy callers that run between effects.
   selectMenu.close();
@@ -122,7 +112,7 @@ export function afterRender() {
 export function countUp() {
   if (!browser) return;
   for (const el of document.querySelectorAll('.fx-route .stat .v')) {
-    const m = el.textContent.match(/^(\d+)(%?)$/);
+    const m = el.textContent.replace(/[۰-۹]/g, digit => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(digit))).match(/^(\d+)(%?)$/);
     if (!m) continue;
     const to = +m[1],
       suf = m[2];
@@ -133,10 +123,10 @@ export function countUp() {
       const k = Math.min(1, (now - t0) / dur);
       const e = 1 - Math.pow(1 - k, 3);
       if (!el.isConnected) return;
-      el.textContent = Math.round(to * e) + suf;
+      el.textContent = faNumber(Math.round(to * e)) + suf;
       if (k < 1) requestAnimationFrame(step);
     };
-    el.textContent = '0' + suf;
+    el.textContent = '۰' + suf;
     requestAnimationFrame(step);
   }
 }

@@ -1,3 +1,4 @@
+import { faNumber } from '../core/locale';
 /* ---------- SEARCH RESULTS ---------- */
 import { ago, esc } from '../core/utils';
 import { ic } from '../core/icons';
@@ -23,30 +24,30 @@ export function pageSearch() {
   const r = searchAll(q);
   const cat = S.ui.searchCat;
   const cats = [
-    ['all', 'All'],
-    ['tasks', 'Tasks'],
-    ['projects', 'Projects'],
-    ['people', 'People'],
-    ['files', 'Files'],
-    ['comments', 'Comments'],
+    ['all', 'همه'],
+    ['tasks', 'کارها'],
+    ['projects', 'پروژه‌ها'],
+    ['people', 'افراد'],
+    ['files', 'فایل‌ها'],
+    ['comments', 'دیدگاه‌ها'],
   ];
   const total = Object.values(r).reduce((a, b) => a + b.length, 0);
   const sec = (k, title, html) =>
     (cat === 'all' || cat === k) && r[k].length
-      ? `<section style="margin-bottom:22px"><div class="eyebrow" style="margin-bottom:6px">${title} · ${r[k].length}</div><div class="panel" style="overflow:hidden">${html}</div></section>`
+      ? `<section style="margin-bottom:22px"><div class="eyebrow" style="margin-bottom:6px">${title} · ${faNumber(r[k].length)}</div><div class="panel" style="overflow:hidden">${html}</div></section>`
       : '';
   return `<div class="page" style="max-width:860px">
-    <div class="inwrap" style="margin-bottom:14px">${ic('search', 16)}<input class="input input-lg" id="search-page-q" data-in="searchQ" placeholder="Search tasks, projects, people, files, and comments" value="${esc(q)}" style="padding-left:34px;font-size:15px" aria-label="Search"></div>
-    <div class="tabs" style="margin-bottom:18px">${cats.map(([k, n]) => `<button class="tab ${cat === k ? 'on' : ''}" data-a="set" data-k="searchCat" data-v="${k}">${n}<span class="cnt">${k === 'all' ? total : r[k].length}</span></button>`).join('')}</div>
+    <div class="inwrap" style="margin-bottom:14px">${ic('search', 16)}<input class="input input-lg" id="search-page-q" data-in="searchQ" placeholder="جستجوی کارها، پروژه‌ها، افراد، فایل‌ها و دیدگاه‌ها" value="${esc(q)}" style="padding-inline-start:34px;font-size:15px" aria-label="جستجو"></div>
+    <div class="tabs" style="margin-bottom:18px">${cats.map(([k, n]) => `<button class="tab ${cat === k ? 'on' : ''}" data-a="set" data-k="searchCat" data-v="${k}">${n}<span class="cnt">${faNumber(k === 'all' ? total : r[k].length)}</span></button>`).join('')}</div>
     ${
       !q
-        ? `<div class="row" style="gap:6px;flex-wrap:wrap"><span class="faint" style="font-size:12.5px">Recent:</span>${D()
+        ? `<div class="row" style="gap:6px;flex-wrap:wrap"><span class="faint" style="font-size:12.5px">اخیر:</span>${D()
             .recentSearches.map(s => `<button class="badge" data-a="setSearch" data-q="${esc(s)}">${ic('history', 11)}${esc(s)}</button>`)
             .join('')}</div>`
         : total
           ? sec(
               'tasks',
-              'Tasks',
+              'کارها',
               r.tasks
                 .map(
                   t =>
@@ -56,7 +57,7 @@ export function pageSearch() {
             ) +
             sec(
               'projects',
-              'Projects',
+              'پروژه‌ها',
               r.projects
                 .map(
                   p =>
@@ -66,7 +67,7 @@ export function pageSearch() {
             ) +
             sec(
               'people',
-              'People',
+              'افراد',
               r.people
                 .map(
                   m =>
@@ -76,7 +77,7 @@ export function pageSearch() {
             ) +
             sec(
               'files',
-              'Files',
+              'فایل‌ها',
               r.files
                 .map(
                   f =>
@@ -86,7 +87,7 @@ export function pageSearch() {
             ) +
             sec(
               'comments',
-              'Comments',
+              'دیدگاه‌ها',
               r.comments
                 .map(
                   c =>
@@ -94,7 +95,7 @@ export function pageSearch() {
                 )
                 .join(''),
             )
-          : `<div class="panel">${empty('search-x', 'No results found', `Nothing matches “${q}”. Check the spelling or try a broader term.`, `<button class="btn btn-secondary btn-sm" data-a="setSearch" data-q="">Clear search</button>`)}</div>`
+          : `<div class="panel">${empty('search-x', 'نتیجه‌ای پیدا نشد', `نتیجه‌ای پیدا نشد برای «${q}». املا را بررسی کنید یا عبارت کلی‌تری بنویسید.`, `<button class="btn btn-secondary btn-sm" data-a="setSearch" data-q="">پاک کردن جستجو</button>`)}</div>`
     }
   </div>`;
 }

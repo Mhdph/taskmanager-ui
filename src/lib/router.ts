@@ -1,35 +1,43 @@
 /* =====================================================================
-   Router: legacy route names <-> SvelteKit URLs, plus navigation.
+   Router: legacy route names <-> TanStack Start URLs, plus navigation.
    Legacy `go(route, params)` from `src/shell/render.js` delegates here so
    every existing `data-a="go"` handler performs real client-side
    navigation (history, deep links, back/forward) instead of in-memory swaps.
    ===================================================================== */
-import { goto } from '$app/navigation';
-import { S } from '#lib/state.svelte.js';
+let navigate: ((url: string) => Promise<unknown>) | undefined;
+
+/** Connect the existing action navigation API to the active TanStack Router. */
+export function bindNavigation(handler: (url: string) => Promise<unknown>) {
+  navigate = handler;
+  return () => {
+    if (navigate === handler) navigate = undefined;
+  };
+}
+import { S } from '#lib/state';
 import { ensureView } from '../shell/view-engine';
 import type { RouteParams } from './types';
 
 export const ROUTE_NAMES = {
-  home: 'Home',
-  inbox: 'Inbox',
-  mytasks: 'My Tasks',
-  favorites: 'Favorites',
-  notifications: 'Notifications',
-  search: 'Search',
-  overview: 'Overview',
-  projects: 'Projects',
-  tasks: 'Tasks',
-  calendar: 'Calendar',
-  timeline: 'Timeline',
-  members: 'Members',
-  member: 'Member',
-  teams: 'Teams',
-  team: 'Team',
-  activity: 'Activity',
-  settings: 'Settings',
-  system: 'Design system',
-  states: 'System states',
-  archive: 'Archive',
+  home: 'خانه',
+  inbox: 'صندوق ورودی',
+  mytasks: 'کارهای من',
+  favorites: 'علاقه‌مندی‌ها',
+  notifications: 'اعلان‌ها',
+  search: 'جستجو',
+  overview: 'نمای کلی',
+  projects: 'پروژه‌ها',
+  tasks: 'کارها',
+  calendar: 'تقویم',
+  timeline: 'خط زمانی',
+  members: 'اعضا',
+  member: 'عضو',
+  teams: 'تیم‌ها',
+  team: 'تیم',
+  activity: 'فعالیت‌ها',
+  settings: 'تنظیمات',
+  system: 'سیستم طراحی',
+  states: 'وضعیت‌های سیستم',
+  archive: 'بایگانی',
 };
 
 export const ROUTE_ICONS = {
@@ -95,7 +103,7 @@ export function urlFor(route, params: RouteParams = {}) {
 
 /**
  * Parse a URL back into `{ route, params }` and sync it into the store.
- * Called centrally from `+layout.svelte` on every navigation (covers
+ * Called centrally from `Workspace.tsx` on every navigation (covers
  * back/forward and direct loads), so individual pages stay thin.
  */
 export function syncRouteToStore(pathname, searchParams) {
@@ -118,7 +126,7 @@ export function syncRouteToStore(pathname, searchParams) {
     if (route === 'home' && seg[0]) route = seg[0]; // unknown -> 404 page via layout renderPage
   }
   if (route === 'settings' && sp.get('sec')) {
-    params = { sec: sp.get('sec') };
+    params = { sec: sp.get('sec') || '' };
   }
   if (route === 'search') {
     params = { q: sp.get('q') || '', cat: sp.get('cat') || 'all' };
@@ -129,6 +137,10 @@ export function syncRouteToStore(pathname, searchParams) {
   if (S.ui.route !== route || JSON.stringify(S.ui.params) !== JSON.stringify(params)) {
     S.ui.route = route;
     S.ui.params = params;
+    if (route === 'timeline' && !S.ui._tlWsInit) {
+      S.ui._tlWsInit = true;
+      S.ui.tlGroup = 'project';
+    }
     ensureView('tasks');
     ensureView('mytasks');
     ensureView('tl');
@@ -144,8 +156,8 @@ export function syncRouteToStore(pathname, searchParams) {
 }
 
 /**
- * Set the active legacy route from a SvelteKit page component. Called
- * synchronously in `+page.svelte` scripts so the first render already sees
+ * Set the active legacy route from a route effect. Called
+ * synchronously in route effects so the first render already sees
  * the right route (no flash), and reactively on param changes.
  */
 export function setRoute(route, params: RouteParams = {}) {
@@ -155,7 +167,7 @@ export function setRoute(route, params: RouteParams = {}) {
   if (same) return;
   S.ui.route = route;
   S.ui.params = params;
-  // Seed filter/sort/group views here (script context) so `$derived`
+  // Seed filter/sort/group views here (script context) so render functions
   // page templates never mutate state to create them.
   ensureView('tasks');
   ensureView('mytasks');
@@ -173,7 +185,7 @@ export function setRoute(route, params: RouteParams = {}) {
 
 /**
  * Legacy-compatible navigation: updates ephemeral UI state, then performs
- * real SvelteKit navigation. Falls back to in-place state sync when the
+ * real TanStack Start navigation. Falls back to in-place state sync when the
  * URL is unchanged (tab switches inside overlays, etc.).
  */
 export function go(route, params: RouteParams = {}, opt: Record<string, any> = {}) {
@@ -195,7 +207,8 @@ export function go(route, params: RouteParams = {}, opt: Record<string, any> = {
   const url = urlFor(route, params);
   const cur = typeof location !== 'undefined' ? location.pathname + location.search : null;
   if (cur !== url) {
-    goto(url).catch(e => console.error('[gr8r] goto failed', e));
+    if (navigate) navigate(url).catch(e => console.error('[gr8r] navigation failed', e));
+    else if (typeof window !== 'undefined') window.location.assign(url);
   }
   if (typeof document !== 'undefined' && !same) {
     const c = document.querySelector('.content');

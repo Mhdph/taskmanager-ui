@@ -7,10 +7,10 @@ import { fxSet, render } from '../shell/render';
 import { viewOf } from '../shell/view-engine';
 import { applyPatch, handleFiles, updateTask } from './actions';
 import * as sync from '#lib/sync';
-/* SSR_GUARD: SvelteKit may import this module during builds; DOM listeners attach in browsers only. */
+/* SSR_GUARD: TanStack Start may import this module during builds; DOM listeners attach in browsers only. */
 const SSR_GUARD = typeof document !== 'undefined';
 
-export let DRAG = null;
+export let DRAG: Record<string, any> | null = null;
 export function clearDropMarks() {
   $$('.drop-line').forEach(x => x.remove());
   $$('.over').forEach(x => x.classList.remove('over'));
@@ -24,21 +24,21 @@ SSR_GUARD &&
       cal = closestEl(e.target, '[data-drag-cal]'),
       sp = closestEl(e.target, '[data-drag-proj]');
     const el = card || row || cal || sp;
-    if (!el) return;
+    if (!el || !e.dataTransfer) return;
     DRAG = card
       ? { type: 'card', id: card.dataset.dragCard }
       : row
         ? { type: 'row', id: row.dataset.dragRow }
         : cal
           ? { type: 'cal', id: cal.dataset.dragCal }
-          : { type: 'proj', id: sp.dataset.dragProj };
+          : { type: 'proj', id: sp!.dataset.dragProj };
     e.dataTransfer.effectAllowed = 'move';
     try {
       e.dataTransfer.setData('text/plain', DRAG.id);
     } catch {
       /* not supported here; safe to skip */
     }
-    const vis = row ? closestEl(row, '.trow') : el;
+    const vis = (row ? closestEl(row, '.trow') : el) || el;
     if (row)
       try {
         e.dataTransfer.setDragImage(vis, 20, 18);
@@ -55,7 +55,7 @@ SSR_GUARD &&
   });
 SSR_GUARD &&
   document.addEventListener('dragover', e => {
-    const hasFiles = e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
+    const hasFiles = e.dataTransfer && [...(e.dataTransfer.types || [])].includes('فایل‌ها');
     if (hasFiles) {
       const dz = closestEl(e.target, '[data-dropzone],[data-dropzone-task],.drawer');
       if (dz) {
@@ -167,7 +167,7 @@ SSR_GUARD &&
         .sort((a, b) => a.order - b.order)
         .map(x => x.id);
       if (col.length) sync.reorder(t.project, moved ? d.col : t.status, col);
-      if (moved) toast(`Moved “${t.title}” to ${ST[d.col].name}`, { ms: 2200 });
+      if (moved) toast(`منتقل شد “${t.title}” to ${ST[d.col].name}`, { ms: 2200 });
     } else if (d.type === 'row' && d.target) {
       const t = task(d.id),
         tg = task(d.target);
@@ -207,14 +207,14 @@ SSR_GUARD &&
           .map(x => x.id);
         if (col.length) sync.reorder(t.project, t.status, col);
       }
-      if (switched) toast('Sorted manually to keep your order', { kind: 'info', ms: 2200 });
+      if (switched) toast('برای حفظ ترتیب شما، مرتب‌سازی دستی فعال است', { kind: 'info', ms: 2200 });
     } else if (d.type === 'cal' && d.day) {
       const t = task(d.id);
       if (t.due === d.day) return;
       const len = t.start && t.due ? diffD(parse(t.due), parse(t.start)) : null;
       fxSet({ moved: t.id });
       updateTask(t.id, { due: d.day, ...(len != null ? { start: iso(addD(parse(d.day), -len)) } : {}) });
-      toast(`Rescheduled “${t.title}” to ${fmtDate(d.day)}`, { ms: 2200 });
+      toast(`زمان‌بندی تغییر کرد “${t.title}” to ${fmtDate(d.day)}`, { ms: 2200 });
     } else if (d.type === 'proj' && d.before && d.before !== d.id) {
       const o = D().projOrder.filter(x => x !== d.id);
       o.splice(o.indexOf(d.before), 0, d.id);
@@ -237,19 +237,20 @@ SSR_GUARD &&
         v = viewOf(key);
       const col = $(`col[data-col="${c}"]`);
       const tbl = closestEl(rz, 'table');
+      if (!tbl || !c || !col) return;
       const w0 = col.getBoundingClientRect().width || parseFloat(col.style.width);
       const tw0 = tbl.getBoundingClientRect().width;
       const x0 = e.clientX;
       rz.classList.add('on');
       const mv = ev => {
-        const w = Math.max(64, w0 + ev.clientX - x0);
+        const w = Math.max(64, w0 - (ev.clientX - x0));
         col.style.width = w + 'px';
         tbl.style.width = tw0 + w - w0 + 'px';
       };
       const up = ev => {
         removeEventListener('pointermove', mv);
         removeEventListener('pointerup', up);
-        v.colW[c] = Math.max(64, Math.round(w0 + ev.clientX - x0));
+        v.colW[c] = Math.max(64, Math.round(w0 - (ev.clientX - x0)));
         save();
         S.ui.justResized = true;
         setTimeout(() => {
@@ -265,7 +266,7 @@ SSR_GUARD &&
     if (!b) return;
     const x0 = e.clientX;
     const l0 = parseFloat(b.style.left);
-    const dw = +b.dataset.dw;
+    const dw = Number(b.dataset.dw);
     let moved = false;
     const mv = ev => {
       const dx = ev.clientX - x0;
@@ -290,7 +291,7 @@ SSR_GUARD &&
         return;
       }
       updateTask(t.id, { due: iso(addD(parse(t.due), days)), start: t.start ? iso(addD(parse(t.start), days)) : null });
-      toast(`Moved “${t.title}” ${Math.abs(days)} day${Math.abs(days) > 1 ? 's' : ''} ${days > 0 ? 'later' : 'earlier'}`, { ms: 2200 });
+      toast(`منتقل شد “${t.title}” ${Math.abs(days)} روز ${days > 0 ? 'بعدتر' : 'زودتر'}`, { ms: 2200 });
     };
     addEventListener('pointermove', mv);
     addEventListener('pointerup', up);

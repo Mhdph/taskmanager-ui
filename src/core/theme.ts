@@ -6,6 +6,8 @@ export function applyPrefs() {
   if (typeof document === 'undefined') return;
   const r = document.documentElement,
     p = S.prefs;
+  r.lang = 'fa';
+  r.dir = 'rtl';
   setDateFormat(p.dateFmt);
   if (p.theme === 'system') r.removeAttribute('data-theme');
   else r.setAttribute('data-theme', p.theme);

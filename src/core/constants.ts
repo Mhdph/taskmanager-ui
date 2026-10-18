@@ -1,37 +1,37 @@
 /* ---------- vocab ---------- */
 export const STATUSES = [
-  { id: 'backlog', name: 'Backlog' },
-  { id: 'todo', name: 'To Do' },
-  { id: 'progress', name: 'In Progress' },
-  { id: 'review', name: 'Review' },
-  { id: 'done', name: 'Done' },
+  { id: 'backlog', name: 'در انتظار' },
+  { id: 'todo', name: 'برای انجام' },
+  { id: 'progress', name: 'در حال انجام' },
+  { id: 'review', name: 'در حال بررسی' },
+  { id: 'done', name: 'انجام‌شده' },
 ];
 export const ST = Object.fromEntries(STATUSES.map(s => [s.id, s]));
 export const PRIOS = [
-  { id: 'urgent', name: 'Urgent', w: 4 },
-  { id: 'high', name: 'High', w: 3 },
-  { id: 'medium', name: 'Medium', w: 2 },
-  { id: 'low', name: 'Low', w: 1 },
-  { id: 'none', name: 'No priority', w: 0 },
+  { id: 'urgent', name: 'فوری', w: 4 },
+  { id: 'high', name: 'زیاد', w: 3 },
+  { id: 'medium', name: 'متوسط', w: 2 },
+  { id: 'low', name: 'کم', w: 1 },
+  { id: 'none', name: 'بدون اولویت', w: 0 },
 ];
 export const PR = Object.fromEntries(PRIOS.map(p => [p.id, p]));
 export const LABELS = [
-  { id: 'design', name: 'Design', c: 'var(--violet)' },
-  { id: 'frontend', name: 'Frontend', c: 'var(--blue)' },
-  { id: 'backend', name: 'Backend', c: 'var(--teal)' },
-  { id: 'research', name: 'Research', c: 'var(--amber)' },
-  { id: 'content', name: 'Content', c: 'var(--rose)' },
-  { id: 'bug', name: 'Bug', c: 'var(--red)' },
-  { id: 'qa', name: 'QA', c: 'var(--green)' },
-  { id: 'growth', name: 'Growth', c: 'var(--orange)' },
+  { id: 'design', name: 'طراحی', c: 'var(--violet)' },
+  { id: 'frontend', name: 'فرانت‌اند', c: 'var(--blue)' },
+  { id: 'backend', name: 'بک‌اند', c: 'var(--teal)' },
+  { id: 'research', name: 'پژوهش', c: 'var(--amber)' },
+  { id: 'content', name: 'محتوا', c: 'var(--rose)' },
+  { id: 'bug', name: 'اشکال', c: 'var(--red)' },
+  { id: 'qa', name: 'تضمین کیفیت', c: 'var(--green)' },
+  { id: 'growth', name: 'رشد', c: 'var(--orange)' },
 ];
 export const LB = Object.fromEntries(LABELS.map(l => [l.id, l]));
 export const PSTAT = {
-  planning: { name: 'Planning', c: 'var(--gray)' },
-  active: { name: 'In Progress', c: 'var(--blue)' },
-  risk: { name: 'At Risk', c: 'var(--red)' },
-  hold: { name: 'On Hold', c: 'var(--amber)' },
-  complete: { name: 'Completed', c: 'var(--green)' },
+  planning: { name: 'در حال برنامه‌ریزی', c: 'var(--gray)' },
+  active: { name: 'در حال انجام', c: 'var(--blue)' },
+  risk: { name: 'در معرض خطر', c: 'var(--red)' },
+  hold: { name: 'متوقف‌شده', c: 'var(--amber)' },
+  complete: { name: 'تکمیل‌شده', c: 'var(--green)' },
 };
 export const PCOLORS = {
   indigo: '#5A67D8',
@@ -63,8 +63,8 @@ export const PICONS = [
 ];
 export const ROLES = ['Owner', 'Admin', 'Member', 'Guest'];
 export const TEAMS_SEED = [
-  { id: 'design', name: 'Design', icon: 'palette', c: '#8662C9', desc: 'Product design, brand, and research' },
-  { id: 'eng', name: 'Engineering', icon: 'code', c: '#3B82C4', desc: 'Web, mobile, and platform engineering' },
-  { id: 'mkt', name: 'Marketing', icon: 'megaphone', c: '#C54B78', desc: 'Campaigns, content, and growth' },
-  { id: 'product', name: 'Product', icon: 'target', c: '#C48A1E', desc: 'Roadmap, planning, and QA' },
+  { id: 'design', name: 'طراحی', icon: 'palette', c: '#8662C9', desc: 'طراحی محصول، برند و پژوهش' },
+  { id: 'eng', name: 'مهندسی', icon: 'code', c: '#3B82C4', desc: 'مهندسی وب، موبایل و زیرساخت' },
+  { id: 'mkt', name: 'بازاریابی', icon: 'megaphone', c: '#C54B78', desc: 'کمپین‌ها، محتوا و رشد' },
+  { id: 'product', name: 'محصول', icon: 'target', c: '#C48A1E', desc: 'نقشه راه، برنامه‌ریزی و تضمین کیفیت' },
 ];

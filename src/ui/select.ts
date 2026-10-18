@@ -6,7 +6,7 @@
    ===================================================================== */
 import { closestEl, esc } from '../core/utils';
 import { ic } from '../core/icons';
-/* SSR_GUARD: SvelteKit may import this module during builds; DOM listeners attach in browsers only. */
+/* SSR_GUARD: TanStack Start may import this module during builds; DOM listeners attach in browsers only. */
 const SSR_GUARD = typeof document !== 'undefined';
 
 export function enhanceSelects(root = document) {
@@ -20,7 +20,7 @@ export function enhanceSelects(root = document) {
     btn.setAttribute('aria-expanded', 'false');
     btn.setAttribute(
       'aria-label',
-      sel.getAttribute('aria-label') || (sel.id && document.querySelector(`label[for="${CSS.escape(sel.id)}"]`)?.textContent) || 'Choose',
+      sel.getAttribute('aria-label') || (sel.id && document.querySelector(`label[for="${CSS.escape(sel.id)}"]`)?.textContent) || 'انتخاب کنید',
     );
     if (sel.id) btn.dataset.for = sel.id;
     const sync = () => {
@@ -46,9 +46,9 @@ export function enhanceSelects(root = document) {
 }
 
 export const selectMenu = {
-  el: null,
-  sel: null,
-  btn: null,
+  el: null as HTMLElement | null,
+  sel: null as HTMLElement | null,
+  btn: null as HTMLButtonElement | null,
   toggle(sel, btn) {
     if (this.sel === sel && this.el) this.close();
     else this.open(sel, btn);
@@ -62,7 +62,7 @@ export const selectMenu = {
     menu.innerHTML = [...sel.options]
       .map(
         (o, i) =>
-          `<button type="button" class="mi" role="option" data-i="${i}" aria-selected="${o.selected}"><span class="trunc grow">${esc(o.text)}</span>${o.selected ? `<span class="ck">${ic('check', 14)}</span>` : ''}</button>`,
+          `<button type="button" class="mi" role="option" data-i="${i}" aria-انتخاب‌شده="${o.selected}"><span class="trunc grow">${esc(o.text)}</span>${o.selected ? `<span class="ck">${ic('check', 14)}</span>` : ''}</button>`,
       )
       .join('');
     document.body.appendChild(menu);
@@ -70,14 +70,14 @@ export const selectMenu = {
     menu.style.minWidth = Math.max(r.width, 160) + 'px';
     const h = menu.offsetHeight,
       w = menu.offsetWidth;
-    menu.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + 'px';
+    menu.style.left = Math.max(8, Math.min(r.right - w, innerWidth - w - 8)) + 'px';
     menu.style.top = (r.bottom + 4 + h > innerHeight - 8 ? Math.max(8, r.top - 4 - h) : r.bottom + 4) + 'px';
     menu.addEventListener('mousedown', e => e.preventDefault());
     menu.addEventListener('click', e => {
       const it = closestEl(e.target, '.mi');
       if (!it) return;
       e.stopPropagation();
-      this.pick(+it.dataset.i);
+      this.pick(Number(it.dataset.i));
     });
     menu.addEventListener('keydown', e => {
       const items = [...menu.querySelectorAll<HTMLElement>('.mi')];
@@ -119,7 +119,7 @@ SSR_GUARD &&
   document.addEventListener(
     'mousedown',
     e => {
-      if (selectMenu.el && !selectMenu.el.contains(e.target) && !closestEl(e.target, '.select-btn')) selectMenu.close();
+      if (selectMenu.el && !selectMenu.el.contains(e.target as Node | null) && !closestEl(e.target, '.select-btn')) selectMenu.close();
     },
     true,
   );
@@ -128,7 +128,7 @@ SSR_GUARD &&
   document.addEventListener(
     'scroll',
     e => {
-      if (selectMenu.el && !selectMenu.el.contains(e.target)) selectMenu.close();
+      if (selectMenu.el && !selectMenu.el.contains(e.target as Node | null)) selectMenu.close();
     },
     true,
   );

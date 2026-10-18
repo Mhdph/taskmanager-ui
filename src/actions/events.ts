@@ -5,7 +5,7 @@ import { $$, closestEl } from '../core/utils';
 import { S } from '../core/store';
 import { render } from '../shell/render';
 import { A, BLUR, DBL, IN } from './actions';
-/* SSR_GUARD: SvelteKit may import this module during builds; DOM listeners attach in browsers only. */
+/* SSR_GUARD: TanStack Start may import this module during builds; DOM listeners attach in browsers only. */
 const SSR_GUARD = typeof document !== 'undefined';
 
 SSR_GUARD &&
@@ -35,7 +35,7 @@ SSR_GUARD &&
       }
       if (!el) return;
       if (el.tagName === 'BUTTON' || (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'checkbox' && el.dataset.a)) e.preventDefault();
-      const fn = A[el.dataset.a];
+      const fn = A[el.dataset.a || ''];
       if (fn) {
         e.stopPropagation();
         fn(el, e);
@@ -46,7 +46,7 @@ SSR_GUARD &&
 SSR_GUARD &&
   document.addEventListener('dblclick', e => {
     const el = closestEl(e.target, '[data-dbl]');
-    if (el && DBL[el.dataset.dbl]) DBL[el.dataset.dbl](el, e);
+    if (el && DBL[el.dataset.dbl || '']) DBL[el.dataset.dbl || ''](el, e);
   });
 SSR_GUARD &&
   document.addEventListener('contextmenu', e => {
@@ -86,7 +86,7 @@ SSR_GUARD &&
   document.addEventListener('mouseover', e => {
     const el = closestEl(e.target, '[data-hover-i]');
     if (!el || !S.ui.palette) return;
-    const i = +el.dataset.hoverI;
+    const i = Number(el.dataset.hoverI);
     if (S.ui.palette.hl === i) return;
     S.ui.palette.hl = i;
     $$('.pi.hl').forEach(x => x.classList.remove('hl'));

@@ -275,7 +275,7 @@
 }
 .select {
   appearance: none;
-  padding-right: 28px;
+  padding-inline-end: 28px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C988F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 9px center;
@@ -293,7 +293,7 @@
   pointer-events: none;
 }
 .inwrap > .input {
-  padding-left: 30px;
+  padding-inline-start: 30px;
 }
 .inwrap > .kbd {
   position: absolute;
@@ -332,7 +332,7 @@
   content: '';
   width: 8px;
   height: 5px;
-  border-left: 1.8px solid var(--on-accent);
+  border-inline-start: 1.8px solid var(--on-accent);
   border-bottom: 1.8px solid var(--on-accent);
   transform: rotate(-45deg) translate(1px, -1px);
 }
@@ -647,7 +647,7 @@
   display: inline-flex;
 }
 .avs .av + .av {
-  margin-left: -5px;
+  margin-inline-start: -5px;
 }
 .avs .more {
   --c: var(--gray);
@@ -682,7 +682,7 @@
   width: 100%;
   border-radius: 4px;
   background: var(--accent);
-  transform-origin: left;
+  transform-origin: right;
   transform: scaleX(var(--p, 0));
   transition: transform 0.3s var(--ease);
 }
@@ -720,7 +720,7 @@
 .select-btn {
   display: inline-flex;
   align-items: center;
-  text-align: left;
+  text-align: start;
   min-width: 0;
   color: var(--text);
 }

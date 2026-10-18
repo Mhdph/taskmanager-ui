@@ -132,7 +132,7 @@
   align-items: center;
   gap: 8px;
   height: 32px;
-  padding-left: 64px;
+  padding-inline-start: 64px;
   border-bottom: 1px solid var(--divider);
   font-size: var(--fs-sm);
 }
@@ -149,7 +149,7 @@
   color: var(--text-3);
   font-size: var(--fs-sm);
   width: 100%;
-  text-align: left;
+  text-align: start;
   border-bottom: 1px solid var(--divider);
 }
 .addrow:hover {

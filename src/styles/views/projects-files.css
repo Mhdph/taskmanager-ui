@@ -18,7 +18,7 @@
   transition:
     border-color var(--dur),
     box-shadow var(--dur);
-  text-align: left;
+  text-align: start;
   position: relative;
 }
 .pcard:hover {
@@ -198,7 +198,7 @@
   cursor: pointer;
   background: var(--surface);
   transition: border-color var(--dur);
-  text-align: left;
+  text-align: start;
   position: relative;
 }
 .fcard:hover {

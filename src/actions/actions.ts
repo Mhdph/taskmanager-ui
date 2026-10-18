@@ -1,3 +1,5 @@
+import { displayLabel } from '../core/locale';
+import { shiftCalendarMonth } from '../core/utils';
 /* =====================================================================
    ACTIONS · INPUT HANDLERS · DRAG & DROP · KEYBOARD · INIT
    ===================================================================== */
@@ -18,7 +20,7 @@ import { strengthMeter } from '../pages/settings';
 import { fillTaskDetail, hydrateWorkspace, rebuildFiles } from '#lib/hydrate';
 import * as sync from '#lib/sync';
 import type { ActionTable } from '#lib/types';
-/* SSR_GUARD: SvelteKit may import this module during builds; DOM listeners attach in browsers only. */
+/* SSR_GUARD: TanStack Start may import this module during builds; DOM listeners attach in browsers only. */
 const SSR_GUARD = typeof document !== 'undefined';
 
 export const A: ActionTable = {},
@@ -38,7 +40,7 @@ export function createTask(f) {
   const t = Object.assign(
     {
       project: p.id,
-      title: 'Untitled',
+      title: 'بدون عنوان',
       status: 'todo',
       assignee: null,
       priority: 'none',
@@ -70,7 +72,7 @@ export function createTask(f) {
 }
 export const RECUR_DAYS = { Daily: 1, Weekly: 7, 'Every 2 weeks': 14, Monthly: 30 };
 export function applyPatch(t, patch) {
-  const msgs = [];
+  const msgs: any[] = [];
   for (const k of Object.keys(patch)) {
     const old = t[k],
       nv = patch[k];
@@ -97,9 +99,9 @@ export function applyPatch(t, patch) {
           attachments: [],
         });
         delete n.prevStatus;
-        msgs.push(`Next “${t.title}” scheduled for ${fmtDate(nd)}`);
+        msgs.push(`بعدی “${t.title}» زمان‌بندی شد برای ${fmtDate(nd)}`);
       }
-    } else if (k === 'assignee') logAct('assigned', t, nv ? `to ${mem(nv)?.name}` : '(unassigned)');
+    } else if (k === 'assignee') logAct('assigned', t, nv ? `to ${mem(nv)?.name}` : '(بدون مسئول)');
     else if (k === 'priority') logAct('changed priority of', t, `to ${PR[nv].name}`);
     else if (k === 'due') logAct('changed due date of', t, nv ? `to ${fmtDate(nv)}` : '(cleared)');
     else if (k === 'start') logAct('changed start date of', t, nv ? `to ${fmtDate(nv)}` : '(cleared)');
@@ -108,7 +110,7 @@ export function applyPatch(t, patch) {
       t.key = nextKey(p);
       logAct('moved', t, `to ${p.name}`);
     } else if (k === 'labels') logAct('updated labels on', t);
-    else if (k === 'title') logAct('renamed', t, `to “${nv}”`);
+    else if (k === 'title') logAct('renamed', t, `به «${nv}”`);
     else if (k === 'recur') logAct('set repeat on', t, nv ? nv.toLowerCase() : 'off');
     else if (k === 'estimate') logAct('estimated', t, nv || 'none');
     else if (k === 'deps') logAct('updated dependencies of', t);
@@ -124,7 +126,7 @@ export function updateTask(id, patch) {
   }
   const t = task(id);
   if (!t) return;
-  let msgs = [];
+  let msgs: any[] = [];
   if (
     mutate(() => {
       msgs = applyPatch(t, patch);
@@ -148,12 +150,12 @@ export function restore(snap) {
   save();
   render();
 }
-export async function copy(text, msg = 'Link copied') {
+export async function copy(text, msg = 'پیوند کپی شد') {
   try {
     await navigator.clipboard.writeText(text);
     toast(msg);
   } catch {
-    toast("Copy isn't available here — " + text, { kind: 'info', ms: 6000 });
+    toast('امکان کپی اینجا وجود ندارد؛ ' + text, { kind: 'info', ms: 6000 });
   }
 }
 export function loadingBtn(id, ms, fn) {
@@ -255,7 +257,7 @@ A.toggleDark = () => {
   save();
   S.ui.palette = null;
   render();
-  toast(effectiveDark() ? 'Dark mode on' : 'Light mode on', { kind: 'info', ms: 1800 });
+  toast(effectiveDark() ? 'حالت تیره فعال است' : 'حالت روشن فعال شد', { kind: 'info', ms: 1800 });
 };
 A.setPref = el => {
   S.prefs[el.dataset.k] = el.dataset.v;
@@ -286,6 +288,7 @@ A.ctxBtn = el => {
 };
 A.popPick = el => {
   const p = S.ui.pop;
+  if (!p) return;
   let v = el.dataset.v;
   if (p.type === 'subassignee' || (p.type === 'date' && p.field === 'subdue')) {
     const t = task(p.id);
@@ -297,9 +300,9 @@ A.popPick = el => {
     mutate(() => {
       sb[k] = v;
       logAct(
-        k === 'assignee' ? 'assigned a subtask on' : 'set a subtask due date on',
+        k === 'assignee' ? 'زیرکاری واگذار کرد در' : 'مهلت زیرکاری تعیین کرد در',
         t,
-        k === 'assignee' ? (v ? `to ${mem(v).name}` : '(unassigned)') : v ? fmtDate(v) : '(cleared)',
+        k === 'assignee' ? (v ? `to ${mem(v).name}` : '(بدون مسئول)') : v ? fmtDate(v) : '(cleared)',
       );
     });
     sync.updateSubtask(t, sb, { [k]: v });
@@ -321,7 +324,7 @@ A.popPick = el => {
     });
     S.ui.pop = null;
     render();
-    toast(`${pr.name} marked ${PSTAT[v].name}`);
+    toast(`${pr.name} با وضعیت ${PSTAT[v].name} علامت‌گذاری شد`);
     return;
   }
   if (p.type === 'role') {
@@ -332,7 +335,7 @@ A.popPick = el => {
     sync.setMemberRole(p.id, v);
     S.ui.pop = null;
     render();
-    toast(`${m.name} is now ${v === 'Admin' ? 'an' : 'a'} ${v}`);
+    toast(`نقش ${m.name} به ${displayLabel(v)} تغییر کرد`);
     return;
   }
   const field = { status: 'status', priority: 'priority', assignee: 'assignee', project: 'project', recur: 'recur', estimate: 'estimate', date: p.field }[
@@ -352,6 +355,7 @@ A.popPick = el => {
 };
 A.popToggleLabel = el => {
   const p = S.ui.pop;
+  if (!p) return;
   const t = tgt(p);
   const v = el.dataset.v;
   const labels = t.labels.includes(v) ? t.labels.filter(x => x !== v) : [...t.labels, v];
@@ -359,6 +363,7 @@ A.popToggleLabel = el => {
 };
 A.popToggleDep = el => {
   const p = S.ui.pop;
+  if (!p) return;
   const t = task(p.id);
   const v = el.dataset.v;
   const adding = !t.deps.includes(v);
@@ -368,11 +373,14 @@ A.popToggleDep = el => {
 };
 A.popMonth = el => {
   const p = S.ui.pop;
+  if (!p) return;
   const m = parse(p.m);
-  p.m = iso(new Date(m.getFullYear(), m.getMonth() + +el.dataset.d, 1));
+  if (!m) return;
+  p.m = iso(shiftCalendarMonth(m, Number(el.dataset.d)));
   render();
 };
 IN.popQ = el => {
+  if (!S.ui.pop) return;
   if (S.ui.pop) {
     S.ui.pop.q = el.value;
     render();
@@ -394,7 +402,7 @@ A.openTask = el => {
   const id = el.dataset.id;
   if (!task(id)) return;
   if (!canSee(proj(task(id).project))) {
-    toast("You don't have access to that task", { kind: 'err' });
+    toast('به این کار دسترسی ندارید', { kind: 'err' });
     return;
   }
   if (!S.ui.drawer || !document.activeElement?.closest?.('.drawer')) S.ui.drawerOpener = el.isConnected ? focusKey(el) : S.ui.drawerOpener;
@@ -440,7 +448,7 @@ A._projMove = (el, d) => {
   S.ui.pop = null;
   save();
   render();
-  toast(`Moved ${proj(el.dataset.id).name} ${d < 0 ? 'up' : 'down'}`, { ms: 1600 });
+  toast(`منتقل شد ${proj(el.dataset.id).name} ${d < 0 ? 'به بالا' : 'به پایین'}`, { ms: 1600 });
 };
 A.toggleDrawerFull = () => {
   S.ui.drawerFull = !S.ui.drawerFull;
@@ -452,7 +460,7 @@ A.toggleDone = el => {
   const wasDone = t.status === 'done';
   S.ui.pop = null;
   updateTask(t.id, { status: wasDone ? (t.prevStatus && t.prevStatus !== 'done' ? t.prevStatus : 'todo') : 'done' });
-  if (!wasDone && !S.ui.offline) toast(`Completed “${t.title}”`, { action: 'Undo', onAction: () => updateTask(t.id, { status: t.prevStatus || 'todo' }) });
+  if (!wasDone && !S.ui.offline) toast(`تکمیل‌شده “${t.title}”`, { action: 'بازگردانی', onAction: () => updateTask(t.id, { status: t.prevStatus || 'todo' }) });
 };
 A.toggleFavTask = el => {
   const t = task(el.dataset.id);
@@ -461,7 +469,7 @@ A.toggleFavTask = el => {
   });
   S.ui.pop = null;
   sync.favorite('task', t.id, t.fav);
-  toast(t.fav ? 'Added to favorites' : 'Removed from favorites', { ms: 1800 });
+  toast(t.fav ? 'به علاقه‌مندی‌ها اضافه شد' : 'از علاقه‌مندی‌ها حذف شد', { ms: 1800 });
   render();
 };
 A.toggleFavProj = el => {
@@ -472,7 +480,7 @@ A.toggleFavProj = el => {
   S.ui.pop = null;
   sync.favorite('project', p.id, p.fav);
   render();
-  toast(p.fav ? `Added ${p.name} to favorites` : 'Removed from favorites', { ms: 1800 });
+  toast(p.fav ? `اضافه شد ${p.name} به علاقه‌مندی‌ها` : 'از علاقه‌مندی‌ها حذف شد', { ms: 1800 });
 };
 A.copyLink = el => {
   S.ui.pop = null;
@@ -490,11 +498,11 @@ A.copyLink = el => {
             : '';
   copy(`https://gr8rstudio.com/${D().ws.url}/${path}`);
 };
-A.copyText = el => copy(el.dataset.text, 'Copied to clipboard');
+A.copyText = el => copy(el.dataset.text, 'در حافظه کپی شد');
 A.copyEmail = el => {
   S.ui.pop = null;
   render();
-  copy(mem(el.dataset.id).email, 'Email copied');
+  copy(mem(el.dataset.id).email, 'ایمیل کپی شد');
 };
 A.dupTask = el => {
   const t = task(el.dataset.id);
@@ -504,7 +512,7 @@ A.dupTask = el => {
     n = createTask({ ...JSON.parse(JSON.stringify(t)), id: uid('t'), key: undefined, title: t.title + ' (copy)', created: Date.now(), fav: false });
     n.key = nextKey(proj(n.project));
   });
-  toast('Task duplicated', { action: 'Open', onAction: () => A.openTask({ dataset: { id: n.id } }) });
+  toast('نسخه مشابه کار ساخته شد', { action: 'باز', onAction: () => A.openTask({ dataset: { id: n.id } }) });
 };
 A.archiveTask = el => {
   const t = task(el.dataset.id);
@@ -516,7 +524,7 @@ A.archiveTask = el => {
     t.archivedAt = Date.now();
     logAct('archived', t);
   });
-  toast(`Archived “${t.title}”`, { action: 'Undo', onAction: () => restore(snap) });
+  toast(`بایگانی شد “${t.title}”`, { action: 'بازگردانی', onAction: () => restore(snap) });
 };
 export function deleteTasks(ids) {
   const set = new Set(ids);
@@ -536,13 +544,13 @@ A.delTask = el => {
   if (!t) return;
   const run = () => {
     const snap = snapshot();
-    if (mutate(() => deleteTasks([t.id]))) toast(`Deleted “${t.title}”`, { action: 'Undo', onAction: () => restore(snap) });
+    if (mutate(() => deleteTasks([t.id]))) toast(`حذف شد “${t.title}”`, { action: 'بازگردانی', onAction: () => restore(snap) });
   };
   if (S.prefs.confirmDel === false && !el.dataset.demo) return run();
   confirmDlg({
-    title: 'Delete task?',
-    body: `<b>${esc(t.title)}</b>${t.subtasks.length ? `, its ${t.subtasks.length} subtasks,` : ''} and ${commentsOf(t.id).length} comment${commentsOf(t.id).length === 1 ? '' : 's'} will be permanently deleted.`,
-    ok: 'Delete task',
+    title: 'کار حذف شود؟',
+    body: `<b>${esc(t.title)}</b>${t.subtasks.length ? `, its ${t.subtasks.length} زیرکارها،` : ''} and ${commentsOf(t.id).length} comment${commentsOf(t.id).length === 1 ? '' : 's'} برای همیشه حذف خواهد شد.`,
+    ok: 'حذف کار',
     danger: true,
     run,
   });
@@ -633,7 +641,7 @@ A.submitTask = () => {
   f.title = title;
   f.desc = $('#f-desc')?.value ?? f.desc;
   if (!title) {
-    S.ui.errors.title = 'Give the task a name';
+    S.ui.errors.title = 'برای کار نامی انتخاب کنید';
     render();
     $('#f-title')?.focus();
     return;
@@ -677,7 +685,7 @@ A.submitTask = () => {
     diffSubtasks(t, prevSubs, t.subtasks);
     S.ui.modals.pop();
     render();
-    toast('Changes saved');
+    toast('تغییرات ذخیره شد');
     return;
   }
   let t;
@@ -692,13 +700,13 @@ A.submitTask = () => {
     Object.assign(f, { title: '', desc: '', subtasks: [], files: [] });
     render();
     setTimeout(() => $('#f-title')?.focus(), 0);
-    toast(`Created ${t.key}`, { ms: 2000 });
+    toast(`ایجاد شد ${t.key}`, { ms: 2000 });
     return;
   }
   S.ui.modals.pop();
   fxSet({ added: t.id });
   render();
-  toast(`Created ${t.key} in ${proj(t.project).name}`, { action: 'Open', onAction: () => A.openTask({ dataset: { id: t.id } }) });
+  toast(`ایجاد شد ${t.key} در ${proj(t.project).name}`, { action: 'باز', onAction: () => A.openTask({ dataset: { id: t.id } }) });
 };
 
 /* inline composer */
@@ -751,7 +759,7 @@ DBL._commitTitle = el => {
 };
 DBL.editCell = el => {
   S.ui.drawer = null;
-  S.ui.editCell = { id: el.dataset.id || closestEl(el, '[data-id]').dataset.id, f: el.dataset.f };
+  S.ui.editCell = { id: el.dataset.id || closestEl(el, '[data-id]')?.dataset.id, f: el.dataset.f };
   render();
   const i = $('#edit-cell');
   if (i) {
@@ -805,7 +813,7 @@ A.toggleSub = el => {
   if (!s.done) fxSet({ done: s.id });
   mutate(() => {
     s.done = !s.done;
-    logAct(s.done ? 'completed subtask on' : 'reopened subtask on', t, `“${s.title}”`);
+    logAct(s.done ? 'زیرکاری تکمیل کرد در' : 'زیرکاری بازگشایی کرد در', t, `“${s.title}”`);
   });
   sync.updateSubtask(t, s, { done: s.done });
 };
@@ -846,7 +854,7 @@ A.rmAttach = el => {
   });
   rebuildFiles();
   if (f?.raw) sync.deleteAttachment(t, f.id);
-  toast(`Removed ${f.name}`);
+  toast(`حذف شد ${f.name}`);
 };
 A.filePreview = el => {
   const t = task(el.dataset.tid);
@@ -861,7 +869,7 @@ A.previewFile = el => {
 export function handleFiles(files, ctx) {
   if (!files || !files.length) return;
   if (S.ui.offline) {
-    toast("Upload failed — you're offline.", { kind: 'err', action: 'Try again', onAction: () => {} });
+    toast('بارگذاری ناموفق بود؛ اتصال شما قطع است.', { kind: 'err', action: 'تلاش دوباره', onAction: () => {} });
     return;
   }
   S.ui.uploads = S.ui.uploads || [];
@@ -896,11 +904,11 @@ export function handleFiles(files, ctx) {
         }
         save();
         render();
-        toast(`Uploaded ${up.name}`);
+        toast(`بارگذاری شد ${up.name}`);
       })
       .catch(() => {
         S.ui.uploads = S.ui.uploads.filter(x => x !== up);
-        toast(`Upload failed — ${up.name}`, { kind: 'err' });
+        toast(`بارگذاری ناموفق بود؛ ${up.name}`, { kind: 'err' });
         render();
       });
   });
@@ -965,7 +973,7 @@ A.postComment = el => {
     })
   ) {
     sync.addComment(id, txt);
-    if (S.ui.route === 'inbox') toast('Reply posted');
+    if (S.ui.route === 'inbox') toast('پاسخ ارسال شد');
   }
 };
 A.delComment = el => {
@@ -975,7 +983,7 @@ A.delComment = el => {
     D().comments = D().comments.filter(x => x !== c);
   });
   if (c) sync.deleteComment(c.task, c._serverId || c.id);
-  toast('Comment deleted', { action: 'Undo', onAction: () => restore(snap) });
+  toast('دیدگاه حذف شد', { action: 'بازگردانی', onAction: () => restore(snap) });
 };
 A.react = el => {
   const c = D().comments.find(x => x.id === el.dataset.id);
@@ -994,12 +1002,12 @@ SSR_GUARD &&
     const b = closestEl(e.target, '[data-cmd]');
     if (!b) return;
     e.preventDefault();
-    const [cmd, arg] = b.dataset.cmd.split(':');
+    const [cmd, arg] = (b.dataset.cmd || '').split(':');
     if (cmd === 'createLink') {
       const s = String(getSelection());
       if (/^https?:\/\//.test(s)) document.execCommand('createLink', false, s);
-      else toast('Select a URL starting with https:// to turn it into a link', { kind: 'info' });
-    } else document.execCommand(cmd, false, arg ? `<${arg}>` : null);
+      else toast('برای ساخت پیوند، نشانی‌ای با شروع https:// انتخاب کنید', { kind: 'info' });
+    } else document.execCommand(cmd, false, arg ? `<${arg}>` : undefined);
     const ed = $('#d-desc');
     if (ed) {
       const t = task(ed.dataset.rte);
@@ -1027,7 +1035,9 @@ A.selRow = el => {
   render();
 };
 A.selAll = el => {
-  const ids = $$('[data-task-row]', closestEl(el, '.tlist')).map(r => r.dataset.taskRow);
+  const ids = $$('[data-task-row]', closestEl(el, '.tlist') || document)
+    .map(r => r.dataset.taskRow)
+    .filter((id): id is string => !!id);
   const all = ids.every(i => S.ui.sel.has(i));
   ids.forEach(i => (all ? S.ui.sel.delete(i) : S.ui.sel.add(i)));
   render();
@@ -1042,7 +1052,7 @@ A.bulkSet = el => {
   const ids = [...S.ui.sel];
   S.ui.pop = null;
   if (mutate(() => ids.forEach(id => applyPatch(task(id), { [f]: v })))) {
-    toast(`Updated ${ids.length} task${ids.length > 1 ? 's' : ''}`);
+    toast(`به‌روز شد ${ids.length} کار`);
     // Server-side: the API has a native bulk op for status/priority/assignee;
     // everything else goes through the per-task patch.
     if (['status', 'priority', 'assignee'].includes(f)) sync.bulk(ids, { [f]: v });
@@ -1052,13 +1062,13 @@ A.bulkSet = el => {
 A.bulkDelete = () => {
   const ids = [...S.ui.sel];
   confirmDlg({
-    title: `Delete ${ids.length} task${ids.length > 1 ? 's' : ''}?`,
-    body: 'The selected tasks, their subtasks, and comments will be permanently deleted.',
-    ok: `Delete ${ids.length} task${ids.length > 1 ? 's' : ''}`,
+    title: `حذف ${ids.length} کار?`,
+    body: 'کارهای انتخاب‌شده، زیرکارها و دیدگاه‌های آن‌ها برای همیشه حذف می‌شوند.',
+    ok: `حذف ${ids.length} کار`,
     danger: true,
     run: () => {
       const snap = snapshot();
-      if (mutate(() => deleteTasks(ids))) toast(`Deleted ${ids.length} tasks`, { action: 'Undo', onAction: () => restore(snap) });
+      if (mutate(() => deleteTasks(ids))) toast(`حذف شد ${ids.length} کار`, { action: 'بازگردانی', onAction: () => restore(snap) });
     },
   });
 };
@@ -1130,6 +1140,7 @@ A.addFilter = el => {
 };
 A.fEdit = el => {
   const p = S.ui.pop;
+  if (!p) return;
   p.edit = p.edit === +el.dataset.i ? null : +el.dataset.i;
   render();
 };
@@ -1157,6 +1168,7 @@ A.clearFilters = el => {
   render();
 };
 IN.fField = el => {
+  if (!S.ui.pop) return;
   const f = viewOf(el.dataset.key).filters[+el.dataset.i];
   f.f = el.value;
   f.v = [];
@@ -1175,7 +1187,7 @@ A.saveView = el => {
 };
 A.saveViewSubmit = async () => {
   const m = S.ui.modals[S.ui.modals.length - 1];
-  const name = $('#sv-name').value.trim() || 'Untitled view';
+  const name = $('#sv-name').value.trim() || 'نمای بدون عنوان';
   const type = $('#sv-type').value;
   const filters = JSON.parse(JSON.stringify(viewOf('p:' + m.pid).filters));
   const sv = { id: uid('v'), project: m.pid, name, type, filters };
@@ -1189,15 +1201,15 @@ A.saveViewSubmit = async () => {
   save();
   S.ui.modals.pop();
   go('project', { id: m.pid, tab: 'v:' + sv.id }, { tab: true });
-  toast(`Saved view “${name}”`);
+  toast(`نمای ذخیره‌شده “${name}”`);
 };
 A.renameView = el => {
   const v = D().savedViews.find(x => x.id === el.dataset.id);
   S.ui.pop = null;
   openModal({
     type: 'prompt',
-    title: 'Rename view',
-    label: 'View name',
+    title: 'تغییر نام نما',
+    label: 'نام نما',
     value: v.name,
     run: val => {
       if (val) {
@@ -1216,7 +1228,7 @@ A.delView = el => {
   sync.deleteView(v.project, v.id);
   if (S.ui.params.tab === 'v:' + v.id) go('project', { id: v.project, tab: 'list' }, { tab: true });
   else render();
-  toast(`Deleted view “${v.name}”`);
+  toast(`نما حذف شد: «${v.name}”`);
 };
 
 /* board column menu */
@@ -1225,11 +1237,13 @@ A.toggleCol = el => {
   render();
 };
 A.colCollapse = el => {
+  if (!S.ui.pop) return;
   S.ui.collapsedCols[S.ui.pop.key + ':' + el.dataset.id] = true;
   S.ui.pop = null;
   render();
 };
 A.colAdd = el => {
+  if (!S.ui.pop) return;
   const key = S.ui.pop.key;
   const pid = projectFromKey(key);
   S.ui.pop = null;
@@ -1240,6 +1254,7 @@ export function colTasks(key, st) {
   return (pid ? tasksOf(pid) : allTasks()).filter(t => t.status === st);
 }
 A.colDoneAll = el => {
+  if (!S.ui.pop) return;
   const ts = colTasks(S.ui.pop.key, el.dataset.id);
   S.ui.pop = null;
   if (!ts.length) {
@@ -1248,7 +1263,7 @@ A.colDoneAll = el => {
   }
   const snap = snapshot();
   if (mutate(() => ts.forEach(t => applyPatch(t, { status: 'done' })))) {
-    toast(`Marked ${ts.length} tasks as done`, { action: 'Undo', onAction: () => restore(snap) });
+    toast(`علامت‌گذاری شد ${ts.length} کار به‌عنوان انجام‌شده`, { action: 'بازگردانی', onAction: () => restore(snap) });
     sync.bulk(
       ts.map(t => t.id),
       { status: 'done' },
@@ -1256,6 +1271,7 @@ A.colDoneAll = el => {
   }
 };
 A.colArchive = () => {
+  if (!S.ui.pop) return;
   const ts = colTasks(S.ui.pop.key, 'done');
   S.ui.pop = null;
   const snap = snapshot();
@@ -1267,7 +1283,7 @@ A.colArchive = () => {
       }),
     )
   ) {
-    toast(`Archived ${ts.length} completed tasks`, { action: 'Undo', onAction: () => restore(snap) });
+    toast(`بایگانی شد ${ts.length} کار تکمیل‌شده`, { action: 'بازگردانی', onAction: () => restore(snap) });
     sync.bulk(
       ts.map(t => t.id),
       { archive: true },
@@ -1275,6 +1291,7 @@ A.colArchive = () => {
   }
 };
 A.colSortPrio = el => {
+  if (!S.ui.pop) return;
   const ts = colTasks(S.ui.pop.key, el.dataset.id).sort((a, b) => PR[b.priority].w - PR[a.priority].w);
   const base = Math.min(...ts.map(t => t.order));
   S.ui.pop = null;
@@ -1291,8 +1308,8 @@ A.colSortPrio = el => {
 /* calendar & timeline */
 A.calNav = el => {
   const d = +el.dataset.d;
-  const cur = parse(S.ui.calDate);
-  S.ui.calDate = d === 0 ? iso(TODAY) : S.ui.calMode === 'month' ? iso(new Date(cur.getFullYear(), cur.getMonth() + d, 1)) : iso(addD(cur, d * 7));
+  const cur = parse(S.ui.calDate) || TODAY;
+  S.ui.calDate = d === 0 ? iso(TODAY) : S.ui.calMode === 'month' ? iso(shiftCalendarMonth(cur, d)) : iso(addD(cur, d * 7));
   render();
 };
 A.tlToday = () => {
@@ -1381,7 +1398,7 @@ export async function createProject(f, tmplId) {
     start: dOff(0),
     fav: false,
     members: [...new Set([D().me, f.lead])],
-    desc: f.desc || 'No description yet.',
+    desc: f.desc || 'هنوز توضیحی ثبت نشده است.',
     milestones: [],
     last: 0,
   };
@@ -1391,7 +1408,7 @@ export async function createProject(f, tmplId) {
     D().activity.unshift({ id: uid('a'), by: D().me, verb: 'created project', task: null, project: p.id, at: Date.now(), extra: '' });
   });
   // Create on the server first: the swap in sync.createProject updates
-  // p.id in place, so starter tasks reference the real project id.
+  // p.id in place, so کار اولیه reference the real project id.
   if (sync.lookUuid(f.team) || !f.team) await sync.createProject(p);
   else await sync.createProject({ ...p, team: null });
   const tm = TEMPLATES.find(t => t.id === tmplId);
@@ -1414,7 +1431,7 @@ A.submitProject = async () => {
   f.name = ($('#p-name')?.value || '').trim();
   f.desc = $('#p-desc')?.value || '';
   if (!f.name) {
-    S.ui.errors.pname = 'Give the project a name';
+    S.ui.errors.pname = 'برای پروژه نامی انتخاب کنید';
     render();
     $('#p-name')?.focus();
     return;
@@ -1439,7 +1456,7 @@ A.submitProject = async () => {
       sync.updateProject(p, { name: f.name, desc: f.desc, team: f.team });
       S.ui.modals.pop();
       render();
-      toast('Project updated');
+      toast('پروژه به‌روز شد');
     }
     return;
   }
@@ -1451,7 +1468,7 @@ A.submitProject = async () => {
   }
   S.ui.modals.pop();
   go('project', { id: p.id, tab: f.tmpl === 'blank' ? 'overview' : S.prefs.defaultTab || 'board' });
-  toast(`Created ${p.name}${tasksOf(p.id).length ? ` with ${tasksOf(p.id).length} starter tasks` : ''}`);
+  toast(`ایجاد شد ${p.name}${tasksOf(p.id).length ? ` با ${tasksOf(p.id).length} کارهای اولیه` : ''}`);
 };
 A.dupProject = async el => {
   const p = proj(el.dataset.id);
@@ -1463,15 +1480,15 @@ A.dupProject = async el => {
     return;
   }
   tasksOf(p.id).forEach(t => createTask({ ...JSON.parse(JSON.stringify(t)), id: uid('t'), key: undefined, project: n.id, status: 'todo' }));
-  toast(`Duplicated ${p.name}`, { action: 'Open', onAction: () => go('project', { id: n.id }) });
+  toast(`نسخه مشابه ساخته شد ${p.name}`, { action: 'باز', onAction: () => go('project', { id: n.id }) });
 };
 A.archiveProject = el => {
   const p = proj(el.dataset.id);
   S.ui.pop = null;
   confirmDlg({
-    title: `Archive ${p.name}?`,
-    body: 'The project will be hidden from the sidebar and project lists. Tasks, files, and comments are kept, and you can restore it from Settings → Projects.',
-    ok: 'Archive project',
+    title: `بایگانی ${p.name}?`,
+    body: 'پروژه از نوار کناری و فهرست پروژه‌ها پنهان می‌شود. کارها، فایل‌ها و دیدگاه‌ها محفوظ می‌مانند و می‌توانید آن را از تنظیمات پروژه‌ها بازیابی کنید.',
+    ok: 'بایگانی پروژه',
     icon: 'archive',
     run: () => {
       const snap = snapshot();
@@ -1483,7 +1500,7 @@ A.archiveProject = el => {
       ) {
         if (S.ui.route === 'project' && S.ui.params.id === p.id) go('projects');
         sync.archiveProject(p, true);
-        toast(`Archived ${p.name}`, { action: 'Undo', onAction: () => restore(snap) });
+        toast(`بایگانی شد ${p.name}`, { action: 'بازگردانی', onAction: () => restore(snap) });
       }
     },
   });
@@ -1495,16 +1512,16 @@ A.restoreProject = el => {
     p.archivedAt = null;
   });
   sync.archiveProject(p, false);
-  toast(`Restored ${p.name}`);
+  toast(`بازیابی شد ${p.name}`);
 };
 A.delProject = el => {
   const p = proj(el.dataset.id);
   S.ui.pop = null;
   const n = tasksOf(p.id).length;
   confirmDlg({
-    title: `Delete ${p.name}?`,
-    body: `This permanently deletes the project and its <b>${n} task${n === 1 ? '' : 's'}</b>, files, and comments for everyone. This can't be undone.`,
-    ok: 'Delete project',
+    title: `حذف ${p.name}?`,
+    body: `این عملیات پروژه و موارد زیر را برای همیشه حذف می‌کند: <b>${n} task${n === 1 ? '' : 's'}</b>، فایل‌ها و دیدگاه‌های آن برای همه حذف می‌شوند. این عملیات قابل بازگشت نیست.`,
+    ok: 'حذف پروژه',
     danger: true,
     typeName: p.name,
     run: () => {
@@ -1525,14 +1542,14 @@ A.delProject = el => {
         // The API archives rather than hard-deletes: best effort there,
         // the project disappears locally either way.
         sync.archiveProject(p, true);
-        toast(`Deleted ${p.name}`, { action: 'Undo', onAction: () => restore(snap) });
+        toast(`حذف شد ${p.name}`, { action: 'بازگردانی', onAction: () => restore(snap) });
       }
     },
   });
 };
 A.requestAccess = el => {
   const p = proj(el.dataset.id);
-  toast(`Access requested. We'll notify you when ${mem(p?.lead)?.name || 'the owner'} responds.`);
+  toast(`درخواست دسترسی ارسال شد. به شما اطلاع می‌دهیم وقتی ${mem(p?.lead)?.name || 'مالک'} پاسخ بدهد.`);
 };
 
 /* sharing & invites */
@@ -1555,7 +1572,7 @@ A.shareAdd = el => {
   sync.addProjectMember(p.id, m.id);
   S.ui.shareQ = '';
   render();
-  toast(`${m.name} can now edit ${p.name}`);
+  toast(`${m.name} اکنون می‌تواند ویرایش کند: ${p.name}`);
 };
 A.shareInvite = () => {
   const m = S.ui.modals[S.ui.modals.length - 1];
@@ -1576,11 +1593,11 @@ A.shareInvite = () => {
       });
     S.ui.shareQ = '';
     render();
-    toast(`Shared with ${ex.name}`);
+    toast(`به اشتراک گذاشته شد با ${ex.name}`);
     return;
   }
   if (!/^\S+@\S+\.\S+$/.test(v)) {
-    toast('Enter a valid email address, like name@company.com', { kind: 'err' });
+    toast('یک نشانی ایمیل معتبر مانند name@company.com وارد کنید', { kind: 'err' });
     return;
   }
   const nm = v
@@ -1596,7 +1613,7 @@ A.shareInvite = () => {
   });
   S.ui.shareQ = '';
   render();
-  toast(`Invitation sent to ${v}`);
+  toast(`دعوت‌نامه ارسال شد به ${v}`);
 };
 IN.sharePerm = el => {
   const p = proj(el.dataset.id);
@@ -1606,13 +1623,13 @@ IN.sharePerm = el => {
     mutate(() => {
       p.members = p.members.filter(x => x !== mid);
     });
-    toast(`Removed ${mem(mid).name}`, { action: 'Undo', onAction: () => restore(snap) });
+    toast(`حذف شد ${mem(mid).name}`, { action: 'بازگردانی', onAction: () => restore(snap) });
   } else {
     mutate(() => {
       p.perms = p.perms || {};
       p.perms[mid] = el.value;
     });
-    toast(`${mem(mid).name}: ${el.value}`, { ms: 1800 });
+    toast(`${mem(mid).name}: ${displayLabel(el.value)}`, { ms: 1800 });
   }
 };
 IN.shareAccess = el => {
@@ -1638,12 +1655,12 @@ A.submitInvite = () => {
     .filter(Boolean);
   const bad = list.filter(e => !/^\S+@\S+\.\S+$/.test(e));
   if (!list.length) {
-    S.ui.errors.invite = 'Enter at least one email address';
+    S.ui.errors.invite = 'حداقل یک نشانی ایمیل وارد کنید';
     render();
     return;
   }
   if (bad.length) {
-    S.ui.errors.invite = `${bad[0]} isn't a valid email address`;
+    S.ui.errors.invite = `${bad[0]} یک نشانی ایمیل معتبر نیست`;
     render();
     return;
   }
@@ -1674,14 +1691,14 @@ A.submitInvite = () => {
     S.ui.modals.pop();
     S.ui.errors = {};
     render();
-    toast(`${list.length} invitation${list.length > 1 ? 's' : ''} sent`);
+    toast(`${list.length} دعوت‌نامه ارسال شد`);
   });
 };
-A.copyInviteLink = () => copy(`https://gr8rstudio.com/join/${D().ws.url}-7f3k2`, 'Invite link copied');
+A.copyInviteLink = () => copy(`https://gr8rstudio.com/join/${D().ws.url}-7f3k2`, 'پیوند دعوت کپی شد');
 A.resendInvite = el => {
   S.ui.pop = null;
   render();
-  toast(`Invite resent to ${mem(el.dataset.id).email}`);
+  toast(`دعوت‌نامه دوباره ارسال شد به ${mem(el.dataset.id).email}`);
 };
 A.viewProfile = el => go('member', { id: el.dataset.id });
 A.assignToMember = el => {
@@ -1693,9 +1710,9 @@ A.removeMember = el => {
   S.ui.pop = null;
   const n = allTasks().filter(t => t.assignee === m.id && t.status !== 'done').length;
   confirmDlg({
-    title: `Remove ${m.name}?`,
-    body: `${esc(m.name)} will lose access to ${esc(D().ws.name)} immediately.${n ? ` Their <b>${n} open task${n > 1 ? 's' : ''}</b> will become unassigned.` : ''}`,
-    ok: 'Remove member',
+    title: `حذف ${m.name}?`,
+    body: `${esc(m.name)} دسترسی خود را از دست خواهد داد به ${esc(D().ws.name)} بلافاصله.${n ? ` تعداد <b>${n} کار باز</b> بدون مسئول خواهند شد.` : ''}`,
+    ok: 'حذف عضو',
     danger: true,
     icon: 'user-minus',
     run: () => {
@@ -1711,7 +1728,7 @@ A.removeMember = el => {
       ) {
         sync.removeMember(m.id);
         if (S.ui.route === 'member') go('members');
-        toast(`Removed ${m.name}`, { action: 'Undo', onAction: () => restore(snap) });
+        toast(`حذف شد ${m.name}`, { action: 'بازگردانی', onAction: () => restore(snap) });
       }
     },
   });
@@ -1743,8 +1760,8 @@ A.renameFile = el => {
   S.ui.pop = null;
   openModal({
     type: 'prompt',
-    title: 'Rename file',
-    label: 'File name',
+    title: 'تغییر نام فایل',
+    label: 'نام فایل',
     value: f.name,
     run: v => {
       if (v)
@@ -1762,15 +1779,15 @@ A.dupFile = el => {
     const i = D().files.indexOf(f);
     D().files.splice(i + 1, 0, { ...f, id: uid('f'), name: f.name.replace(/(\.[^.]+)$/, ' copy$1'), at: Date.now(), by: D().me });
   });
-  toast('File duplicated');
+  toast('نسخه مشابه فایل ساخته شد');
 };
 A.delFile = el => {
   const f = D().files.find(x => x.id === el.dataset.id);
   S.ui.pop = null;
   confirmDlg({
-    title: 'Delete file?',
-    body: `<b>${esc(f.name)}</b> will be removed from the project${f.task ? ' and its task' : ''}.`,
-    ok: 'Delete file',
+    title: 'فایل حذف شود؟',
+    body: `<b>${esc(f.name)}</b> از پروژه حذف خواهد شد${f.task ? ' و کارهای آن' : ''}.`,
+    ok: 'حذف فایل',
     danger: true,
     run: () => {
       const snap = snapshot();
@@ -1783,7 +1800,7 @@ A.delFile = el => {
         rebuildFiles();
         // Server side delete (real attachments carry `raw` context).
         if (f?.raw) sync.deleteAttachment({ project: f.raw.projectId || f.project, id: f.task }, f.id);
-        toast(`Deleted ${f.name}`, { action: 'Undo', onAction: () => restore(snap) });
+        toast(`حذف شد ${f.name}`, { action: 'بازگردانی', onAction: () => restore(snap) });
       }
     },
   });
@@ -1808,7 +1825,7 @@ A.markAllRead = () => {
   D().notifs.forEach(x => (x.read = true));
   save();
   render();
-  if (n) toast("You're all caught up.");
+  if (n) toast('همه موارد را دیده‌اید.');
 };
 A.toggleUnreadOnly = () => {
   S.ui.inboxUnread = !S.ui.inboxUnread;
@@ -1841,12 +1858,14 @@ A.closePalette = () => {
   render();
 };
 A.palScope = el => {
+  if (!S.ui.palette) return;
   S.ui.palette.scope = el.dataset.v;
   S.ui.palette.hl = 0;
   render();
   $('#pal-in')?.focus();
 };
 IN.palQ = el => {
+  if (!S.ui.palette) return;
   S.ui.palette.q = el.value;
   S.ui.palette.hl = 0;
   render();
@@ -1875,7 +1894,7 @@ A.switchWs = el => {
   D().ws = { name: w.name, url: w.name.toLowerCase().replace(/[^a-z0-9]+/g, ''), c: w.c, brand: !!w.brand };
   save();
   go('home');
-  toast(`Switched to ${w.name}`);
+  toast(`تغییر داده شد به ${w.name}`);
 };
 A.newWorkspace = () => {
   S.ui.pop = null;
@@ -1909,7 +1928,7 @@ A.toggleOffline = () => {
   S.ui.offline = !S.ui.offline;
   S.ui.pop = null;
   render();
-  toast(S.ui.offline ? 'Offline mode on — edits will fail to save' : 'Back online', { kind: S.ui.offline ? 'err' : 'ok' });
+  toast(S.ui.offline ? 'حالت آفلاین فعال است؛ تغییرات ذخیره نمی‌شوند' : 'دوباره متصل شدید', { kind: S.ui.offline ? 'err' : 'ok' });
 };
 A.retryOnline = async el => {
   el.classList.add('is-loading');
@@ -1921,14 +1940,14 @@ A.retryOnline = async el => {
   S.ui.loading = false;
   S.ui.offline = false;
   render();
-  if (ok) toast('Connected. Workspace synced.', { kind: 'ok' });
+  if (ok) toast('اتصال برقرار شد. فضای کاری همگام شد.', { kind: 'ok' });
 };
 A.resetDemo = () => {
   S.ui.pop = null;
   confirmDlg({
-    title: 'Reset demo data?',
-    body: 'All projects, tasks, and settings in this browser go back to the original sample workspace.',
-    ok: 'Reset data',
+    title: 'داده‌های نمایشی بازنشانی شوند؟',
+    body: 'همه پروژه‌ها، کارها و تنظیمات این مرورگر به داده‌های نمایشی اولیه برمی‌گردند.',
+    ok: 'بازنشانی داده‌ها',
     danger: true,
     icon: 'rotate-ccw',
     run: () => {
@@ -1938,32 +1957,32 @@ A.resetDemo = () => {
       S.ui.drawer = null;
       save();
       go('home');
-      toast('Demo data restored');
+      toast('داده‌های نمایشی بازنشانی شدند');
     },
   });
 };
 A.toastInfo = el => toast(el.dataset.msg, { kind: 'info' });
 A.demoToast = el => {
   const v = el.dataset.v;
-  if (v === 'err') toast("Your changes couldn't be saved.", { kind: 'err', action: 'Try again', onAction: () => toast('Saved') });
+  if (v === 'err') toast('تغییرات شما ذخیره نشدند.', { kind: 'err', action: 'تلاش دوباره', onAction: () => toast('ذخیره شد') });
   else if (v === 'retry') {
-    toast('Retrying…', { kind: 'info', ms: 1200 });
-    setTimeout(() => toast('Loaded successfully'), 1300);
-  } else toast('Moved “Create homepage wireframes” to Review', { action: 'Undo', onAction: () => toast('Undone', { kind: 'info' }) });
+    toast('در حال تلاش دوباره…', { kind: 'info', ms: 1200 });
+    setTimeout(() => toast('با موفقیت بارگذاری شد'), 1300);
+  } else toast('کار ساخت وایرفریم صفحه اصلی به وضعیت بررسی منتقل شد', { action: 'بازگردانی', onAction: () => toast('بازگردانی شد', { kind: 'info' }) });
 };
 A.demoConfirm = () =>
   confirmDlg({
-    title: 'Archive Marketing Website?',
-    body: 'The project will be hidden from the sidebar. You can restore it any time.',
-    ok: 'Archive project',
+    title: 'پروژه وب‌سایت بازاریابی بایگانی شود؟',
+    body: 'پروژه از نوار کناری پنهان می‌شود. هر زمان می‌توانید آن را بازیابی کنید.',
+    ok: 'بایگانی پروژه',
     icon: 'archive',
-    run: () => toast('This was a preview — nothing was archived', { kind: 'info' }),
+    run: () => toast('این فقط پیش‌نمایش بود؛ چیزی بایگانی نشد', { kind: 'info' }),
   });
 A.demoLoad = el => {
   el.classList.add('is-loading');
   setTimeout(() => {
     el.classList.remove('is-loading');
-    toast('Loaded');
+    toast('بارگذاری شد');
   }, 1400);
 };
 A.reloadPage = () => {
@@ -2011,14 +2030,14 @@ IN.prefToggle = el => {
 IN.npToggle = el => {
   D().notifPrefs[el.dataset.k] = el.checked;
   save();
-  toast('Notification preferences saved', { ms: 1500 });
+  toast('ترجیحات اعلان‌ها ذخیره شد', { ms: 1500 });
 };
 IN.prefSel = el => {
   const k = el.dataset.k;
   S.prefs[k] = k === 'weekStart' ? +el.value : el.value;
   save();
   render();
-  toast('Preference saved', { ms: 1500 });
+  toast('ترجیحات ذخیره شد', { ms: 1500 });
 };
 A.wsColor = el => {
   D().ws.c = el.dataset.v;
@@ -2032,7 +2051,7 @@ A.saveWorkspace = () => {
     .toLowerCase()
     .replace(/[^a-z0-9-]+/g, '-');
   if (!n) {
-    toast("Workspace name can't be empty", { kind: 'err' });
+    toast('نام فضای کاری نمی‌تواند خالی باشد', { kind: 'err' });
     return;
   }
   loadingBtn('ws-save', 600, () => {
@@ -2045,14 +2064,14 @@ A.saveWorkspace = () => {
         if (w) w.name = n;
       })
     )
-      toast('Workspace settings saved');
+      toast('تنظیمات فضای کاری ذخیره شد');
   });
 };
 A.delWorkspace = () =>
   confirmDlg({
-    title: `Delete ${D().ws.name}?`,
-    body: 'Every project, task, file, and comment in this workspace will be permanently deleted for all members.',
-    ok: 'Delete workspace',
+    title: `حذف ${D().ws.name}?`,
+    body: 'همه پروژه‌ها، کارها، فایل‌ها و دیدگاه‌های این فضای کاری برای همه اعضا به‌صورت دائمی حذف می‌شوند.',
+    ok: 'حذف فضای کاری',
     danger: true,
     typeName: D().ws.name,
     run: () => {
@@ -2061,7 +2080,7 @@ A.delWorkspace = () =>
       save();
       S.ui.auth = 'login';
       render();
-      toast('Workspace deleted. Demo data was restored for this prototype.', { kind: 'info', ms: 5000 });
+      toast('فضای کاری حذف شد و داده‌های نمایشی بازنشانی شدند.', { kind: 'info', ms: 5000 });
     },
   });
 A.avColor = el => {
@@ -2072,7 +2091,7 @@ A.avColor = el => {
 A.saveProfile = () => {
   const n = $('#pf-name').value.trim();
   if (!n) {
-    S.ui.errors.pname2 = 'Enter your name';
+    S.ui.errors.pname2 = 'نام خود را وارد کنید';
     render();
     return;
   }
@@ -2090,7 +2109,7 @@ A.saveProfile = () => {
       // Title lives in the server's member directory; the display name
       // is a local preference.
       sync.setMemberTitle(me().id, tt);
-      toast('Profile updated');
+      toast('پروفایل به‌روز شد');
     }
   });
 };
@@ -2108,9 +2127,9 @@ A.savePassword = () => {
     nw = $('#pw-new').value,
     cf = $('#pw-conf').value;
   S.ui.pwDone = false;
-  if (!cur) e.pwCur = 'Enter your current password';
-  if (nw.length < 10 || !/[0-9\W]/.test(nw)) e.pwNew = 'Use at least 10 characters, including a number or symbol';
-  if (nw !== cf) e.pwConf = "Passwords don't match";
+  if (!cur) e.pwCur = 'رمز عبور فعلی خود را وارد کنید';
+  if (nw.length < 10 || !/[0-9\W]/.test(nw)) e.pwNew = 'حداقل ۱۰ نویسه شامل یک عدد یا نماد وارد کنید';
+  if (nw !== cf) e.pwConf = 'رمزهای عبور یکسان نیستند';
   if (Object.keys(e).length) {
     render();
     return;
@@ -2119,27 +2138,27 @@ A.savePassword = () => {
     S.ui.pwDone = true;
     S.ui.pwNew = '';
     render();
-    toast('Password updated');
+    toast('رمز عبور به‌روز شد');
   });
 };
 A.revokeSession = el => {
   mutate(() => {
     D().sessions = D().sessions.filter(s => s.id !== el.dataset.id);
   });
-  toast('Session signed out');
+  toast('نشست بسته شد');
 };
 A.revokeAll = () =>
   confirmDlg({
-    title: 'Sign out of all other sessions?',
-    body: "You'll stay signed in on this device. Other devices will need to sign in again.",
-    ok: 'Sign out others',
+    title: 'از همه نشست‌های دیگر خارج شوید؟',
+    body: 'در این دستگاه وارد می‌مانید. دستگاه‌های دیگر باید دوباره وارد شوند.',
+    ok: 'خروج از سایر نشست‌ها',
     danger: true,
     icon: 'log-out',
     run: () => {
       mutate(() => {
         D().sessions = D().sessions.filter(s => s.cur);
       });
-      toast('Signed out of other sessions');
+      toast('از نشست‌های دیگر خارج شدید');
     },
   });
 A.setup2fa = () => {
@@ -2154,7 +2173,7 @@ A.cancel2fa = () => {
 A.verify2fa = () => {
   const v = $('#tfa-code').value.trim();
   if (!/^\d{6}$/.test(v)) {
-    S.ui.errors.tfa = 'Enter the 6-digit code from your app';
+    S.ui.errors.tfa = 'کد ۶ رقمی برنامه را وارد کنید';
     render();
     return;
   }
@@ -2163,35 +2182,35 @@ A.verify2fa = () => {
     D().tfa = true;
     S.ui.tfaSetup = false;
   });
-  toast('Two-factor authentication enabled');
+  toast('احراز هویت دومرحله‌ای فعال شد');
 };
 A.disable2fa = () =>
   confirmDlg({
-    title: 'Turn off two-factor authentication?',
-    body: 'Your account will be protected by your password only.',
-    ok: 'Turn off',
+    title: 'احراز هویت دومرحله‌ای خاموش شود؟',
+    body: 'حساب شما فقط با رمز عبور محافظت خواهد شد.',
+    ok: 'خاموش کردن',
     danger: true,
     icon: 'shield-off',
     run: () => {
       mutate(() => {
         D().tfa = false;
       });
-      toast('Two-factor authentication turned off');
+      toast('احراز هویت دومرحله‌ای غیرفعال شد');
     },
   });
 A.changePlan = el => {
   const v = el.dataset.v;
   const price = { Free: 0, Team: 12, Business: 24 }[v];
   confirmDlg({
-    title: `${v === 'Free' ? 'Downgrade' : 'Upgrade'} to ${v}?`,
-    body: `${D().members.length} members × $${price}/month = <b>$${D().members.length * price}/month</b>, prorated from today and billed to Visa ending 4242.`,
-    ok: v === 'Free' ? 'Downgrade' : `Upgrade to ${v}`,
+    title: `${v === 'رایگان' ? 'کاهش سطح' : 'ارتقا'} to ${v}?`,
+    body: `${D().members.length} عضو × $${price}/ماه = <b>$${D().members.length * price}/ماه</b>، از امروز محاسبه و از کارت ویزا با شماره پایانی ۴۲۴۲ پرداخت می‌شود.`,
+    ok: v === 'رایگان' ? 'کاهش سطح' : `ارتقا to ${v}`,
     icon: 'gem',
     run: () => {
       mutate(() => {
         D().plan = v;
       });
-      toast(`You're now on the ${v} plan`);
+      toast(`طرح فعلی شما: ${v}`);
     },
   });
 };
@@ -2226,20 +2245,20 @@ A.doLogin = () => {
   const em = $('#l-email').value.trim(),
     pw = $('#l-pw').value;
   S.ui.af.email = em;
-  if (!em) e.email = 'Enter your email address';
-  else if (!EMAIL_RE.test(em)) e.email = 'Enter a valid email, like name@company.com';
-  if (!pw) e.pw = 'Enter your password';
+  if (!em) e.email = 'نشانی ایمیل خود را وارد کنید';
+  else if (!EMAIL_RE.test(em)) e.email = 'یک ایمیل معتبر مانند name@company.com وارد کنید';
+  if (!pw) e.pw = 'رمز عبور خود را وارد کنید';
   if (Object.keys(e).length) {
     render();
     (e.email ? $('#l-email') : $('#l-pw'))?.focus();
     if (!e.email) $('#l-pw').value = pw;
     return;
   }
-  loadingBtn('login-btn', 750, () => enterApp(`Signed in as ${em}`));
+  loadingBtn('login-btn', 750, () => enterApp(`واردشده با حساب ${em}`));
 };
 A.socialAuth = el => {
   el.classList.add('is-loading');
-  setTimeout(() => enterApp(`Signed in with ${el.dataset.v}`), 800);
+  setTimeout(() => enterApp(`واردشده با ${el.dataset.v}`), 800);
 };
 A.doSignup = () => {
   const e: Record<string, any> = (S.ui.errors = {});
@@ -2248,9 +2267,9 @@ A.doSignup = () => {
     pw = $('#s-pw').value;
   S.ui.af.name = nm;
   S.ui.af.email = em;
-  if (!nm) e.name = 'Enter your name';
-  if (!EMAIL_RE.test(em)) e.email = 'Enter a valid work email';
-  if (pw.length < 10 || !/[0-9\W]/.test(pw)) e.pw = 'Use at least 10 characters, including a number or symbol';
+  if (!nm) e.name = 'نام خود را وارد کنید';
+  if (!EMAIL_RE.test(em)) e.email = 'یک ایمیل کاری معتبر وارد کنید';
+  if (pw.length < 10 || !/[0-9\W]/.test(pw)) e.pw = 'حداقل ۱۰ نویسه شامل یک عدد یا نماد وارد کنید';
   if (Object.keys(e).length) {
     render();
     $('#s-email').value = em;
@@ -2279,8 +2298,8 @@ A.resend = el => {
   if (el.dataset.v === 'verify') {
     startResend();
     render();
-    toast(`Verification email sent to ${S.ui.af.email}`);
-  } else toast(`Reset link sent to ${S.ui.af.email}`);
+    toast(`ایمیل تأیید ارسال شد به ${S.ui.af.email}`);
+  } else toast(`پیوند بازنشانی ارسال شد به ${S.ui.af.email}`);
 };
 A.verified = () => {
   S.ui.auth = 'onboarding';
@@ -2294,7 +2313,7 @@ A.doForgot = () => {
   S.ui.af.email = em;
   S.ui.errors = {};
   if (!EMAIL_RE.test(em)) {
-    S.ui.errors.email = 'Enter the email you use to sign in';
+    S.ui.errors.email = 'ایمیلی را که با آن وارد می‌شوید بنویسید';
     render();
     return;
   }
@@ -2307,8 +2326,8 @@ A.doReset = () => {
   const a = $('#r-pw').value,
     b = $('#r-pw2').value;
   const e: Record<string, any> = (S.ui.errors = {});
-  if (a.length < 10 || !/[0-9\W]/.test(a)) e.pw = 'Use at least 10 characters, including a number or symbol';
-  if (a !== b) e.pw2 = "Passwords don't match";
+  if (a.length < 10 || !/[0-9\W]/.test(a)) e.pw = 'حداقل ۱۰ نویسه شامل یک عدد یا نماد وارد کنید';
+  if (a !== b) e.pw2 = 'رمزهای عبور یکسان نیستند';
   if (Object.keys(e).length) {
     render();
     return;
@@ -2325,7 +2344,7 @@ A.onbSet = el => {
   S.ui.onbData[el.dataset.k] = el.dataset.v;
   if (el.dataset.k === 'tmpl') {
     const t = TEMPLATES.find(x => x.id === el.dataset.v);
-    if (t && !S.ui.onbData.projTouched) S.ui.onbData.proj = t.name === 'Website' ? 'Website Launch' : t.name;
+    if (t && !S.ui.onbData.projTouched) S.ui.onbData.proj = t.name === 'وب‌سایت' ? 'راه‌اندازی وب‌سایت' : t.name;
   }
   render();
 };
@@ -2362,20 +2381,20 @@ A.onbBack = () => {
 A.onbNext = el => {
   const o = S.ui.onbData;
   if (S.ui.onb === 1 && !o.ws.trim()) {
-    S.ui.errors.ws = 'Name your workspace to continue';
+    S.ui.errors.ws = 'برای ادامه نام فضای کاری را وارد کنید';
     render();
     $('#o-ws')?.focus();
     return;
   }
   if (S.ui.onb === 3 && !o.proj.trim()) {
-    toast('Give your project a name', { kind: 'err' });
+    toast('برای پروژه نامی انتخاب کنید', { kind: 'err' });
     return;
   }
   if (S.ui.onb === 4 && el.dataset.skip) o.invites = '';
   if (S.ui.onb === 4 && !el.dataset.skip) {
     const bad = (o.invites || '').split(',').filter(x => x && !EMAIL_RE.test(x));
     if (bad.length) {
-      toast(`${bad[0]} isn't a valid email address`, { kind: 'err' });
+      toast(`${bad[0]} یک نشانی ایمیل معتبر نیست`, { kind: 'err' });
       return;
     }
   }
@@ -2394,7 +2413,7 @@ A.onbFinish = () => {
     if (o.ws.trim()) {
       const c = ['#2F2E2A', '#5A67D8', '#23918A', '#C54B78'][D().workspaces.length % 4];
       D().ws = { name: o.ws.trim(), url: o.url || 'workspace', c };
-      if (!D().workspaces.some(w => w.name === D().ws.name)) D().workspaces.push({ id: uid('w'), name: D().ws.name, c, plan: 'Free' });
+      if (!D().workspaces.some(w => w.name === D().ws.name)) D().workspaces.push({ id: uid('w'), name: D().ws.name, c, plan: 'رایگان' });
     }
     S.prefs.defaultTab = { kanban: 'board', list: 'list', timeline: 'timeline', table: 'table' }[o.team] || 'board';
     const tm = TEMPLATES.find(t => t.id === o.tmpl) || TEMPLATES[2];
@@ -2405,7 +2424,7 @@ A.onbFinish = () => {
         color: 'indigo',
         team: me().team,
         lead: D().me,
-        desc: `Created during setup from the ${tm.name} template.`,
+        desc: `هنگام راه‌اندازی ایجاد شد با ${tm.name} template.`,
       },
       tm.id,
     );
@@ -2429,5 +2448,5 @@ A.onbFinish = () => {
   });
   S.ui.auth = null;
   go('project', { id: p.id, tab: S.prefs.defaultTab });
-  toast(`Welcome to ${D().ws.name}`);
+  toast(`خوش آمدید به ${D().ws.name}`);
 };

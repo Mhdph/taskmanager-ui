@@ -19,12 +19,12 @@ table.tbl {
   z-index: 3;
   background: var(--surface);
   height: 34px;
-  text-align: left;
+  text-align: start;
   font-weight: 500;
   color: var(--text-2);
   font-size: var(--fs-xs);
   border-bottom: 1px solid var(--border);
-  border-right: 1px solid var(--divider);
+  border-inline-end: 1px solid var(--divider);
   padding: 0 10px;
   white-space: nowrap;
   user-select: none;
@@ -55,7 +55,7 @@ table.tbl {
 .tbl td {
   height: 36px;
   border-bottom: 1px solid var(--divider);
-  border-right: 1px solid var(--divider);
+  border-inline-end: 1px solid var(--divider);
   padding: 0 10px;
   white-space: nowrap;
   overflow: hidden;
@@ -102,10 +102,10 @@ table.tbl {
   border-radius: 4px;
   background: var(--surface-3);
   color: var(--text-2);
-  margin-right: 4px;
+  margin-inline-end: 4px;
 }
 /* the sticky first column starts on the shared gutter, like the breadcrumb and toolbar above it */
 .tbl th:first-child,
 .tbl td:first-child {
-  padding-left: var(--gutter);
+  padding-inline-start: var(--gutter);
 }

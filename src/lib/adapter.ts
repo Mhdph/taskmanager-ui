@@ -160,7 +160,7 @@ export function statusMapFromApi(statuses: Array<Record<string, any>>): StatusMa
     }
   }
 
-  // Canonical fallbacks when a project's board doesn't carry every slot.
+  // Canonical fallbacks when یک پروژه's board doesn't carry every slot.
   if (!byCanon.todo)
     byCanon.todo = firstTodo ? { id: firstTodo.id, category: firstTodo.category } : anyStatus ? { id: anyStatus.id, category: anyStatus.category } : null;
   if (!byCanon.progress) byCanon.progress = firstProgress ? { id: firstProgress.id, category: firstProgress.category } : byCanon.todo;

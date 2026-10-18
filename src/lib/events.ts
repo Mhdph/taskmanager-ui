@@ -1,7 +1,7 @@
 /**
  * `onclick` wrapper for popover / context-menu triggers (`A.pop`, `A.ctxBtn`).
  *
- * Svelte handles the click below `document`, so the legacy document-level
+ * React handles the click below `document`, so the legacy document-level
  * delegation in `actions/events.ts` runs *after* it. Without stopping
  * propagation it would see the freshly opened `S.ui.pop` with no `data-a`
  * ancestor (and no popover in the DOM yet) and immediately close it again.

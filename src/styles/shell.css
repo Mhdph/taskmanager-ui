@@ -17,7 +17,7 @@
 }
 .side {
   background: var(--bg-side);
-  border-right: 1px solid var(--border);
+  border-inline-end: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -34,7 +34,7 @@
   width: 100%;
   padding: 5px 6px;
   border-radius: var(--r-sm);
-  text-align: left;
+  text-align: start;
   transition: background var(--dur);
 }
 .ws:hover {
@@ -118,7 +118,7 @@ svg.logo {
   color: var(--text-2);
   font-size: var(--fs);
   font-weight: 450;
-  text-align: left;
+  text-align: start;
   transition:
     background var(--dur),
     color var(--dur);
@@ -155,7 +155,7 @@ svg.logo {
   color: var(--text-2);
 }
 .sitem .ct {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: var(--fs-2xs);
   color: var(--text-3);
   font-variant-numeric: tabular-nums;
@@ -192,15 +192,15 @@ svg.logo {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  margin-left: auto;
+  margin-inline-start: auto;
   flex-shrink: 0;
 }
 .sitem .fav {
   color: var(--amber);
-  margin-left: 4px;
+  margin-inline-start: 4px;
 }
 .sitem .hov {
-  margin-left: auto;
+  margin-inline-start: auto;
   display: none;
 }
 .sitem:hover .hov {
@@ -223,9 +223,9 @@ svg.logo {
   opacity: 0.4;
 }
 .sub {
-  padding-left: 14px;
-  margin-left: 8px;
-  border-left: 1px solid var(--border);
+  padding-inline-start: 14px;
+  margin-inline-start: 8px;
+  border-inline-start: 1px solid var(--border);
   display: none;
 }
 .sub.open {
@@ -335,7 +335,7 @@ svg.logo {
   color: var(--text-2);
 }
 .topsearch .kbd {
-  margin-left: auto;
+  margin-inline-start: auto;
   flex-shrink: 0;
 }
 .topsearch .lbltxt {
@@ -397,7 +397,7 @@ svg.logo {
   font-size: var(--fs);
 }
 .ph .acts {
-  margin-left: auto;
+  margin-inline-start: auto;
   display: flex;
   gap: 6px;
   align-items: center;

@@ -1,6 +1,6 @@
 /* Shared element/action types for the legacy action-delegation layer. */
 
-import type { S } from './state.svelte.js';
+import type { S } from './state';
 
 /** Any element carrying `data-a` / `data-in` / `data-*` wire-up attributes. */
 export type ActionEl = HTMLElement & {

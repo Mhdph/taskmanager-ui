@@ -4,6 +4,8 @@ import { esc } from './utils';
 
 export const _icCache: Record<string, any> = {};
 export function ic(name, size = 16, cls = '') {
+  if (['chevron-left', 'chevron-right', 'arrow-left', 'arrow-right', 'arrow-up-right', 'panel-left', 'panel-right', 'log-out'].includes(name))
+    cls = (cls + ' rtl-flip').trim();
   const k = name + '|' + size + '|' + cls;
   if (_icCache[k]) return _icCache[k];
   const inner = ICONS[name] || '<rect x="5" y="5" width="14" height="14" rx="3"/>';

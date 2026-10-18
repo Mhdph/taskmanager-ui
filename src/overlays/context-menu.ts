@@ -11,48 +11,48 @@ export function ctxMenu(p) {
     const t = task(p.id);
     if (!t) return '';
     return (
-      I('openTask', 'panel-right-open', 'Open') +
-      I('editTask', 'pencil', 'Edit', '', 'E') +
-      I('toggleDone', t.status === 'done' ? 'rotate-ccw' : 'circle-check', t.status === 'done' ? 'Reopen' : 'Mark complete') +
+      I('openTask', 'panel-right-open', 'باز') +
+      I('editTask', 'pencil', 'ویرایش', '', 'E') +
+      I('toggleDone', t.status === 'done' ? 'rotate-ccw' : 'circle-check', t.status === 'done' ? 'بازگشایی' : 'تکمیل کار') +
       sep +
-      I('ctxStatus', 'circle-dot', 'Status…') +
-      I('ctxAssign', 'user', 'Assign to…') +
-      I('ctxPrio', 'signal-high', 'Priority…') +
-      I('ctxMove', 'folder-input', 'Move to project…') +
+      I('ctxStatus', 'circle-dot', 'وضعیت…') +
+      I('ctxAssign', 'user', 'تعیین مسئول…') +
+      I('ctxPrio', 'signal-high', 'اولویت…') +
+      I('ctxMove', 'folder-input', 'انتقال به پروژه…') +
       sep +
-      I('toggleFavTask', 'star', t.fav ? 'Remove from favorites' : 'Add to favorites') +
-      I('copyLink', 'link', 'Copy link') +
-      I('dupTask', 'copy', 'Duplicate') +
-      I('archiveTask', 'archive', 'Archive') +
+      I('toggleFavTask', 'star', t.fav ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها') +
+      I('copyLink', 'link', 'کپی پیوند') +
+      I('dupTask', 'copy', 'ساخت نسخه مشابه') +
+      I('archiveTask', 'archive', 'بایگانی') +
       sep +
-      I('delTask', 'trash-2', 'Delete', 'danger', 'Del')
+      I('delTask', 'trash-2', 'حذف', 'danger', 'Del')
     );
   }
   if (p.ctx === 'project') {
     const pr = proj(p.id);
     if (!pr) return '';
     return (
-      I('openProject', 'arrow-up-right', 'Open') +
-      I('toggleFavProj', 'star', pr.fav ? 'Remove from favorites' : 'Add to favorites') +
-      I('editProject', 'pencil', 'Rename & edit') +
-      I('share', 'share-2', 'Share') +
-      I('copyLink', 'link', 'Copy link') +
-      I('dupProject', 'copy', 'Duplicate') +
+      I('openProject', 'arrow-up-right', 'باز') +
+      I('toggleFavProj', 'star', pr.fav ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها') +
+      I('editProject', 'pencil', 'تغییر نام و ویرایش') +
+      I('share', 'share-2', 'اشتراک‌گذاری') +
+      I('copyLink', 'link', 'کپی پیوند') +
+      I('dupProject', 'copy', 'ساخت نسخه مشابه') +
       sep +
-      (visibleProjects().indexOf(pr) > 0 ? I('projUp', 'arrow-up', 'Move up in sidebar') : '') +
-      (visibleProjects().indexOf(pr) < visibleProjects().length - 1 ? I('projDown', 'arrow-down', 'Move down in sidebar') : '') +
+      (visibleProjects().indexOf(pr) > 0 ? I('projUp', 'arrow-up', 'انتقال به بالا در نوار کناری') : '') +
+      (visibleProjects().indexOf(pr) < visibleProjects().length - 1 ? I('projDown', 'arrow-down', 'انتقال به پایین در نوار کناری') : '') +
       sep +
-      I('archiveProject', 'archive', pr.status === 'complete' ? 'Archive' : 'Archive project') +
-      I('delProject', 'trash-2', 'Delete project', 'danger')
+      I('archiveProject', 'archive', pr.status === 'complete' ? 'بایگانی' : 'بایگانی پروژه') +
+      I('delProject', 'trash-2', 'حذف پروژه', 'danger')
     );
   }
   if (p.ctx === 'column') {
     return (
       `<div class="mh">${ST[p.id].name}</div>` +
-      I('colAdd', 'plus', 'Add task') +
-      I('colCollapse', 'fold-horizontal', 'Collapse column') +
-      (p.id !== 'done' ? I('colDoneAll', 'check-check', 'Mark all as done') : I('colArchive', 'archive', 'Archive completed')) +
-      I('colSortPrio', 'arrow-down-wide-narrow', 'Sort by priority')
+      I('colAdd', 'plus', 'افزودن کار') +
+      I('colCollapse', 'fold-horizontal', 'جمع کردن ستون') +
+      (p.id !== 'done' ? I('colDoneAll', 'check-check', 'تکمیل همه') : I('colArchive', 'archive', 'بایگانی موارد تکمیل‌شده')) +
+      I('colSortPrio', 'arrow-down-wide-narrow', 'مرتب‌سازی بر اساس اولویت')
     );
   }
   if (p.ctx === 'member') {
@@ -60,29 +60,29 @@ export function ctxMenu(p) {
     if (!m) return '';
     const canRm = m.role !== 'Owner' && m.id !== D().me;
     return (
-      I('viewProfile', 'user', 'View profile') +
-      I('assignToMember', 'plus', 'Assign a task') +
-      I('copyEmail', 'mail', 'Copy email') +
+      I('viewProfile', 'user', 'مشاهده پروفایل') +
+      I('assignToMember', 'plus', 'تعیین مسئول یک کار') +
+      I('copyEmail', 'mail', 'کپی ایمیل') +
       (canRm
-        ? I('ctxRole', 'shield', 'Change role…') +
-          (m.status === 'invited' ? I('resendInvite', 'send', 'Resend invite') : '') +
+        ? I('ctxRole', 'shield', 'تغییر نقش…') +
+          (m.status === 'invited' ? I('resendInvite', 'send', 'ارسال دوباره دعوت‌نامه') : '') +
           sep +
-          I('removeMember', 'user-minus', 'Remove from workspace', 'danger')
+          I('removeMember', 'user-minus', 'حذف از فضای کاری', 'danger')
         : '')
     );
   }
   if (p.ctx === 'file') {
     return (
-      I('previewFile', 'eye', 'Preview') +
-      I('renameFile', 'pencil', 'Rename') +
-      I('copyLink', 'link', 'Copy link') +
-      I('dupFile', 'copy', 'Duplicate') +
+      I('previewFile', 'eye', 'پیش‌نمایش') +
+      I('renameFile', 'pencil', 'تغییر نام') +
+      I('copyLink', 'link', 'کپی پیوند') +
+      I('dupFile', 'copy', 'ساخت نسخه مشابه') +
       sep +
-      I('delFile', 'trash-2', 'Delete', 'danger')
+      I('delFile', 'trash-2', 'حذف', 'danger')
     );
   }
   if (p.ctx === 'savedview') {
-    return `<button class="mi" data-a="renameView" data-id="${p.vid}">${ic('pencil', 15)}Rename view</button><button class="mi danger" data-a="delView" data-id="${p.vid}">${ic('trash-2', 15)}Delete view</button>`;
+    return `<button class="mi" data-a="renameView" data-id="${p.vid}">${ic('pencil', 15)}تغییر نام نما</button><button class="mi danger" data-a="delView" data-id="${p.vid}">${ic('trash-2', 15)}حذف نما</button>`;
   }
   return '';
 }

@@ -7,7 +7,7 @@
   height: 100%;
 }
 .set-nav {
-  border-right: 1px solid var(--border);
+  border-inline-end: 1px solid var(--border);
   padding: 20px 10px;
   overflow-y: auto;
   background: var(--surface);
@@ -76,7 +76,7 @@
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: 8px;
-  text-align: left;
+  text-align: start;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -153,7 +153,7 @@
 }
 .perm-t th:first-child,
 .perm-t td:first-child {
-  text-align: left;
+  text-align: start;
 }
 .perm-t th {
   font-weight: 500;

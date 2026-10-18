@@ -58,13 +58,13 @@ A.submitTeam = () => {
   f.name = ($('#tm-name')?.value || '').trim();
   f.desc = ($('#tm-desc')?.value || '').trim();
   if (!f.name) {
-    S.ui.errors.tname = 'Give the team a name';
+    S.ui.errors.tname = 'برای تیم نامی انتخاب کنید';
     render();
     $('#tm-name')?.focus();
     return;
   }
   if (teamsList().some(t => t.name.toLowerCase() === f.name.toLowerCase() && t.id !== m.edit)) {
-    S.ui.errors.tname = `A team called “${f.name}” already exists`;
+    S.ui.errors.tname = `تیمی با نام «${f.name}» از قبل وجود دارد`;
     render();
     $('#tm-name')?.focus();
     return;
@@ -78,7 +78,7 @@ A.submitTeam = () => {
         if (x.team === t.id && !f.members.includes(x.id)) x.team = '';
       });
     } else {
-      t = { id: uid('tm'), name: f.name, desc: f.desc || 'No description yet.', icon: f.icon, c: PCOLORS[f.color] };
+      t = { id: uid('tm'), name: f.name, desc: f.desc || 'هنوز توضیحی ثبت نشده است.', icon: f.icon, c: PCOLORS[f.color] };
       teamsList().push(t);
     }
     f.members.forEach(id => {
@@ -94,10 +94,10 @@ A.submitTeam = () => {
   S.ui.modals.pop();
   if (m.edit) {
     render();
-    toast(`Saved ${t.name}`);
+    toast(`ذخیره شد ${t.name}`);
   } else {
     go('team', { id: t.id });
-    toast(`Created ${t.name}`);
+    toast(`ایجاد شد ${t.name}`);
   }
 };
 A.delTeam = el => {
@@ -106,9 +106,9 @@ A.delTeam = el => {
   const np = D().projects.filter(p => p.team === t.id).length;
   S.ui.modals.pop();
   confirmDlg({
-    title: `Delete ${t.name}?`,
-    body: `${n ? `<b>${n} member${n > 1 ? 's' : ''}</b> will have no team` : 'The team has no members'}${np ? ` and <b>${np} project${np > 1 ? 's' : ''}</b> will need a new team` : ''}. People and projects are not deleted.`,
-    ok: 'Delete team',
+    title: `حذف ${t.name}?`,
+    body: `${n ? `<b>${n} عضو</b> بدون تیم خواهند شد` : 'این تیم عضوی ندارد'}${np ? ` و <b>${np} پروژه</b> به تیم جدید نیاز خواهند داشت` : ''}. افراد و پروژه‌ها حذف نمی‌شوند.`,
+    ok: 'حذف تیم',
     danger: true,
     icon: 'users',
     run: () => {
@@ -126,7 +126,7 @@ A.delTeam = el => {
       ) {
         sync.deleteTeam(t.id);
         if (S.ui.route === 'team') go('teams');
-        toast(`Deleted ${t.name}`, { action: 'Undo', onAction: () => restore(snap) });
+        toast(`حذف شد ${t.name}`, { action: 'بازگردانی', onAction: () => restore(snap) });
       }
     },
   });

@@ -2,7 +2,7 @@
    HYDRATE — load the workspace from taskmanager-api into the UI store.
 
    Flow (browser only):
-     +layout.svelte onMount → hydrateWorkspace()
+     Workspace useQuery → hydrateWorkspace()
        1. identity: GET /me
        2. workspace: /members /teams /labels /favorites /activity
        3. projects (+ archived); per project: statuses, members, tasks
@@ -15,7 +15,8 @@
    skeleton stays empty until a retry succeeds.
    ===================================================================== */
 
-import { api, ApiError, getIdentity } from './api';
+import { api, ApiError, apiQueryKey, getIdentity } from './api';
+import { getQueryClient } from './query-client';
 import {
   activityFromApi,
   attachmentFromApi,
@@ -30,7 +31,7 @@ import {
   teamFromApi,
   type StatusMap,
 } from './adapter';
-import { S, save } from './state.svelte';
+import { S, save } from './state';
 import { setStatusMap, setLive } from './sync';
 import { LB, PCOLORS } from '../core/constants';
 
@@ -74,6 +75,7 @@ export async function hydrateWorkspace(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
   if (!getIdentity().userId) return false;
 
+  await getQueryClient().invalidateQueries({ queryKey: apiQueryKey() });
   try {
     const me = await api.get('/me');
 
@@ -166,7 +168,7 @@ export async function hydrateWorkspace(): Promise<boolean> {
     });
 
     save();
-    console.info(`[gr8r] live workspace: ${projects.length} projects · ${uiTasks.length} tasks · ${members.length} members`);
+    console.info(`[gr8r] live workspace: ${projects.length} پروژه · ${uiTasks.length} کار · ${members.length} members`);
     S.ui.bootFailed = false;
     S.ui.bootError = '';
     return true;

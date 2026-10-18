@@ -1,3 +1,4 @@
+import { faNumber } from '../core/locale';
 /* ---------- MY TASKS ---------- */
 import { TODAY, dOff, diffD, parse } from '../core/utils';
 import { ic } from '../core/icons';
@@ -14,24 +15,24 @@ export function pageMyTasks() {
     v.sort.f === 'manual' ? { ...v, sort: { f: 'due', dir: 1 } } : v,
   );
   const groups = [
-    { key: 'overdue', name: 'Overdue', html: `<span style="color:var(--red)">${ic('clock-alert', 14)}</span>`, tasks: mine.filter(isOver), set: {} },
+    { key: 'overdue', name: 'عقب‌افتاده', html: `<span style="color:var(--red)">${ic('clock-alert', 14)}</span>`, tasks: mine.filter(isOver), set: {} },
     {
       key: 'today',
-      name: 'Today',
+      name: 'امروز',
       html: ic('sun', 14),
       tasks: mine.filter(t => t.status !== 'done' && t.due && diffD(parse(t.due), TODAY) === 0),
       set: { due: dOff(0) },
     },
     {
       key: 'upcoming',
-      name: 'Upcoming',
+      name: 'پیش رو',
       html: ic('calendar-days', 14),
       tasks: mine.filter(t => t.status !== 'done' && (!t.due || diffD(parse(t.due), TODAY) > 0)),
       set: { due: dOff(3) },
     },
     {
       key: 'completed',
-      name: 'Completed',
+      name: 'تکمیل‌شده',
       html: `<span style="color:var(--green)">${ic('circle-check', 14)}</span>`,
       tasks: mine.filter(t => t.status === 'done'),
       set: { status: 'done' },
@@ -40,14 +41,14 @@ export function pageMyTasks() {
   ];
   const mode = S.ui.myView;
   return `<div class="page flush">
-    <div class="ph"><div><h1>My Tasks</h1><p>${groups[1].tasks.length} due today · ${groups[0].tasks.length} overdue · ${groups[2].tasks.length} upcoming</p></div>
-      <div class="acts"><div class="seg" role="tablist" aria-label="View">${[
-        ['list', 'List', 'list'],
-        ['calendar', 'Calendar', 'calendar'],
+    <div class="ph"><div><h1>کارهای من</h1><p>${faNumber(groups[1].tasks.length)} با مهلت امروز · ${faNumber(groups[0].tasks.length)} عقب‌افتاده · ${faNumber(groups[2].tasks.length)} پیش رو</p></div>
+      <div class="acts"><div class="seg" role="tablist" aria-label="نما">${[
+        ['list', 'فهرست', 'list'],
+        ['calendar', 'تقویم', 'calendar'],
       ]
         .map(([k, n, i]) => `<button class="${mode === k ? 'on' : ''}" data-a="set" data-k="myView" data-v="${k}">${ic(i, 13)}${n}</button>`)
         .join('')}</div>
-      <button class="btn btn-primary" data-a="newTask" data-assignee="${D().me}">${ic('plus', 14)}New task</button></div></div>
+      <button class="btn btn-primary" data-a="newTask" data-assignee="${D().me}">${ic('plus', 14)}کار جدید</button></div></div>
     ${viewToolbar(key, { group: false })}
     ${mode === 'calendar' ? calendarHtml(mine, { key: 'my' }) : `<div class="list-wrap">${listHtml(groups, key, { cols: ['project', 'status', 'priority', 'due'], complete: true, drag: false, keepEmpty: true })}</div>`}
   </div>`;

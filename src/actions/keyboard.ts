@@ -7,7 +7,7 @@ import { closeModal } from '../overlays/modals';
 import { closePop } from '../overlays/popovers';
 import { A, KEY } from './actions';
 import { PAL_FLAT } from '../overlays/palette';
-/* SSR_GUARD: SvelteKit may import this module during builds; DOM listeners attach in browsers only. */
+/* SSR_GUARD: TanStack Start may import this module during builds; DOM listeners attach in browsers only. */
 const SSR_GUARD = typeof document !== 'undefined';
 
 export let gPending = 0;
@@ -53,13 +53,13 @@ SSR_GUARD &&
       }
     }
     // Arrow keys move through open menus and pickers.
-    if (S.ui.pop && !pl && (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Home' || e.key === 'End')) {
+    if (S.ui.pop && !pl && (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'خانه' || e.key === 'End')) {
       const items = $$('.pop.floating .mi:not(:disabled), .pop.floating .valbtn, .pop.floating [data-a="popPick"]').filter(x => x.offsetParent !== null);
       if (items.length) {
         e.preventDefault();
         const i = items.indexOf(document.activeElement as HTMLElement);
         const n =
-          e.key === 'Home' ? 0 : e.key === 'End' ? items.length - 1 : e.key === 'ArrowDown' ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
+          e.key === 'خانه' ? 0 : e.key === 'End' ? items.length - 1 : e.key === 'ArrowDown' ? (i + 1) % items.length : (i - 1 + items.length) % items.length;
         items[n].focus();
         return;
       }

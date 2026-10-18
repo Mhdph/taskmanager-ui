@@ -1,5 +1,7 @@
+import { faNumber } from '../core/locale';
+import { calendarDay, calendarMonth, calendarMonthKey } from '../core/utils';
 /* ---------- TIMELINE ---------- */
-import { $, MON, MONL, TODAY, addD, diffD, esc, fmtDate, parse } from '../core/utils';
+import { $, TODAY, addD, diffD, esc, fmtDate, parse } from '../core/utils';
 import { ic } from '../core/icons';
 import { S, allTasks, canSee, pColor, proj, task, taskProg, visibleProjects } from '../core/store';
 import { av, empty, stIcon } from '../ui/helpers';
@@ -7,21 +9,21 @@ import { applyView, groupTasks, viewOf, viewToolbar } from '../shell/view-engine
 import { startOfWeek } from './calendar';
 
 export function tlControls() {
-  return `<div class="seg" style="margin-left:4px">${[
-    ['week', 'Weeks'],
-    ['month', 'Months'],
+  return `<div class="seg" style="margin-inline-start:4px">${[
+    ['week', 'هفته‌ها'],
+    ['month', 'ماه‌ها'],
   ]
     .map(([k, n]) => `<button class="${S.ui.tlZoom === k ? 'on' : ''}" data-a="set" data-k="tlZoom" data-v="${k}">${n}</button>`)
     .join('')}</div>
-  <select class="select" style="height:26px;width:auto;font-size:12px;margin-left:4px" data-in="tlGroup" aria-label="Group by">${[
-    ['status', 'Group: Status'],
-    ['assignee', 'Group: Assignee'],
-    ['project', 'Group: Project'],
-    ['none', 'No grouping'],
+  <select class="select" style="height:26px;width:auto;font-size:12px;margin-inline-start:4px" data-in="tlGroup" aria-label="گروه‌بندی بر اساس">${[
+    ['status', 'گروه‌بندی: وضعیت'],
+    ['assignee', 'گروه‌بندی: مسئول'],
+    ['project', 'گروه‌بندی: پروژه'],
+    ['none', 'بدون گروه‌بندی'],
   ]
     .map(([k, n]) => `<option value="${k}" ${S.ui.tlGroup === k ? 'selected' : ''}>${n}</option>`)
     .join('')}</select>
-  <button class="btn btn-ghost" data-a="tlToday">${ic('crosshair', 14)}Today</button>`;
+  <button class="btn btn-ghost" data-a="tlToday">${ic('crosshair', 14)}امروز</button>`;
 }
 export function timelineHtml(ts, key, p) {
   const dw = S.ui.tlZoom === 'week' ? 32 : 11;
@@ -33,7 +35,7 @@ export function timelineHtml(ts, key, p) {
     ts.filter(t => t.due),
     g === 'project' && p ? 'status' : g,
   ).filter(G => G.tasks.length);
-  const rows = [];
+  const rows: any[] = [];
   const ms = p
     ? p.milestones || []
     : visibleProjects()
@@ -53,10 +55,10 @@ export function timelineHtml(ts, key, p) {
   });
   // header
   const months: Array<{ d: Date; i: number; n: number }> = [];
-  let cm = null;
+  let cm: string | null = null;
   for (let i = 0; i < nDays; i++) {
     const d = addD(rs, i);
-    const k = d.getMonth() + '-' + d.getFullYear();
+    const k = calendarMonthKey(d);
     if (k !== cm) {
       months.push({ d, i, n: 0 });
       cm = k;
@@ -67,17 +69,17 @@ export function timelineHtml(ts, key, p) {
     S.ui.tlZoom === 'week'
       ? Array.from({ length: nDays }, (_, i) => {
           const d = addD(rs, i);
-          return `<div style="width:${dw}px" class="${diffD(d, TODAY) === 0 ? 'today' : ''}">${d.getDate()}</div>`;
+          return `<div style="width:${dw}px" class="${diffD(d, TODAY) === 0 ? 'today' : ''}">${calendarDay(d)}</div>`;
         }).join('')
       : Array.from({ length: nDays / 7 }, (_, i) => {
           const d = addD(rs, i * 7);
-          return `<div style="width:${dw * 7}px">${MON[d.getMonth()]} ${d.getDate()}</div>`;
+          return `<div style="width:${dw * 7}px">${fmtDate(d)}</div>`;
         }).join('');
   const weekend =
     S.ui.tlZoom === 'week'
       ? Array.from({ length: nDays }, (_, i) => {
           const d = addD(rs, i);
-          return d.getDay() === 0 || d.getDay() === 6 ? `<div class="tl-we" style="left:${i * dw}px;width:${dw}px"></div>` : '';
+          return d.getDay() === 5 ? `<div class="tl-we" style="left:${i * dw}px;width:${dw}px"></div>` : '';
         }).join('')
       : '';
   const glines = Array.from({ length: nDays / 7 }, (_, i) => `<div class="tl-gl" style="left:${i * 7 * dw}px"></div>`).join('');
@@ -93,7 +95,7 @@ export function timelineHtml(ts, key, p) {
       const w = Math.max(dw, (diffD(parse(t.due), parse(s)) + 1) * dw);
       const c = g === 'status' || g === 'none' ? pColor(pp) : `var(--st-${t.status})`;
       const inside = w > 110;
-      return `<div class="tl-rowbg" style="top:${y}px"></div><div class="bar ${t.status === 'done' ? 'done' : ''}" style="--c:${c};left:${x}px;top:${y + 7}px;width:${w}px" data-bar="${t.id}" data-dw="${dw}" data-a="openTask" data-id="${t.id}" data-ctx="task" title="${esc(t.title)} · ${fmtDate(s)} → ${fmtDate(t.due)}"><span class="pf" style="width:${taskProg(t)}%"></span>${inside ? `${av(t.assignee, 'sm', false)}<span class="trunc">${esc(t.title)}</span>` : ''}</div>${inside ? '' : `<div class="bar-lbl" style="left:${x + w + 8}px;top:${y + 10}px">${esc(t.title)}</div>`}`;
+      return `<div class="tl-rowbg" style="top:${y}px"></div><div class="bar ${t.status === 'done' ? 'done' : ''}" style="--c:${c};left:${x}px;top:${y + 7}px;width:${w}px" data-نوار="${t.id}" data-dw="${dw}" data-a="openTask" data-id="${t.id}" data-ctx="task" title="${esc(t.title)} · ${fmtDate(s)} → ${fmtDate(t.due)}"><span class="pf" style="width:${taskProg(t)}%"></span>${inside ? `${av(t.assignee, 'sm', false)}<span class="trunc">${esc(t.title)}</span>` : ''}</div>${inside ? '' : `<div class="bar-lbl" style="left:${x + w + 8}px;top:${y + 10}px">${esc(t.title)}</div>`}`;
     })
     .join('');
   // dependency paths
@@ -109,34 +111,35 @@ export function timelineHtml(ts, key, p) {
           const x2 = X(s);
           const y2 = rowY[t.id];
           const mx = Math.max(x1 + 10, x2 - 10);
-          return `<path d="M${x1} ${y1} C ${mx} ${y1}, ${Math.min(x1 + 10, x2 - 10)} ${y2}, ${x2 - 1} ${y2}" fill="none" stroke="var(--text-3)" stroke-width="1.3" stroke-dasharray="${x2 < x1 ? '3 3' : ''}"/><path d="M${x2 - 6} ${y2 - 3.5} L${x2 - 1} ${y2} L${x2 - 6} ${y2 + 3.5}" fill="none" stroke="var(--text-3)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>`;
+          return `<path d="M${x1} ${y1} C ${mx} ${y1}, ${Math.min(x1 + 10, x2 - 10)} ${y2}, ${x2 - 1} ${y2}" fill="بدون مورد" stroke="var(--text-3)" stroke-width="1.3" stroke-dasharray="${x2 < x1 ? '3 3' : ''}"/><path d="M${x2 - 6} ${y2 - 3.5} L${x2 - 1} ${y2} L${x2 - 6} ${y2 + 3.5}" fill="بدون مورد" stroke="var(--text-3)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>`;
         }),
     )
     .join('');
   const left = rows
     .map(r => {
-      if (r.type === 'ms') return `<div class="tl-row g">${ic('diamond', 12)}Milestones<span class="faint" style="font-weight:500">${ms.length}</span></div>`;
+      if (r.type === 'ms')
+        return `<div class="tl-row g">${ic('diamond', 12)}نقاط عطف<span class="faint" style="font-weight:500">${faNumber(ms.length)}</span></div>`;
       if (r.type === 'g')
-        return `<div class="tl-row g">${r.G.html || ''}${esc(r.G.name)}<span class="faint" style="font-weight:500">${r.G.tasks.length}</span></div>`;
+        return `<div class="tl-row g">${r.G.html || ''}${esc(r.G.name)}<span class="faint" style="font-weight:500">${faNumber(r.G.tasks.length)}</span></div>`;
       const t = r.t;
-      return `<div class="tl-row" data-a="openTask" data-id="${t.id}">${stIcon(t.status, 13)}<span class="trunc grow" style="${t.status === 'done' ? 'color:var(--text-3)' : ''}">${esc(t.title)}</span>${t.subtasks.length ? `<span class="faint num" style="font-size:11px">${t.subtasks.filter(s => s.done).length}/${t.subtasks.length}</span>` : ''}${av(t.assignee, 'sm')}</div>`;
+      return `<div class="tl-row" data-a="openTask" data-id="${t.id}">${stIcon(t.status, 13)}<span class="trunc grow" style="${t.status === 'done' ? 'color:var(--text-3)' : ''}">${esc(t.title)}</span>${t.subtasks.length ? `<span class="faint num" style="font-size:11px">${faNumber(t.subtasks.filter(s => s.done).length)}/${faNumber(t.subtasks.length)}</span>` : ''}${av(t.assignee, 'sm')}</div>`;
     })
     .join('');
   if (!rows.length)
     return empty(
       'chart-gantt',
-      'Nothing on the timeline',
-      'Give tasks a start and due date to see them here.',
-      `<button class="btn btn-primary btn-sm" data-a="newTask" ${p ? `data-project="${p.id}"` : ''}>${ic('plus', 14)}New task</button>`,
+      'خط زمانی خالی است',
+      'برای نمایش کارها در اینجا، تاریخ شروع و مهلت انجام تعیین کنید.',
+      `<button class="btn btn-primary btn-sm" data-a="newTask" ${p ? `data-project="${p.id}"` : ''}>${ic('plus', 14)}کار جدید</button>`,
     );
   const todayX = diffD(TODAY, rs) * dw;
   return `<div class="tl" data-tl-today="${todayX}" data-tl-key="${key}">
-    <div class="tl-left"><div class="tl-head">Task</div><div class="tl-rows" id="tl-rows">${left}<div style="height:40px"></div></div></div>
+    <div class="tl-left"><div class="tl-head">کار</div><div class="tl-rows" id="tl-rows">${left}<div style="height:40px"></div></div></div>
     <div class="tl-right" id="tl-right" data-keep="tl:${key}:${S.ui.tlZoom}">
-      <div class="tl-head" style="width:${W}px"><div class="tl-months">${months.map(m => `<div style="width:${m.n * dw}px"><span>${MONL[m.d.getMonth()]} ${m.d.getFullYear()}</span></div>`).join('')}</div><div class="tl-days">${days}</div></div>
+      <div class="tl-head" style="width:${W}px"><div class="tl-months">${months.map(m => `<div style="width:${m.n * dw}px"><span>${calendarMonth(m.d)}</span></div>`).join('')}</div><div class="tl-days">${days}</div></div>
       <div class="tl-grid" style="width:${W}px;height:${H + 40}px">
         ${weekend}${glines}
-        <div class="tl-today" style="left:${todayX + dw / 2}px" title="Today"></div>
+        <div class="tl-today" style="left:${todayX + dw / 2}px" title="امروز"></div>
         ${bars}
         <svg class="tl-deps" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">${deps}</svg>
       </div>
@@ -182,7 +185,7 @@ export function pageWsTimeline() {
   const key = 'tl';
   const v = viewOf(key);
   // NOTE: workspace default `tlGroup = 'project'` is seeded by the
-  // `/timeline` route script (render must stay mutation-free for runes).
-  return `<div class="page flush"><div class="ph"><div><h1>Timeline</h1><p>Schedules, dependencies, and milestones across projects.</p></div></div>
+  // `/timeline` route script (route defaults are initialized before rendering).
+  return `<div class="page flush"><div class="ph"><div><h1>خط زمانی</h1><p>زمان‌بندی، وابستگی‌ها و نقاط عطف پروژه‌ها.</p></div></div>
   ${viewToolbar(key, { group: false, extra: tlControls() })}${timelineHtml(applyView(allTasks(), v), key, null)}</div>`;
 }

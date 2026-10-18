@@ -9,11 +9,11 @@ export function seed() {
       email: 'hello@gr8rstudio.com',
       role: 'Owner',
       team: 'product',
-      title: 'Head of Product',
+      title: 'مدیر محصول',
       c: '#5A67D8',
       status: 'active',
       last: 0,
-      tz: 'San Francisco',
+      tz: 'سان‌فرانسیسکو',
     },
     {
       id: 'm2',
@@ -21,11 +21,11 @@ export function seed() {
       email: 'sarah@gr8rstudio.com',
       role: 'Admin',
       team: 'design',
-      title: 'Design Lead',
+      title: 'سرپرست طراحی',
       c: '#C54B78',
       status: 'active',
       last: 4,
-      tz: 'New York',
+      tz: 'نیویورک',
     },
     {
       id: 'm3',
@@ -33,11 +33,11 @@ export function seed() {
       email: 'john@gr8rstudio.com',
       role: 'Member',
       team: 'eng',
-      title: 'Frontend Engineer',
+      title: 'مهندس فرانت‌اند',
       c: '#3B82C4',
       status: 'active',
       last: 22,
-      tz: 'London',
+      tz: 'لندن',
     },
     {
       id: 'm4',
@@ -45,11 +45,11 @@ export function seed() {
       email: 'emma@gr8rstudio.com',
       role: 'Member',
       team: 'design',
-      title: 'Product Designer',
+      title: 'طراح محصول',
       c: '#23918A',
       status: 'active',
       last: 9,
-      tz: 'Berlin',
+      tz: 'برلین',
     },
     {
       id: 'm5',
@@ -57,11 +57,11 @@ export function seed() {
       email: 'priya@gr8rstudio.com',
       role: 'Member',
       team: 'mkt',
-      title: 'Content Strategist',
+      title: 'استراتژیست محتوا',
       c: '#C48A1E',
       status: 'active',
       last: 95,
-      tz: 'Toronto',
+      tz: 'تورنتو',
     },
     {
       id: 'm6',
@@ -69,11 +69,11 @@ export function seed() {
       email: 'marcus@gr8rstudio.com',
       role: 'Member',
       team: 'eng',
-      title: 'Backend Engineer',
+      title: 'مهندس بک‌اند',
       c: '#8662C9',
       status: 'active',
       last: 240,
-      tz: 'Singapore',
+      tz: 'سنگاپور',
     },
     {
       id: 'm7',
@@ -81,11 +81,11 @@ export function seed() {
       email: 'lena@gr8rstudio.com',
       role: 'Admin',
       team: 'product',
-      title: 'QA Lead',
+      title: 'سرپرست تضمین کیفیت',
       c: '#3D8E5F',
       status: 'active',
       last: 1500,
-      tz: 'Munich',
+      tz: 'مونیخ',
     },
     {
       id: 'm8',
@@ -93,18 +93,18 @@ export function seed() {
       email: 'diego@freelance.io',
       role: 'Guest',
       team: 'mkt',
-      title: 'Freelance Copywriter',
+      title: 'نویسنده آزاد',
       c: '#C0612B',
       status: 'invited',
       last: null,
-      tz: 'Madrid',
+      tz: 'مادرید',
     },
   ];
   const projects = [
     {
       id: 'p1',
       key: 'WEB',
-      name: 'Website Redesign',
+      name: 'بازطراحی وب‌سایت',
       icon: 'globe',
       color: 'indigo',
       status: 'active',
@@ -114,18 +114,18 @@ export function seed() {
       start: dOff(-30),
       fav: true,
       members: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
-      desc: 'Rebuild gr8rstudio.com with a clearer information architecture, a responsive component library, and a faster CMS-driven blog.',
+      desc: 'بازسازی سایت با معماری اطلاعات روشن‌تر، کتابخانه اجزای واکنش‌گرا و وبلاگ سریع‌تر.',
       milestones: [
-        { name: 'Wireframes signed off', date: dOff(2) },
-        { name: 'Dev handoff', date: dOff(14) },
-        { name: 'Public launch', date: dOff(24) },
+        { name: 'تأیید وایرفریم‌ها', date: dOff(2) },
+        { name: 'تحویل به توسعه‌دهنده', date: dOff(14) },
+        { name: 'عرضه عمومی', date: dOff(24) },
       ],
       last: 12,
     },
     {
       id: 'p2',
       key: 'MOB',
-      name: 'Mobile App',
+      name: 'اپلیکیشن موبایل',
       icon: 'smartphone',
       color: 'blue',
       status: 'active',
@@ -135,17 +135,17 @@ export function seed() {
       start: dOff(-45),
       fav: true,
       members: ['m1', 'm3', 'm4', 'm6', 'm7'],
-      desc: 'Native iOS and Android client for field teams with offline sync, push notifications, and biometric sign-in.',
+      desc: 'اپلیکیشن iOS و اندروید برای تیم‌های میدانی، با همگام‌سازی آفلاین، اعلان و ورود زیست‌سنجی.',
       milestones: [
-        { name: 'Beta build', date: dOff(9) },
-        { name: 'App Store submission', date: dOff(45) },
+        { name: 'نسخه آزمایشی', date: dOff(9) },
+        { name: 'ارسال به فروشگاه اپلیکیشن', date: dOff(45) },
       ],
       last: 48,
     },
     {
       id: 'p3',
       key: 'MKT',
-      name: 'Marketing Campaign',
+      name: 'کمپین بازاریابی',
       icon: 'megaphone',
       color: 'rose',
       status: 'planning',
@@ -155,17 +155,17 @@ export function seed() {
       start: dOff(-10),
       fav: false,
       members: ['m1', 'm4', 'm5', 'm7', 'm8'],
-      desc: 'Q4 awareness campaign across paid social, email, and a launch webinar targeting operations leads.',
+      desc: 'کمپین آگاهی‌بخشی فصل چهارم با تبلیغات شبکه‌های اجتماعی، ایمیل و وبینار عرضه برای مدیران عملیات.',
       milestones: [
-        { name: 'Creative lock', date: dOff(12) },
-        { name: 'Campaign live', date: dOff(21) },
+        { name: 'نهایی‌سازی طرح‌ها', date: dOff(12) },
+        { name: 'اجرای کمپین', date: dOff(21) },
       ],
       last: 130,
     },
     {
       id: 'p4',
       key: 'LCH',
-      name: 'Product Launch',
+      name: 'عرضه محصول',
       icon: 'rocket',
       color: 'amber',
       status: 'risk',
@@ -175,17 +175,17 @@ export function seed() {
       start: dOff(-21),
       fav: false,
       members: ['m1', 'm2', 'm3', 'm5', 'm7'],
-      desc: 'Coordinate the Workflows 2.0 launch: pricing, docs, press, and sales enablement across teams.',
+      desc: 'هماهنگی عرضه نسخه دوم گردش‌کار: قیمت‌گذاری، مستندات، رسانه و پشتیبانی فروش بین تیم‌ها.',
       milestones: [
-        { name: 'Go / no-go', date: dOff(11) },
-        { name: 'Launch day', date: dOff(12) },
+        { name: 'تصمیم انتشار', date: dOff(11) },
+        { name: 'روز عرضه', date: dOff(12) },
       ],
       last: 35,
     },
     {
       id: 'p5',
       key: 'DS',
-      name: 'Design System',
+      name: 'سیستم طراحی',
       icon: 'component',
       color: 'violet',
       status: 'active',
@@ -195,14 +195,14 @@ export function seed() {
       start: dOff(-60),
       fav: false,
       members: ['m2', 'm3', 'm4'],
-      desc: 'Shared tokens, components, and documentation used by web and mobile teams.',
-      milestones: [{ name: 'v2 tokens', date: dOff(3) }],
+      desc: 'توکن‌ها، اجزا و مستندات مشترک تیم‌های وب و موبایل.',
+      milestones: [{ name: 'توکن‌های نسخه دوم', date: dOff(3) }],
       last: 300,
     },
     {
       id: 'p6',
       key: 'CP',
-      name: 'Customer Portal',
+      name: 'پرتال مشتریان',
       icon: 'building-2',
       color: 'teal',
       status: 'hold',
@@ -213,14 +213,14 @@ export function seed() {
       fav: false,
       members: ['m6', 'm7'],
       private: true,
-      desc: 'Self-serve billing and support portal for enterprise customers. Restricted during contract review.',
+      desc: 'پرتال صورتحساب و پشتیبانی مشتریان سازمانی؛ دسترسی هنگام بررسی قرارداد محدود است.',
       milestones: [],
       last: 2880,
     },
     {
       id: 'p7',
       key: 'MW',
-      name: 'Marketing Website',
+      name: 'وب‌سایت بازاریابی',
       icon: 'layout-grid',
       color: 'green',
       status: 'complete',
@@ -230,21 +230,21 @@ export function seed() {
       start: dOff(-80),
       fav: false,
       members: ['m1', 'm3', 'm5'],
-      desc: 'Launch site for the spring release. Shipped and handed to the web team for maintenance.',
+      desc: 'سایت عرضه بهاره منتشر شده و برای نگهداری به تیم وب تحویل داده شده است.',
       milestones: [],
       last: 26000,
     },
   ];
   let n = 0;
-  const T = [];
-  const t = (p, title, status, a, prio, due, labels = [], x: Record<string, any> = {}) => {
+  const T: any[] = [];
+  const t = (p, title, status, a, prio, due, labels: string[] = [], x: Record<string, any> = {}) => {
     const proj = projects.find(q => q.id === p);
     const count = T.filter(q => q.project === p).length + 1;
     T.push(
       Object.assign(
         {
           id: 't' + ++n,
-          key: proj.key + '-' + (100 + count * 3),
+          key: (proj?.key || p) + '-' + (100 + count * 3),
           project: p,
           title,
           status,
@@ -269,108 +269,108 @@ export function seed() {
     );
   };
   // Website Redesign
-  t('p1', 'Audit existing navigation', 'done', 'm2', 'high', -12, ['research'], { est: '2d', len: 5, age: 28 });
-  t('p1', 'Summarize stakeholder interviews', 'done', 'm1', 'medium', -9, ['research'], { est: '1d', age: 26 });
-  t('p1', 'Create homepage wireframes', 'review', 'm2', 'high', 1, ['design'], {
+  t('p1', 'ارزیابی ناوبری فعلی', 'done', 'm2', 'high', -12, ['research'], { est: '2d', len: 5, age: 28 });
+  t('p1', 'خلاصه مصاحبه‌های ذی‌نفعان', 'done', 'm1', 'medium', -9, ['research'], { est: '1d', age: 26 });
+  t('p1', 'ساخت وایرفریم صفحه اصلی', 'review', 'm2', 'high', 1, ['design'], {
     est: '3d',
     len: 7,
     fav: true,
-    desc: '<p>Low-fidelity wireframes for the new homepage covering <b>desktop, tablet, and mobile</b> breakpoints.</p><ul><li>Hero with product value proposition</li><li>Customer logos and proof points</li><li>Feature overview linking to product pages</li></ul><p>Reference the navigation audit for IA decisions.</p>',
+    desc: '<p>کم-fidelity wireframes for the new homepage covering <b>desktop, tablet, and mobile</b> breakpoints.</p><ul><li>بخش اصلی با ارزش پیشنهادی محصول</li><li>نشان مشتریان و شواهد موفقیت</li><li>نمای کلی قابلیت‌ها با پیوند به صفحه‌های محصول</li></ul><p>برای تصمیم‌های معماری اطلاعات، ارزیابی ناوبری را ببینید.</p>',
     subtasks: [
-      { id: 's1', title: 'Desktop layout', done: true },
-      { id: 's2', title: 'Tablet layout', done: true },
-      { id: 's3', title: 'Mobile layout', done: true },
-      { id: 's4', title: 'Annotate interactions', done: false },
+      { id: 's1', title: 'چیدمان دسکتاپ', done: true },
+      { id: 's2', title: 'چیدمان تبلت', done: true },
+      { id: 's3', title: 'چیدمان موبایل', done: true },
+      { id: 's4', title: 'توضیح تعامل‌ها', done: false },
     ],
     attachments: [
       { id: 'a1', name: 'homepage-wireframes-v3.fig', type: 'fig', size: '4.2 MB', by: 'm2', at: minsAgo(300) },
       { id: 'a2', name: 'nav-audit-findings.pdf', type: 'pdf', size: '860 KB', by: 'm2', at: minsAgo(8000) },
     ],
   });
-  t('p1', 'Finalize navigation', 'progress', 'm3', 'high', 0, ['design', 'frontend'], {
+  t('p1', 'نهایی‌سازی ناوبری', 'progress', 'm3', 'high', 0, ['design', 'frontend'], {
     est: '2d',
     len: 4,
     subtasks: [
-      { id: 's5', title: 'Primary nav structure', done: true },
-      { id: 's6', title: 'Mega-menu content', done: false },
-      { id: 's7', title: 'Mobile drawer behavior', done: false },
+      { id: 's5', title: 'ساختار اصلی ناوبری', done: true },
+      { id: 's6', title: 'محتوای منوی گسترده', done: false },
+      { id: 's7', title: 'رفتار پنل موبایل', done: false },
     ],
   });
-  t('p1', 'Design responsive navigation', 'progress', 'm4', 'medium', 3, ['design'], {
+  t('p1', 'طراحی ناوبری واکنش‌گرا', 'progress', 'm4', 'medium', 3, ['design'], {
     est: '3d',
     len: 6,
     subtasks: [
-      { id: 's8', title: 'Breakpoint rules', done: true },
-      { id: 's9', title: 'Sticky header states', done: false },
+      { id: 's8', title: 'قواعد اندازه صفحه', done: true },
+      { id: 's9', title: 'وضعیت‌های سربرگ ثابت', done: false },
     ],
   });
-  t('p1', 'Prepare design system tokens', 'todo', 'm1', 'medium', 6, ['design'], { est: '2d', len: 4 });
-  t('p1', 'Review responsive layouts', 'todo', 'm4', 'medium', 8, ['qa', 'design'], { est: '1d', len: 3 });
-  t('p1', 'Prepare developer handoff', 'todo', 'm2', 'high', 14, ['frontend'], { est: '2d', len: 4, deps: ['t3', 't5'] });
-  t('p1', 'Design mobile onboarding', 'progress', 'm4', 'urgent', -1, ['design'], {
+  t('p1', 'آماده‌سازی توکن‌های سیستم طراحی', 'todo', 'm1', 'medium', 6, ['design'], { est: '2d', len: 4 });
+  t('p1', 'بررسی چیدمان‌های واکنش‌گرا', 'todo', 'm4', 'medium', 8, ['qa', 'design'], { est: '1d', len: 3 });
+  t('p1', 'آماده‌سازی تحویل به توسعه‌دهنده', 'todo', 'm2', 'high', 14, ['frontend'], { est: '2d', len: 4, deps: ['t3', 't5'] });
+  t('p1', 'طراحی راه‌اندازی موبایل', 'progress', 'm4', 'urgent', -1, ['design'], {
     est: '3d',
     len: 6,
     subtasks: [
-      { id: 's10', title: 'Welcome screens', done: true },
-      { id: 's11', title: 'Permission prompts', done: false },
-      { id: 's12', title: 'Empty states', done: false },
+      { id: 's10', title: 'صفحه‌های خوشامدگویی', done: true },
+      { id: 's11', title: 'درخواست‌های مجوز', done: false },
+      { id: 's12', title: 'وضعیت‌های خالی', done: false },
     ],
   });
-  t('p1', 'Write homepage copy', 'backlog', 'm5', 'low', 18, ['content'], { est: '2d' });
-  t('p1', 'Set up analytics events', 'backlog', 'm6', 'medium', 20, ['backend', 'growth'], { est: '1d' });
-  t('p1', 'Accessibility audit of templates', 'backlog', 'm7', 'high', 22, ['qa'], { est: '2d' });
-  t('p1', 'Build hero component', 'todo', 'm3', 'medium', 10, ['frontend'], { est: '2d', len: 3, deps: ['t3'] });
-  t('p1', 'Image optimization pipeline', 'review', 'm6', 'low', 2, ['backend'], { est: '1d', len: 5 });
-  t('p1', 'Weekly design sync notes', 'todo', 'm1', 'low', 2, ['content'], { recur: 'Weekly', est: '30m', len: 0 });
-  t('p1', 'Migrate blog to new CMS', 'backlog', 'm3', 'medium', 28, ['backend'], { est: '5d', len: 8 });
-  t('p1', 'Footer and legal pages', 'done', 'm5', 'low', -5, ['frontend'], { est: '1d' });
-  t('p1', 'Fix broken anchor links on pricing', 'done', 'm3', 'medium', -3, ['bug'], { est: '2h', len: 1 });
+  t('p1', 'نوشتن متن صفحه اصلی', 'backlog', 'm5', 'low', 18, ['content'], { est: '2d' });
+  t('p1', 'تنظیم رویدادهای تحلیل', 'backlog', 'm6', 'medium', 20, ['backend', 'growth'], { est: '1d' });
+  t('p1', 'ارزیابی دسترس‌پذیری قالب‌ها', 'backlog', 'm7', 'high', 22, ['qa'], { est: '2d' });
+  t('p1', 'ساخت بخش اصلی صفحه', 'todo', 'm3', 'medium', 10, ['frontend'], { est: '2d', len: 3, deps: ['t3'] });
+  t('p1', 'فرایند بهینه‌سازی تصاویر', 'review', 'm6', 'low', 2, ['backend'], { est: '1d', len: 5 });
+  t('p1', 'یادداشت‌های هماهنگی هفتگی طراحی', 'todo', 'm1', 'low', 2, ['content'], { recur: 'Weekly', est: '30m', len: 0 });
+  t('p1', 'انتقال وبلاگ به سامانه مدیریت محتوای جدید', 'backlog', 'm3', 'medium', 28, ['backend'], { est: '5d', len: 8 });
+  t('p1', 'پاورقی و صفحه‌های حقوقی', 'done', 'm5', 'low', -5, ['frontend'], { est: '1d' });
+  t('p1', 'اصلاح پیوندهای خراب صفحه قیمت‌گذاری', 'done', 'm3', 'medium', -3, ['bug'], { est: '2h', len: 1 });
   // Mobile App
-  t('p2', 'Onboarding flow prototype', 'progress', 'm4', 'high', 4, ['design'], { est: '3d', len: 6 });
-  t('p2', 'Push notification service', 'progress', 'm6', 'high', 6, ['backend'], { est: '5d', len: 9 });
-  t('p2', 'Offline mode sync', 'todo', 'm3', 'urgent', 5, ['frontend', 'backend'], { est: '8d', len: 10, deps: ['t20'] });
-  t('p2', 'App Store screenshots', 'backlog', 'm5', 'low', 40, ['content'], { est: '1d' });
-  t('p2', 'Crash reporting setup', 'done', 'm6', 'medium', -8, ['backend'], { est: '1d' });
-  t('p2', 'Biometric sign-in', 'review', 'm3', 'high', 2, ['frontend'], { est: '3d', len: 6 });
-  t('p2', 'Settings screen redesign', 'todo', 'm4', 'medium', 9, ['design'], { est: '2d' });
-  t('p2', 'Triage beta tester feedback', 'todo', 'm1', 'medium', 0, ['research'], { est: '4h', len: 1, recur: 'Weekly' });
-  t('p2', 'Crash on Android 12 when rotating', 'todo', 'm3', 'urgent', 1, ['bug'], { est: '1d', len: 1 });
+  t('p2', 'نمونه اولیه فرایند راه‌اندازی', 'progress', 'm4', 'high', 4, ['design'], { est: '3d', len: 6 });
+  t('p2', 'سرویس اعلان دستگاه', 'progress', 'm6', 'high', 6, ['backend'], { est: '5d', len: 9 });
+  t('p2', 'همگام‌سازی آفلاین', 'todo', 'm3', 'urgent', 5, ['frontend', 'backend'], { est: '8d', len: 10, deps: ['t20'] });
+  t('p2', 'تصاویر فروشگاه اپلیکیشن', 'backlog', 'm5', 'low', 40, ['content'], { est: '1d' });
+  t('p2', 'راه‌اندازی گزارش خطا', 'done', 'm6', 'medium', -8, ['backend'], { est: '1d' });
+  t('p2', 'ورود زیست‌سنجی', 'review', 'm3', 'high', 2, ['frontend'], { est: '3d', len: 6 });
+  t('p2', 'بازطراحی صفحه تنظیمات', 'todo', 'm4', 'medium', 9, ['design'], { est: '2d' });
+  t('p2', 'اولویت‌بندی بازخورد کاربران آزمایشی', 'todo', 'm1', 'medium', 0, ['research'], { est: '4h', len: 1, recur: 'Weekly' });
+  t('p2', 'بسته‌شدن برنامه هنگام چرخش در اندروید ۱۲', 'todo', 'm3', 'urgent', 1, ['bug'], { est: '1d', len: 1 });
   // Marketing Campaign
-  t('p3', 'Campaign brief', 'done', 'm5', 'medium', -6, ['content'], { est: '1d' });
-  t('p3', 'Landing page copy', 'progress', 'm5', 'medium', 4, ['content'], { est: '2d' });
-  t('p3', 'Paid social creatives', 'todo', 'm4', 'high', 7, ['design', 'growth'], { est: '3d', len: 5 });
-  t('p3', 'Email nurture sequence', 'todo', 'm8', 'medium', 9, ['content'], { est: '2d' });
-  t('p3', 'Influencer outreach list', 'backlog', 'm7', 'low', null, ['growth']);
-  t('p3', 'Launch webinar deck', 'todo', 'm1', 'medium', 15, ['content'], { est: '2d' });
-  t('p3', 'Budget approval', 'review', 'm1', 'urgent', -2, [], { est: '1h', len: 1 });
+  t('p3', 'شرح کمپین', 'done', 'm5', 'medium', -6, ['content'], { est: '1d' });
+  t('p3', 'متن صفحه فرود', 'progress', 'm5', 'medium', 4, ['content'], { est: '2d' });
+  t('p3', 'طرح‌های تبلیغات شبکه‌های اجتماعی', 'todo', 'm4', 'high', 7, ['design', 'growth'], { est: '3d', len: 5 });
+  t('p3', 'زنجیره ایمیل‌های پرورش مشتری', 'todo', 'm8', 'medium', 9, ['content'], { est: '2d' });
+  t('p3', 'فهرست ارتباط با اینفلوئنسرها', 'backlog', 'm7', 'low', null, ['growth']);
+  t('p3', 'ارائه وبینار عرضه', 'todo', 'm1', 'medium', 15, ['content'], { est: '2d' });
+  t('p3', 'تأیید بودجه', 'review', 'm1', 'urgent', -2, [], { est: '1h', len: 1 });
   // Product Launch
-  t('p4', 'Launch readiness checklist', 'progress', 'm1', 'urgent', 3, ['qa'], {
+  t('p4', 'چک‌لیست آمادگی عرضه', 'progress', 'm1', 'urgent', 3, ['qa'], {
     est: '1d',
     len: 10,
     subtasks: [
-      { id: 's20', title: 'Docs published', done: true },
-      { id: 's21', title: 'Pricing live', done: false },
-      { id: 's22', title: 'Support trained', done: false },
-      { id: 's23', title: 'Status page updated', done: true },
+      { id: 's20', title: 'انتشار مستندات', done: true },
+      { id: 's21', title: 'انتشار قیمت‌ها', done: false },
+      { id: 's22', title: 'آموزش تیم پشتیبانی', done: false },
+      { id: 's23', title: 'به‌روزرسانی صفحه وضعیت', done: true },
     ],
   });
-  t('p4', 'Pricing page update', 'todo', 'm2', 'high', 6, ['design', 'frontend'], { est: '2d' });
-  t('p4', 'Press release draft', 'review', 'm5', 'medium', 1, ['content'], { est: '1d' });
-  t('p4', 'Sales enablement docs', 'todo', 'm7', 'medium', 8, ['content'], { est: '2d' });
-  t('p4', 'Release notes', 'backlog', 'm3', 'low', 11, ['content'], { est: '4h' });
-  t('p4', 'Go / no-go meeting', 'todo', 'm1', 'high', 11, [], { est: '1h', len: 0 });
+  t('p4', 'به‌روزرسانی صفحه قیمت‌گذاری', 'todo', 'm2', 'high', 6, ['design', 'frontend'], { est: '2d' });
+  t('p4', 'پیش‌نویس بیانیه خبری', 'review', 'm5', 'medium', 1, ['content'], { est: '1d' });
+  t('p4', 'اسناد پشتیبانی فروش', 'todo', 'm7', 'medium', 8, ['content'], { est: '2d' });
+  t('p4', 'یادداشت‌های انتشار', 'backlog', 'm3', 'low', 11, ['content'], { est: '4h' });
+  t('p4', 'جلسه تصمیم انتشار', 'todo', 'm1', 'high', 11, [], { est: '1h', len: 0 });
   // Design System
-  t('p5', 'Color tokens v2', 'done', 'm2', 'high', -4, ['design'], { est: '3d' });
-  t('p5', 'Button component audit', 'progress', 'm2', 'medium', 5, ['design', 'frontend'], { est: '2d' });
-  t('p5', 'Form field states', 'todo', 'm4', 'medium', 12, ['design'], { est: '3d' });
-  t('p5', 'Icon library cleanup', 'backlog', 'm4', 'low', null, ['design']);
-  t('p5', 'Documentation site', 'todo', 'm3', 'medium', 20, ['frontend'], { est: '5d', len: 8 });
-  t('p5', 'Dark mode palette', 'review', 'm2', 'high', 2, ['design'], { est: '2d' });
+  t('p5', 'نسخه دوم توکن‌های رنگ', 'done', 'm2', 'high', -4, ['design'], { est: '3d' });
+  t('p5', 'ارزیابی اجزای دکمه', 'progress', 'm2', 'medium', 5, ['design', 'frontend'], { est: '2d' });
+  t('p5', 'وضعیت‌های ورودی فرم', 'todo', 'm4', 'medium', 12, ['design'], { est: '3d' });
+  t('p5', 'مرتب‌سازی کتابخانه آیکن', 'backlog', 'm4', 'low', null, ['design']);
+  t('p5', 'سایت مستندات', 'todo', 'm3', 'medium', 20, ['frontend'], { est: '5d', len: 8 });
+  t('p5', 'پالت حالت تیره', 'review', 'm2', 'high', 2, ['design'], { est: '2d' });
   // Marketing Website (complete)
-  t('p7', 'Launch site QA', 'done', 'm3', 'high', -20, ['qa']);
-  t('p7', 'Spring release hero video', 'done', 'm5', 'medium', -24, ['content']);
+  t('p7', 'تضمین کیفیت سایت عرضه', 'done', 'm3', 'high', -20, ['qa']);
+  t('p7', 'ویدیوی اصلی عرضه بهاره', 'done', 'm5', 'medium', -24, ['content']);
   // Customer portal (restricted)
-  t('p6', 'Billing API contract', 'todo', 'm6', 'high', 30, ['backend']);
+  t('p6', 'قرارداد API صورتحساب', 'todo', 'm6', 'high', 30, ['backend']);
 
   const tk = id => T.find(x => x.id === id);
   // completed metadata
@@ -381,36 +381,36 @@ export function seed() {
       task: 't3',
       by: 'm4',
       at: minsAgo(260),
-      text: 'Tablet layout feels crowded around the logo strip. Could we drop to four logos under 1024px?',
+      text: 'چیدمان تبلت کنار نشان‌ها شلوغ شده است. می‌توانیم در عرض کمتر از ۱۰۲۴ پیکسل فقط چهار نشان نمایش دهیم؟',
       re: { '👍': ['m2', 'm3'] },
     },
-    { id: 'c2', task: 't3', by: 'm2', at: minsAgo(210), text: 'Good call. Updated in v3 — @Tanjim Islam can you review before Thursday?', re: {} },
+    { id: 'c2', task: 't3', by: 'm2', at: minsAgo(210), text: 'پیشنهاد خوبی بود. در نسخه سوم به‌روز شد. @Tanjim Islam لطفاً تا پنجشنبه بررسی کنید.', re: {} },
     {
       id: 'c3',
       task: 't3',
       by: 'm3',
       at: minsAgo(95),
-      text: 'Hero spacing maps cleanly to our 8pt scale. No blockers from engineering.',
+      text: 'فاصله‌گذاری بخش اصلی با شبکه ۸ واحدی هماهنگ است. از نظر مهندسی مانعی وجود ندارد.',
       re: { '🎉': ['m2'] },
     },
-    { id: 'c4', task: 't4', by: 'm3', at: minsAgo(400), text: "Mega-menu content still pending from marketing. I'll stub it for now.", re: {} },
-    { id: 'c5', task: 't4', by: 'm5', at: minsAgo(120), text: '@John Carter content is in the shared doc now — six columns max.', re: { '👍': ['m3'] } },
-    { id: 'c6', task: 't9', by: 'm1', at: minsAgo(55), text: 'This slipped past yesterday — @Emma Wilson anything blocking the permission prompts?', re: {} },
-    { id: 'c7', task: 't24', by: 'm7', at: minsAgo(700), text: 'Face ID fallback to passcode works on iOS 17; testing Android next.', re: {} },
-    { id: 'c8', task: 't34', by: 'm2', at: minsAgo(1500), text: 'Finance needs the channel split before approving.', re: {} },
-    { id: 'c9', task: 't35', by: 'm7', at: minsAgo(200), text: 'Support training moved to Monday. @Tanjim Islam please confirm the status page copy.', re: {} },
+    { id: 'c4', task: 't4', by: 'm3', at: minsAgo(400), text: 'محتوای منوی گسترده هنوز از بازاریابی نرسیده است. فعلاً متن موقت می‌گذارم.', re: {} },
+    { id: 'c5', task: 't4', by: 'm5', at: minsAgo(120), text: '@John Carter محتوا در سند مشترک قرار گرفت؛ حداکثر شش ستون.', re: { '👍': ['m3'] } },
+    { id: 'c6', task: 't9', by: 'm1', at: minsAgo(55), text: 'مهلت این مورد دیروز گذشت. @Emma Wilson مانعی برای درخواست‌های مجوز وجود دارد؟', re: {} },
+    { id: 'c7', task: 't24', by: 'm7', at: minsAgo(700), text: 'بازگشت از Face ID به رمز در iOS 17 درست کار می‌کند؛ مرحله بعد آزمایش اندروید است.', re: {} },
+    { id: 'c8', task: 't34', by: 'm2', at: minsAgo(1500), text: 'بخش مالی برای تأیید به تفکیک کانال‌ها نیاز دارد.', re: {} },
+    { id: 'c9', task: 't35', by: 'm7', at: minsAgo(200), text: 'آموزش پشتیبانی به دوشنبه منتقل شد. @Tanjim Islam لطفاً متن صفحه وضعیت را تأیید کنید.', re: {} },
   ];
   const A = (by, verb, task, project, m, extra = '') => ({ id: uid('a'), by, verb, task, project, at: minsAgo(m), extra });
   const activity = [
-    A('m2', 'moved', 't3', 'p1', 38, 'to Review'),
+    A('m2', 'moved', 't3', 'p1', 38, 'به وضعیت بررسی'),
     A('m3', 'completed', 't18', 'p1', 90),
     A('m4', 'commented on', 't19', 'p2', 140),
-    A('m1', 'changed priority of', 't9', 'p1', 180, 'to Urgent'),
+    A('m1', 'changed priority of', 't9', 'p1', 180, 'به اولویت فوری'),
     A('m6', 'added a file to', 't14', 'p1', 260),
     A('m5', 'created', 't30', 'p3', 330),
-    A('m2', 'assigned', 't8', 'p1', 420, 'to Sarah Chen'),
+    A('m2', 'assigned', 't8', 'p1', 420, 'به سارا چن'),
     A('m7', 'completed', 't23', 'p2', 1300),
-    A('m3', 'moved', 't24', 'p2', 1500, 'to Review'),
+    A('m3', 'moved', 't24', 'p2', 1500, 'به وضعیت بررسی'),
     A('m1', 'created project', null, 'p4', 30000),
     A('m2', 'created project', null, 'p1', 43000),
     A('m4', 'completed', 't41', 'p5', 5600),
@@ -422,19 +422,19 @@ export function seed() {
       type: 'mention',
       by: 'm2',
       task: 't3',
-      text: 'mentioned you in',
-      snippet: 'Updated in v3 — @Tanjim Islam can you review before Thursday?',
+      text: 'به شما اشاره کرد در',
+      snippet: 'در نسخه سوم به‌روز شد. @Tanjim Islam لطفاً تا پنجشنبه بررسی کنید.',
       at: minsAgo(210),
       read: false,
     },
-    { id: 'n2', type: 'assign', by: 'm3', task: 't28', text: 'assigned you', snippet: 'Due today · Medium priority', at: minsAgo(300), read: false },
+    { id: 'n2', type: 'assign', by: 'm3', task: 't28', text: 'به شما واگذار کرد', snippet: 'مهلت امروز · اولویت متوسط', at: minsAgo(300), read: false },
     {
       id: 'n3',
       type: 'comment',
       by: 'm4',
       task: 't9',
-      text: 'commented on',
-      snippet: 'Permission prompts need legal review — drafting now.',
+      text: 'دیدگاهی نوشت برای',
+      snippet: 'درخواست‌های مجوز به بررسی حقوقی نیاز دارند؛ پیش‌نویس در حال آماده‌سازی است.',
       at: minsAgo(40),
       read: false,
     },
@@ -443,19 +443,19 @@ export function seed() {
       type: 'mention',
       by: 'm7',
       task: 't35',
-      text: 'mentioned you in',
-      snippet: 'Support training moved to Monday. @Tanjim Islam please confirm the status page copy.',
+      text: 'به شما اشاره کرد در',
+      snippet: 'آموزش پشتیبانی به دوشنبه منتقل شد. @Tanjim Islam لطفاً متن صفحه وضعیت را تأیید کنید.',
       at: minsAgo(200),
       read: false,
     },
-    { id: 'n5', type: 'update', by: 'm2', task: 't3', text: 'moved to Review', snippet: 'To Do → Review', at: minsAgo(38), read: true },
+    { id: 'n5', type: 'update', by: 'm2', task: 't3', text: 'به وضعیت بررسی منتقل شد', snippet: 'برای انجام ← در حال بررسی', at: minsAgo(38), read: true },
     {
       id: 'n6',
       type: 'update',
       by: null,
       project: 'p4',
-      text: 'Product Launch is at risk',
-      snippet: '3 tasks due this week are not started',
+      text: 'عرضه محصول در معرض خطر است',
+      snippet: '۳ کار با مهلت این هفته هنوز شروع نشده‌اند',
       at: minsAgo(600),
       read: false,
     },
@@ -464,14 +464,23 @@ export function seed() {
       type: 'comment',
       by: 'm2',
       task: 't34',
-      text: 'commented on',
-      snippet: 'Finance needs the channel split before approving.',
+      text: 'دیدگاهی نوشت برای',
+      snippet: 'بخش مالی برای تأیید به تفکیک کانال‌ها نیاز دارد.',
       at: minsAgo(1500),
       read: true,
     },
-    { id: 'n8', type: 'assign', by: 'm2', task: 't6', text: 'assigned you', snippet: 'Due in 6 days', at: minsAgo(2900), read: true },
-    { id: 'n9', type: 'update', by: 'm3', task: 't18', text: 'completed', snippet: 'Fix broken anchor links on pricing', at: minsAgo(90), read: true },
-    { id: 'n10', type: 'update', by: null, task: 't28', text: 'is due today', snippet: 'Triage beta tester feedback', at: minsAgo(20), read: false },
+    { id: 'n8', type: 'assign', by: 'm2', task: 't6', text: 'به شما واگذار کرد', snippet: 'مهلت تا ۶ روز دیگر', at: minsAgo(2900), read: true },
+    { id: 'n9', type: 'update', by: 'm3', task: 't18', text: 'completed', snippet: 'اصلاح پیوندهای خراب صفحه قیمت‌گذاری', at: minsAgo(90), read: true },
+    {
+      id: 'n10',
+      type: 'update',
+      by: null,
+      task: 't28',
+      text: 'مهلت انجامش امروز است',
+      snippet: 'اولویت‌بندی بازخورد کاربران آزمایشی',
+      at: minsAgo(20),
+      read: false,
+    },
   ];
   const files = [
     { id: 'f1', project: 'p1', name: 'homepage-wireframes-v3.fig', type: 'fig', size: '4.2 MB', by: 'm2', at: minsAgo(300), task: 't3' },
@@ -488,21 +497,21 @@ export function seed() {
     { id: 'f12', project: 'p4', name: 'launch-plan.docx', type: 'doc', size: '180 KB', by: 'm1', at: minsAgo(6000) },
   ];
   const events = [
-    { id: 'e1', title: 'Design review', date: dOff(1), time: '10:00', project: 'p1' },
-    { id: 'e2', title: 'Sprint planning', date: dOff(5), time: '09:30', project: 'p2' },
-    { id: 'e3', title: 'Launch sync', date: dOff(0), time: '15:00', project: 'p4' },
-    { id: 'e4', title: 'Stakeholder demo', date: dOff(9), time: '14:00', project: 'p1' },
-    { id: 'e5', title: 'Campaign kickoff', date: dOff(-3), time: '11:00', project: 'p3' },
-    { id: 'e6', title: 'Retro', date: dOff(12), time: '16:00', project: 'p2' },
+    { id: 'e1', title: 'بررسی طراحی', date: dOff(1), time: '10:00', project: 'p1' },
+    { id: 'e2', title: 'برنامه‌ریزی اسپرینت', date: dOff(5), time: '09:30', project: 'p2' },
+    { id: 'e3', title: 'هماهنگی عرضه', date: dOff(0), time: '15:00', project: 'p4' },
+    { id: 'e4', title: 'نمایش به ذی‌نفعان', date: dOff(9), time: '14:00', project: 'p1' },
+    { id: 'e5', title: 'شروع کمپین', date: dOff(-3), time: '11:00', project: 'p3' },
+    { id: 'e6', title: 'بازنگری', date: dOff(12), time: '16:00', project: 'p2' },
   ];
   const tmp = tk('t3');
-  tmp.updated = minsAgo(38);
+  tmp!.updated = minsAgo(38);
   return {
     ws: { name: 'Gr8r Studio', url: 'gr8rstudio', c: '#1D1C1A', brand: true },
     workspaces: [
-      { id: 'w1', name: 'Gr8r Studio', c: '#1D1C1A', plan: 'Team', brand: true },
-      { id: 'w2', name: 'Personal', c: '#3D8E5F', plan: 'Free' },
-      { id: 'w3', name: 'Acme Labs', c: '#3B82C4', plan: 'Business' },
+      { id: 'w1', name: 'Gr8r Studio', c: '#1D1C1A', plan: 'تیم', brand: true },
+      { id: 'w2', name: 'شخصی', c: '#3D8E5F', plan: 'رایگان' },
+      { id: 'w3', name: 'Acme Labs', c: '#3B82C4', plan: 'کسب‌وکار' },
     ],
     me: 'm1',
     members,
@@ -514,18 +523,18 @@ export function seed() {
     files,
     events,
     projOrder: projects.map(p => p.id),
-    savedViews: [{ id: 'v1', project: 'p1', name: 'High priority', type: 'list', filters: [{ f: 'priority', op: 'is', v: ['urgent', 'high'] }] }],
+    savedViews: [{ id: 'v1', project: 'p1', name: 'اولویت زیاد', type: 'list', filters: [{ f: 'priority', op: 'is', v: ['urgent', 'high'] }] }],
     recentSearches: ['homepage', 'Sarah', 'wireframes'],
     sessions: [
-      { id: 'se1', dev: 'MacBook Pro · Chrome', loc: 'San Francisco, US', at: 'Active now', cur: true },
-      { id: 'se2', dev: 'iPhone 15 · Gr8r app', loc: 'San Francisco, US', at: '2 hours ago' },
-      { id: 'se3', dev: 'Windows · Edge', loc: 'Oakland, US', at: 'Sep 12' },
+      { id: 'se1', dev: 'MacBook Pro · Chrome', loc: 'سان‌فرانسیسکو، آمریکا', at: 'اکنون فعال', cur: true },
+      { id: 'se2', dev: 'iPhone 15 · Gr8r app', loc: 'سان‌فرانسیسکو، آمریکا', at: '۲ ساعت پیش' },
+      { id: 'se3', dev: 'Windows · Edge', loc: 'اوکلند، آمریکا', at: 'Sep 12' },
     ],
     invoices: [
-      { id: 'INV-2026-009', date: dOff(-23), amt: '$96.00', st: 'Paid' },
-      { id: 'INV-2026-008', date: dOff(-53), amt: '$96.00', st: 'Paid' },
-      { id: 'INV-2026-007', date: dOff(-84), amt: '$80.00', st: 'Paid' },
-      { id: 'INV-2026-006', date: dOff(-114), amt: '$80.00', st: 'Paid' },
+      { id: 'INV-2026-009', date: dOff(-23), amt: '$96.00', st: 'پرداخت‌شده' },
+      { id: 'INV-2026-008', date: dOff(-53), amt: '$96.00', st: 'پرداخت‌شده' },
+      { id: 'INV-2026-007', date: dOff(-84), amt: '$80.00', st: 'پرداخت‌شده' },
+      { id: 'INV-2026-006', date: dOff(-114), amt: '$80.00', st: 'پرداخت‌شده' },
     ],
     tfa: false,
     notifPrefs: {

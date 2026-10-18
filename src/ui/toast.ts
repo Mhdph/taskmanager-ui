@@ -11,7 +11,7 @@ export function toast(msg, opt: Record<string, any> = {}) {
   el.className = 'toast';
   el.setAttribute('role', 'status');
   const icon = opt.kind === 'err' ? ic('circle-alert', 15, 'bad') : opt.kind === 'info' ? ic('info', 15) : ic('circle-check', 15, 'ok');
-  el.innerHTML = `${icon}<span class="grow">${esc(msg)}</span>${opt.action ? `<button class="ta">${esc(opt.action)}</button>` : ''}<button class="ibtn ibtn-xs" aria-label="Dismiss" style="color:inherit;opacity:.6">${ic('x', 13)}</button>`;
+  el.innerHTML = `${icon}<span class="grow">${esc(msg)}</span>${opt.action ? `<button class="ta">${esc(opt.action)}</button>` : ''}<button class="ibtn ibtn-xs" aria-label="بستن" style="color:inherit;opacity:.6">${ic('x', 13)}</button>`;
   const kill = () => {
     el.classList.add('out');
     setTimeout(() => el.remove(), 160);
@@ -28,7 +28,7 @@ export function toast(msg, opt: Record<string, any> = {}) {
 /* guarded mutation: simulates offline failures for the "Failed to save" state */
 export function mutate(fn: () => void, label?: string) {
   if (S.ui.offline) {
-    toast("Your changes couldn't be saved. You're offline.", { kind: 'err', action: 'Try again', onAction: () => mutate(fn, label) });
+    toast('تغییرات ذخیره نشدند. اتصال شما قطع است.', { kind: 'err', action: 'تلاش دوباره', onAction: () => mutate(fn, label) });
     return false;
   }
   fn();

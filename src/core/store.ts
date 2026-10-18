@@ -1,5 +1,5 @@
 /* ---------- store (legacy shim) ----------
-   Canonical state lives in `#lib/state.svelte.js` (Svelte 5 runes).
+   Canonical state lives in `#lib/state` (TanStack Store).
    This module re-exports it so every existing importer keeps working
    while gaining reactivity for free. */
 export {
@@ -29,7 +29,7 @@ export {
   teamsList,
   team,
   TM,
-} from '#lib/state.svelte.js';
+} from '#lib/state';
 
 /* `saved` was the raw localStorage snapshot; kept for compat (null on server). */
 export const saved = null;

@@ -1,10 +1,7 @@
-import { sveltekit } from '@sveltejs/kit/vite';
-import vppkg from 'vite-preprocess';
-import adapter from '@sveltejs/adapter-vercel';
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
+import react from '@vitejs/plugin-react';
+import { nitro } from 'nitro/vite';
 import { defineConfig } from 'vite';
-
-// vite-preprocess ships a wrapped default export; unwrap for ESM/CJS interop.
-const vitePreprocess = vppkg.default ?? vppkg;
 import fs from 'node:fs';
 import path from 'node:path';
 import { icons as lucide } from 'lucide';
@@ -18,7 +15,7 @@ function lucideSubset() {
   const walk = dir =>
     fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => {
       const p = path.join(dir, e.name);
-      return e.isDirectory() ? walk(p) : /\.(js|ts|svelte)$/.test(e.name) ? [p] : [];
+      return e.isDirectory() ? walk(p) : /\.(js|ts|tsx)$/.test(e.name) ? [p] : [];
     });
   const pascal = n =>
     n
@@ -54,17 +51,10 @@ function lucideSubset() {
 }
 
 export default defineConfig({
-  plugins: [lucideSubset(), sveltekit({ adapter: adapter(), preprocess: vitePreprocess() })],
+  publicDir: 'public',
+  resolve: { alias: { '#lib': path.resolve('src/lib') } },
+  plugins: [lucideSubset(), tanstackStart(), nitro(), react()],
   server: {
     port: 5173,
-    // taskmanager-api in dev: same-origin `/api/*` proxy keeps the
-    // X-APIKEY/USER-ID/APP-ID headers cookie-free and simple.
-    proxy: {
-      '/api': {
-        target: process.env.VITE_API_URL_INTERNAL || 'http://localhost:8080',
-        changeOrigin: true,
-        rewrite: p => p.replace(/^\/api/, ''),
-      },
-    },
   },
 });

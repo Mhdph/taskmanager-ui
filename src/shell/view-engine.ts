@@ -1,58 +1,59 @@
+import { faNumber } from '../core/locale';
 /* ---------- filter engine ---------- */
 import { DAY, TODAY, diffD, esc, parse } from '../core/utils';
 import { ic } from '../core/icons';
 import { LABELS, PR, PRIOS, STATUSES } from '../core/constants';
 import { D, S, canSee, isOver, mem, pColor, proj, visibleProjects } from '../core/store';
 import { av, prIcon, stIcon } from '../ui/helpers';
-import type { ViewState } from '#lib/state.svelte.js';
+import type { ViewState } from '#lib/state';
 
 export const FIELDS = {
-  status: { name: 'Status', icon: 'circle-dot', opts: () => STATUSES.map(s => ({ id: s.id, name: s.name, html: stIcon(s.id) })) },
+  status: { name: 'وضعیت', icon: 'circle-dot', opts: () => STATUSES.map(s => ({ id: s.id, name: s.name, html: stIcon(s.id) })) },
   assignee: {
-    name: 'Assignee',
+    name: 'مسئول',
     icon: 'user',
     opts: () => [
-      { id: 'none', name: 'Unassigned', html: av(null, 'sm', false) },
+      { id: 'none', name: 'بدون مسئول', html: av(null, 'sm', false) },
       ...D().members.map(m => ({ id: m.id, name: m.name + (m.id === D().me ? ' (you)' : ''), html: av(m.id, 'sm', false) })),
     ],
   },
-  priority: { name: 'Priority', icon: 'signal-high', opts: () => PRIOS.map(p => ({ id: p.id, name: p.name, html: prIcon(p.id) })) },
+  priority: { name: 'اولویت', icon: 'signal-high', opts: () => PRIOS.map(p => ({ id: p.id, name: p.name, html: prIcon(p.id) })) },
   due: {
-    name: 'Due date',
+    name: 'مهلت انجام',
     icon: 'calendar',
     opts: () => [
-      { id: 'overdue', name: 'Overdue' },
-      { id: 'today', name: 'Today' },
-      { id: 'week', name: 'Next 7 days' },
-      { id: 'later', name: 'Later' },
-      { id: 'nodate', name: 'No due date' },
+      { id: 'overdue', name: 'عقب‌افتاده' },
+      { id: 'today', name: 'امروز' },
+      { id: 'week', name: '۷ روز آینده' },
+      { id: 'later', name: 'بعداً' },
+      { id: 'nodate', name: 'بدون مهلت' },
     ],
   },
   project: {
-    name: 'Project',
+    name: 'پروژه',
     icon: 'folder',
     opts: () =>
       visibleProjects()
         .filter(canSee)
         .map(p => ({ id: p.id, name: p.name, html: `<span class="pdot" style="--c:${pColor(p)}"></span>` })),
   },
-  labels: { name: 'Labels', icon: 'tag', opts: () => LABELS.map(l => ({ id: l.id, name: l.name, html: `<span class="pdot" style="--c:${l.c}"></span>` })) },
+  labels: { name: 'برچسب‌ها', icon: 'tag', opts: () => LABELS.map(l => ({ id: l.id, name: l.name, html: `<span class="pdot" style="--c:${l.c}"></span>` })) },
   created: {
-    name: 'Created date',
+    name: 'تاریخ ایجاد',
     icon: 'calendar-plus',
     opts: () => [
-      { id: '1', name: 'Last 24 hours' },
-      { id: '7', name: 'Last 7 days' },
-      { id: '30', name: 'Last 30 days' },
+      { id: '1', name: '۲۴ ساعت گذشته' },
+      { id: '7', name: '۷ روز گذشته' },
+      { id: '30', name: '۳۰ روز گذشته' },
     ],
   },
   updated: {
-    name: 'Updated date',
+    name: 'تاریخ به‌روزرسانی',
     icon: 'history',
     opts: () => [
-      { id: '1', name: 'Last 24 hours' },
-      { id: '7', name: 'Last 7 days' },
-      { id: '30', name: 'Last 30 days' },
+      { id: '1', name: '۲۴ ساعت گذشته' },
+      { id: '7', name: '۷ روز گذشته' },
+      { id: '30', name: '۳۰ روز گذشته' },
     ],
   },
 };
@@ -67,7 +68,7 @@ export function defaultView(): ViewState {
     showDone: true,
   };
 }
-/** Seed a view outside render (scripts, effects, handlers) so `$derived`
+/** Seed a view outside render (scripts, effects, handlers) so render functions
     templates never mutate state. Called centrally from `setRoute`. */
 export function ensureView(key) {
   if (!S.views[key]) S.views[key] = defaultView();
@@ -127,14 +128,14 @@ export function sortTasks(ts, s) {
   });
 }
 export function groupTasks(ts, g) {
-  if (g === 'none') return [{ key: 'all', name: 'All tasks', html: '', tasks: ts }];
+  if (g === 'none') return [{ key: 'all', name: 'همه کارها', html: '', tasks: ts }];
   let groups;
   if (g === 'status') groups = STATUSES.map(s => ({ key: s.id, name: s.name, html: stIcon(s.id), set: { status: s.id } }));
   else if (g === 'priority') groups = PRIOS.map(p => ({ key: p.id, name: p.name, html: prIcon(p.id), set: { priority: p.id } }));
   else if (g === 'assignee')
     groups = [
       ...D().members.map(m => ({ key: m.id, name: m.name, html: av(m.id, 'sm', false), set: { assignee: m.id } })),
-      { key: 'none', name: 'Unassigned', html: av(null, 'sm', false), set: { assignee: null } },
+      { key: 'none', name: 'بدون مسئول', html: av(null, 'sm', false), set: { assignee: null } },
     ];
   else if (g === 'project')
     groups = visibleProjects()
@@ -142,11 +143,11 @@ export function groupTasks(ts, g) {
       .map(p => ({ key: p.id, name: p.name, html: `<span class="pdot" style="--c:${pColor(p)}"></span>`, set: { project: p.id } }));
   else if (g === 'due')
     groups = [
-      { key: 'overdue', name: 'Overdue' },
-      { key: 'today', name: 'Today' },
-      { key: 'week', name: 'Next 7 days' },
-      { key: 'later', name: 'Later' },
-      { key: 'nodate', name: 'No due date' },
+      { key: 'overdue', name: 'عقب‌افتاده' },
+      { key: 'today', name: 'امروز' },
+      { key: 'week', name: '۷ روز آینده' },
+      { key: 'later', name: 'بعداً' },
+      { key: 'nodate', name: 'بدون مهلت' },
     ].map(x => ({ ...x, html: ic('calendar', 14) }));
   groups.forEach(G => {
     G.tasks = ts.filter(t => {
@@ -166,31 +167,31 @@ export function filterChips(key) {
       const opts = F.opts();
       const names = f.v.map(id => opts.find(o => o.id === id)?.name || id);
       const val = names.length ? (names.length > 2 ? `${names.length} selected` : names.join(', ')) : 'any';
-      return `${i ? '<span>and</span>' : ''}<span class="chip"><button data-a="pop" data-pop="fvals" data-key="${key}" data-i="${i}" style="display:inline-flex;gap:5px;align-items:center">${ic(F.icon, 12)}<b>${F.name}</b> ${f.op === 'not' ? 'is not' : 'is'} <span>${esc(val)}</span></button><button class="ibtn" data-a="rmFilter" data-key="${key}" data-i="${i}" aria-label="Remove filter">${ic('x', 12)}</button></span>`;
+      return `${i ? '<span>and</span>' : ''}<span class="chip"><button data-a="pop" data-pop="fvals" data-key="${key}" data-i="${i}" style="display:inline-flex;gap:5px;align-items:center">${ic(F.icon, 12)}<b>${F.name}</b> ${f.op === 'not' ? 'برابر نیست با' : 'is'} <span>${esc(val)}</span></button><button class="ibtn" data-a="rmFilter" data-key="${key}" data-i="${i}" aria-label="حذف فیلتر">${ic('x', 12)}</button></span>`;
     })
     .join('');
-  return `<div class="chipsbar">${ic('list-filter', 13)}${chips}<button class="btn btn-sm btn-ghost" data-a="pop" data-pop="filter" data-key="${key}">${ic('plus', 12)}Add</button><span class="sp"></span><button class="btn btn-sm btn-ghost" data-a="clearFilters" data-key="${key}">Clear all</button></div>`;
+  return `<div class="chipsbar">${ic('list-filter', 13)}${chips}<button class="btn btn-sm btn-ghost" data-a="pop" data-pop="filter" data-key="${key}">${ic('plus', 12)}افزودن</button><span class="sp"></span><button class="btn btn-sm btn-ghost" data-a="clearFilters" data-key="${key}">پاک کردن همه</button></div>`;
 }
 export function viewToolbar(key, opt: Record<string, any> = {}) {
   const v = viewOf(key);
   const sortName = {
-    manual: 'Manual',
-    title: 'Title',
-    due: 'Due date',
-    priority: 'Priority',
-    status: 'Status',
-    created: 'Created',
-    updated: 'Updated',
-    assignee: 'Assignee',
-    start: 'Start date',
-    estimate: 'Estimate',
-    project: 'Project',
+    manual: 'دستی',
+    title: 'عنوان',
+    due: 'مهلت انجام',
+    priority: 'اولویت',
+    status: 'وضعیت',
+    created: 'ایجاد شد',
+    updated: 'به‌روز شد',
+    assignee: 'مسئول',
+    start: 'تاریخ شروع',
+    estimate: 'برآورد زمان',
+    project: 'پروژه',
   }[v.sort.f];
   return `<div class="toolbar" role="toolbar">
-    <div class="inwrap">${ic('search', 13)}<input class="input search-sm" id="vq-${key}" data-in="viewQ" data-key="${key}" placeholder="Search tasks" value="${esc(v.q)}" aria-label="Search tasks"></div>
-    <button class="btn btn-ghost ${v.filters.length ? 'on' : ''}" data-a="pop" data-pop="filter" data-key="${key}">${ic('list-filter', 14)}Filter${v.filters.length ? ` <span class="badge accent" style="height:16px;padding:0 5px">${v.filters.length}</span>` : ''}</button>
-    <button class="btn btn-ghost" data-a="pop" data-pop="sort" data-key="${key}">${ic('arrow-up-down', 14)}<span class="hide-m">Sort:</span> ${sortName}</button>
-    ${opt.group !== false ? `<button class="btn btn-ghost" data-a="pop" data-pop="group" data-key="${key}">${ic('rows-3', 14)}<span class="hide-m">Group:</span> ${{ status: 'Status', priority: 'Priority', assignee: 'Assignee', project: 'Project', due: 'Due date', none: 'None' }[v.group]}</button>` : ''}
+    <div class="inwrap">${ic('search', 13)}<input class="input search-sm" id="vq-${key}" data-in="viewQ" data-key="${key}" placeholder="جستجوی کارها" value="${esc(v.q)}" aria-label="جستجوی کارها"></div>
+    <button class="btn btn-ghost ${v.filters.length ? 'on' : ''}" data-a="pop" data-pop="filter" data-key="${key}">${ic('list-filter', 14)}فیلتر${v.filters.length ? ` <span class="badge accent" style="height:16px;padding:0 5px">${faNumber(v.filters.length)}</span>` : ''}</button>
+    <button class="btn btn-ghost" data-a="pop" data-pop="sort" data-key="${key}">${ic('arrow-up-down', 14)}<span class="hide-m">مرتب‌سازی:</span> ${sortName}</button>
+    ${opt.group !== false ? `<button class="btn btn-ghost" data-a="pop" data-pop="group" data-key="${key}">${ic('rows-3', 14)}<span class="hide-m">گروه‌بندی:</span> ${{ status: 'وضعیت', priority: 'اولویت', assignee: 'مسئول', project: 'پروژه', due: 'مهلت انجام', none: 'هیچ‌کدام' }[v.group]}</button>` : ''}
     ${opt.cols ? `<button class="btn btn-ghost" data-a="pop" data-pop="cols" data-key="${key}">${ic('columns-3', 14)}Columns</button>` : ''}
     ${opt.extra || ''}
     <span class="sp"></span>

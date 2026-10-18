@@ -14,7 +14,8 @@
         against an API started with IDENTITY_DEV_MODE=true.
    ===================================================================== */
 
-import { browser } from '$app/env';
+import { browser } from '#lib/environment';
+import { getQueryClient } from './query-client';
 
 export const API_BASE: string = (import.meta as any).env?.VITE_API_URL || '/api';
 
@@ -31,6 +32,7 @@ const DEV_IDENTITY: Identity = {
 };
 
 export function getIdentity(): Identity {
+  if (import.meta.env.VITE_DEMO === 'true') return { apiKey: '', userId: '', appId: '' };
   if (!browser) return DEV_IDENTITY;
   try {
     const raw = localStorage.getItem('gr8r.api');
@@ -54,6 +56,7 @@ export function getIdentity(): Identity {
 
 export function setIdentity(id: Partial<Identity> | null) {
   if (!browser) return;
+  getQueryClient().clear();
   if (!id) localStorage.removeItem('gr8r.api');
   else localStorage.setItem('gr8r.api', JSON.stringify(id));
 }
@@ -90,7 +93,7 @@ async function request(method: string, path: string, opts: RequestOpts = {}): Pr
       body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
     });
   } catch {
-    throw new ApiError(0, 'Network error — is the API running?');
+    throw new ApiError(0, 'خطای شبکه؛ اتصال به سرور را بررسی کنید.');
   }
   if (res.status === 204) return {};
   const text = await res.text();
@@ -99,6 +102,7 @@ async function request(method: string, path: string, opts: RequestOpts = {}): Pr
     try {
       data = JSON.parse(text);
     } catch {
+      if (res.ok) throw new ApiError(res.status, 'پاسخ سرور نامعتبر است؛ نشانی سرور و تنظیمات اتصال را بررسی کنید.');
       data = { message: text };
     }
   }
@@ -108,12 +112,36 @@ async function request(method: string, path: string, opts: RequestOpts = {}): Pr
   return data;
 }
 
+/** Identity is part of every key so tenants/users never share cached responses. */
+export function apiQueryKey(path?: string) {
+  const id = getIdentity();
+  const scope = ['api', API_BASE, id.appId, id.userId, id.apiKey];
+  return path === undefined ? scope : [...scope, path];
+}
+
+async function mutate(method: string, path: string, body?: any) {
+  const client = getQueryClient();
+  const scope = apiQueryKey();
+  return client
+    .getMutationCache()
+    .build(client, {
+      mutationKey: [...scope, method, path],
+      mutationFn: () => request(method, path, { body }),
+      onSuccess: () => client.invalidateQueries({ queryKey: scope }),
+    })
+    .execute(undefined);
+}
+
 export const api = {
-  get: (path: string) => request('GET', path),
-  post: (path: string, body?: any) => request('POST', path, { body: body ?? {} }),
-  patch: (path: string, body?: any) => request('PATCH', path, { body: body ?? {} }),
-  put: (path: string, body?: any) => request('PUT', path, { body: body ?? {} }),
-  del: (path: string) => request('DELETE', path),
+  get: (path: string) =>
+    getQueryClient().fetchQuery({
+      queryKey: apiQueryKey(path),
+      queryFn: () => request('GET', path),
+    }),
+  post: (path: string, body?: any) => mutate('POST', path, body ?? {}),
+  patch: (path: string, body?: any) => mutate('PATCH', path, body ?? {}),
+  put: (path: string, body?: any) => mutate('PUT', path, body ?? {}),
+  del: (path: string) => mutate('DELETE', path),
 
   /** Multipart upload with progress (attachments). */
   upload(projectID: string, taskID: string, file: File, onProgress: (pct: number) => void): Promise<ResponseLike> {
@@ -136,10 +164,12 @@ export const api = {
         } catch {
           /* ignore */
         }
-        if (xhr.status >= 200 && xhr.status < 300) resolve(data);
-        else reject(new ApiError(xhr.status, data.message || data.error || `upload → ${xhr.status}`));
+        if (xhr.status >= 200 && xhr.status < 300) {
+          void getQueryClient().invalidateQueries({ queryKey: apiQueryKey() });
+          resolve(data);
+        } else reject(new ApiError(xhr.status, data.message || data.error || `upload → ${xhr.status}`));
       };
-      xhr.onerror = () => reject(new ApiError(0, 'Network error during upload'));
+      xhr.onerror = () => reject(new ApiError(0, 'خطای شبکه هنگام بارگذاری'));
       xhr.send(form);
     });
   },

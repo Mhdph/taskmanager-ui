@@ -1,0 +1,138 @@
+@font-face {
+  font-family: 'Estedad';
+  src: url('/fonts/Estedad-variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* The document direction also controls grid and flex ordering. */
+html {
+  direction: rtl;
+}
+body {
+  font-family: var(--font);
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+h1,
+h2,
+h3,
+h4,
+.sgroup-h,
+.gh,
+.label,
+.badge,
+.btn {
+  letter-spacing: normal;
+}
+input[type='email'],
+input[type='url'],
+input[type='password'],
+input[type='date'],
+input[type='time'],
+input[autocomplete='one-time-code'],
+#ws-url,
+#share-in,
+#tfa-code,
+.mono,
+kbd,
+code,
+pre {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+input[type='email'],
+input[type='url'],
+input[type='password'],
+#ws-url,
+#share-in {
+  text-align: left;
+}
+.drawer:not(.full) {
+  right: auto;
+  left: 0;
+}
+.drawer.full {
+  right: 50%;
+  left: auto;
+}
+.sitem .chev:not(.open) {
+  transform: scaleX(-1);
+}
+.i.rtl-flip {
+  transform: scaleX(-1);
+}
+.toggle {
+  direction: ltr;
+}
+/* Timeline coordinates and dependency paths use an LTR time axis. */
+.tl-right {
+  direction: ltr;
+}
+.tl-right .bar,
+.tl-right .ms-l {
+  direction: rtl;
+  unicode-bidi: plaintext;
+}
+.tl-right .bar {
+  text-align: start;
+}
+[data-tip-pos='right']::after {
+  left: auto;
+  right: calc(100% + 8px);
+}
+
+@keyframes drawer-rtl-in {
+  from {
+    opacity: 0;
+    transform: translateX(-48px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.drawer.enter:not(.full) {
+  animation-name: drawer-rtl-in;
+}
+@media (max-width: 900px) {
+  .side {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
+  }
+  .shell.mnav .side {
+    transform: none;
+  }
+}
+@media (max-width: 600px) {
+  .drawer:not(.full),
+  .drawer.full {
+    left: 0;
+    right: 0;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer.enter {
+    animation: none;
+  }
+}
+
+/* Mirror fixed decoration offsets; keep centered overlays and JS viewport coordinates physical. */
+.inwrap > .i {
+  left: auto;
+  right: 9px;
+}
+.inwrap > .clear {
+  right: auto;
+  left: 7px;
+}
+.drawer:not(.full) {
+  box-shadow: 18px 0 40px -24px rgba(0, 0, 0, 0.25);
+}

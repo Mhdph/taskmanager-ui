@@ -17,18 +17,18 @@ A.restoreTask = el => {
     })
   ) {
     sync.setArchived(t, false);
-    toast(`Restored “${t.title}”`, { action: 'Open', onAction: () => A.openTask({ dataset: { id: t.id } }) });
+    toast(`بازیابی شد “${t.title}”`, { action: 'باز', onAction: () => A.openTask({ dataset: { id: t.id } }) });
   }
 };
 A.purgeTask = el => {
   const t = task(el.dataset.id);
   confirmDlg({
-    title: 'Delete task permanently?',
-    body: `<b>${esc(t.title)}</b>, its subtasks, comments, and attachments will be deleted for everyone. This can't be undone.`,
-    ok: 'Delete permanently',
+    title: 'کار برای همیشه حذف شود؟',
+    body: `<b>${esc(t.title)}</b>، زیرکارها، دیدگاه‌ها و پیوست‌های آن برای همه حذف می‌شوند. این عملیات قابل بازگشت نیست.`,
+    ok: 'حذف دائمی',
     danger: true,
     run: () => {
-      if (mutate(() => deleteTasks([t.id]))) toast(`Deleted “${t.title}”`);
+      if (mutate(() => deleteTasks([t.id]))) toast(`حذف شد “${t.title}”`);
     },
   });
 };

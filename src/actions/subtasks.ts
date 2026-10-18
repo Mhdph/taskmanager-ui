@@ -81,5 +81,5 @@ A.promoteSub = el => {
   sync.removeSubtask(t, s);
   S.ui.subOpen = null;
   render();
-  toast(`Converted to ${n.key}`, { action: 'Open', onAction: () => A.openTask({ dataset: { id: n.id } }) });
+  toast(`تبدیل شد به ${n.key}`, { action: 'باز', onAction: () => A.openTask({ dataset: { id: n.id } }) });
 };

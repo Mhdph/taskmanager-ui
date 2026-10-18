@@ -16,3 +16,5 @@
 @import './pages/auth.css';
 @import './motion.css';
 @import './responsive.css';
+
+@import './rtl.css';

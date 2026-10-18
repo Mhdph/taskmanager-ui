@@ -17,14 +17,14 @@ import { timelineHtml, tlControls } from '../views/timeline';
 import { filesHtml } from '../views/files';
 
 export const PTABS = [
-  ['overview', 'Overview', 'layout-dashboard'],
-  ['board', 'Board', 'square-kanban'],
-  ['list', 'List', 'list'],
-  ['table', 'Table', 'table-2'],
-  ['calendar', 'Calendar', 'calendar'],
-  ['timeline', 'Timeline', 'chart-gantt'],
-  ['files', 'Files', 'paperclip'],
-  ['activity', 'Activity', 'activity'],
+  ['overview', 'نمای کلی', 'layout-dashboard'],
+  ['board', 'تابلو', 'square-kanban'],
+  ['list', 'فهرست', 'list'],
+  ['table', 'جدول', 'table-2'],
+  ['calendar', 'تقویم', 'calendar'],
+  ['timeline', 'خط زمانی', 'chart-gantt'],
+  ['files', 'فایل‌ها', 'paperclip'],
+  ['activity', 'فعالیت‌ها', 'activity'],
 ];
 
 export function pageProject() {
@@ -32,6 +32,7 @@ export function pageProject() {
   if (!p) return page404();
   if (!canSee(p)) return stateDenied(p);
   const tab = S.ui.params.tab || 'board';
+  if (!PTABS.some(([name]) => name === tab) && !tab.startsWith('v:')) return page404();
   const views = D().savedViews.filter(v => v.project === p.id);
   let body = '';
   const key = 'p:' + p.id;
@@ -42,8 +43,8 @@ export function pageProject() {
     else {
       const k = 'sv:' + sv.id;
       if (!S.views[k]) {
-        viewOf(k);
-        S.views[k].filters = JSON.parse(JSON.stringify(sv.filters));
+        const view = viewOf(k);
+        view.filters = JSON.parse(JSON.stringify(sv.filters));
       }
       body = taskViewBody(sv.type, applyView(ts, viewOf(k)), k, p);
     }
@@ -57,21 +58,21 @@ export function pageProject() {
       <div class="t">
         ${pIcon(p, 'lg', 18)}
         <h1>${esc(p.name)}</h1>
-        <button class="ibtn ibtn-sm" data-a="toggleFavProj" data-id="${p.id}" data-tip="${p.fav ? 'Remove from favorites' : 'Add to favorites'}" aria-pressed="${p.fav}" aria-label="Favorite" style="${p.fav ? 'color:var(--amber)' : ''}">${ic('star', 15)}</button>
-        <button class="pillbtn bordered" data-a="pop" data-pop="pstatus" data-id="${p.id}" aria-label="Project status" style="height:24px"><span class="pdot" style="--c:${PSTAT[p.status].c};border-radius:50%;width:7px;height:7px"></span>${PSTAT[p.status].name}${ic('chevron-down', 12)}</button>
+        <button class="ibtn ibtn-sm" data-a="toggleFavProj" data-id="${p.id}" data-tip="${p.fav ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'}" aria-pressed="${p.fav}" aria-label="افزودن به علاقه‌مندی‌ها" style="${p.fav ? 'color:var(--amber)' : ''}">${ic('star', 15)}</button>
+        <button class="pillbtn bordered" data-a="pop" data-pop="pstatus" data-id="${p.id}" aria-label="وضعیت پروژه" style="height:24px"><span class="pdot" style="--c:${PSTAT[p.status].c};border-radius:50%;width:7px;height:7px"></span>${PSTAT[p.status].name}${ic('chevron-down', 12)}</button>
         <span class="sp"></span>
         <div class="row" style="gap:4px">
-          <button class="row" data-a="share" data-id="${p.id}" aria-label="Members" style="gap:0">${avStack(p.members, 5, 'md')}</button>
-          <button class="ibtn ibtn-sm" data-a="share" data-id="${p.id}" data-tip="Add member" aria-label="Add member">${ic('user-plus', 15)}</button>
-          <button class="btn btn-secondary btn-sm hide-m" data-a="share" data-id="${p.id}">${ic('share-2', 13)}Share</button>
-          <button class="ibtn ibtn-sm" data-a="editProject" data-id="${p.id}" data-tip="Project settings" aria-label="Project settings">${ic('settings', 15)}</button>
-          <button class="ibtn ibtn-sm" data-a="ctxBtn" data-ctx="project" data-id="${p.id}" aria-label="More">${ic('ellipsis', 15)}</button>
+          <button class="row" data-a="share" data-id="${p.id}" aria-label="اعضا" style="gap:0">${avStack(p.members, 5, 'md')}</button>
+          <button class="ibtn ibtn-sm" data-a="share" data-id="${p.id}" data-tip="افزودن عضو" aria-label="افزودن عضو">${ic('user-plus', 15)}</button>
+          <button class="btn btn-secondary btn-sm hide-m" data-a="share" data-id="${p.id}">${ic('share-2', 13)}اشتراک‌گذاری</button>
+          <button class="ibtn ibtn-sm" data-a="editProject" data-id="${p.id}" data-tip="تنظیمات پروژه" aria-label="تنظیمات پروژه">${ic('settings', 15)}</button>
+          <button class="ibtn ibtn-sm" data-a="ctxBtn" data-ctx="project" data-id="${p.id}" aria-label="بیشتر">${ic('ellipsis', 15)}</button>
         </div>
       </div>
-      <nav class="tabs" aria-label="Project views">
+      <nav class="tabs" aria-label="نماهای پروژه">
         ${PTABS.map(([k, n, i]) => `<button ${tab === k ? 'aria-current="page"' : ''} class="tab ${tab === k ? 'on' : ''}" data-a="go" data-r="project" data-id="${p.id}" data-tab="${k}">${ic(i, 14)}${n}</button>`).join('')}
         ${views.map(v => `<button ${tab === 'v:' + v.id ? 'aria-current="page"' : ''} class="tab ${tab === 'v:' + v.id ? 'on' : ''}" data-a="go" data-r="project" data-id="${p.id}" data-tab="v:${v.id}" data-ctx="savedview" data-vid="${v.id}">${ic('list-filter', 14)}${esc(v.name)}</button>`).join('')}
-        <button class="tab" data-a="saveView" data-id="${p.id}" data-tip="Save current filters as a view" aria-label="Save view">${ic('plus', 14)}</button>
+        <button class="tab" data-a="saveView" data-id="${p.id}" data-tip="ذخیره فیلترهای فعلی به‌عنوان نما" aria-label="ذخیره نما">${ic('plus', 14)}</button>
       </nav>
     </div>
     <div class="pbody${S.ui.fx.tab ? ' fx-tab' : ''}">${body}</div>
@@ -79,19 +80,19 @@ export function pageProject() {
 }
 export function taskViewBody(type, ts, key, p) {
   const v = viewOf(key);
-  const addBtn = `<button class="btn btn-primary btn-sm" data-a="newTask" data-project="${p.id}">${ic('plus', 13)}New task</button>`;
+  const addBtn = `<button class="btn btn-primary btn-sm" data-a="newTask" data-project="${p.id}">${ic('plus', 13)}کار جدید</button>`;
   const noTasks = !tasksOf(p.id).length;
   const emptyAll = empty(
     'list-checks',
-    'No tasks here',
-    'Add a task to get things moving.',
-    `<button class="btn btn-primary btn-sm" data-a="newTask" data-project="${p.id}">${ic('plus', 14)}Add task</button>`,
+    'اینجا کاری وجود ندارد',
+    'برای شروع یک کار اضافه کنید.',
+    `<button class="btn btn-primary btn-sm" data-a="newTask" data-project="${p.id}">${ic('plus', 14)}افزودن کار</button>`,
   );
   const emptyFilter = empty(
     'search-x',
-    'No results found',
-    'No tasks match these filters.',
-    `<button class="btn btn-secondary btn-sm" data-a="clearFilters" data-key="${key}">Clear filters</button>`,
+    'نتیجه‌ای پیدا نشد',
+    'کاری مطابق این فیلترها پیدا نشد.',
+    `<button class="btn btn-secondary btn-sm" data-a="clearFilters" data-key="${key}">پاک کردن فیلترها</button>`,
   );
   if (type === 'board') return viewToolbar(key, { group: false, right: addBtn }) + (noTasks ? emptyAll : boardHtml(ts, key, { project: p.id }));
   if (type === 'list')
