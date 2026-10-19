@@ -52,6 +52,8 @@ function lucideSubset() {
 
 export default defineConfig({
   publicDir: 'public',
+  // Concurrent demo/live servers must not invalidate each other's optimized modules.
+  cacheDir: process.env.VITE_DEMO === 'true' ? 'node_modules/.vite-demo' : 'node_modules/.vite',
   resolve: { alias: { '#lib': path.resolve('src/lib') } },
   plugins: [lucideSubset(), tanstackStart(), nitro(), react()],
   server: {

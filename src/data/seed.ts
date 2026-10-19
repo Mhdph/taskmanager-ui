@@ -5,7 +5,7 @@ export function seed() {
   const members = [
     {
       id: 'm1',
-      name: 'Tanjim Islam',
+      name: 'مهدی رضایی',
       email: 'hello@gr8rstudio.com',
       role: 'Owner',
       team: 'product',
@@ -13,11 +13,11 @@ export function seed() {
       c: '#5A67D8',
       status: 'active',
       last: 0,
-      tz: 'سان‌فرانسیسکو',
+      tz: 'تهران',
     },
     {
       id: 'm2',
-      name: 'Sarah Chen',
+      name: 'سارا احمدی',
       email: 'sarah@gr8rstudio.com',
       role: 'Admin',
       team: 'design',
@@ -25,11 +25,11 @@ export function seed() {
       c: '#C54B78',
       status: 'active',
       last: 4,
-      tz: 'نیویورک',
+      tz: 'تهران',
     },
     {
       id: 'm3',
-      name: 'John Carter',
+      name: 'علی محمدی',
       email: 'john@gr8rstudio.com',
       role: 'Member',
       team: 'eng',
@@ -37,11 +37,11 @@ export function seed() {
       c: '#3B82C4',
       status: 'active',
       last: 22,
-      tz: 'لندن',
+      tz: 'شیراز',
     },
     {
       id: 'm4',
-      name: 'Emma Wilson',
+      name: 'نگار کریمی',
       email: 'emma@gr8rstudio.com',
       role: 'Member',
       team: 'design',
@@ -49,11 +49,11 @@ export function seed() {
       c: '#23918A',
       status: 'active',
       last: 9,
-      tz: 'برلین',
+      tz: 'اصفهان',
     },
     {
       id: 'm5',
-      name: 'Priya Patel',
+      name: 'مریم حسینی',
       email: 'priya@gr8rstudio.com',
       role: 'Member',
       team: 'mkt',
@@ -61,11 +61,11 @@ export function seed() {
       c: '#C48A1E',
       status: 'active',
       last: 95,
-      tz: 'تورنتو',
+      tz: 'تهران',
     },
     {
       id: 'm6',
-      name: 'Marcus Lee',
+      name: 'امیر صالحی',
       email: 'marcus@gr8rstudio.com',
       role: 'Member',
       team: 'eng',
@@ -73,11 +73,11 @@ export function seed() {
       c: '#8662C9',
       status: 'active',
       last: 240,
-      tz: 'سنگاپور',
+      tz: 'مشهد',
     },
     {
       id: 'm7',
-      name: 'Lena Fischer',
+      name: 'نازنین مرادی',
       email: 'lena@gr8rstudio.com',
       role: 'Admin',
       team: 'product',
@@ -85,11 +85,11 @@ export function seed() {
       c: '#3D8E5F',
       status: 'active',
       last: 1500,
-      tz: 'مونیخ',
+      tz: 'تبریز',
     },
     {
       id: 'm8',
-      name: 'Diego Alvarez',
+      name: 'رضا موسوی',
       email: 'diego@freelance.io',
       role: 'Guest',
       team: 'mkt',
@@ -97,7 +97,7 @@ export function seed() {
       c: '#C0612B',
       status: 'invited',
       last: null,
-      tz: 'مادرید',
+      tz: 'رشت',
     },
   ];
   const projects = [
@@ -384,7 +384,7 @@ export function seed() {
       text: 'چیدمان تبلت کنار نشان‌ها شلوغ شده است. می‌توانیم در عرض کمتر از ۱۰۲۴ پیکسل فقط چهار نشان نمایش دهیم؟',
       re: { '👍': ['m2', 'm3'] },
     },
-    { id: 'c2', task: 't3', by: 'm2', at: minsAgo(210), text: 'پیشنهاد خوبی بود. در نسخه سوم به‌روز شد. @Tanjim Islam لطفاً تا پنجشنبه بررسی کنید.', re: {} },
+    { id: 'c2', task: 't3', by: 'm2', at: minsAgo(210), text: 'پیشنهاد خوبی بود. در نسخه سوم به‌روز شد. @مهدی رضایی لطفاً تا پنجشنبه بررسی کنید.', re: {} },
     {
       id: 'c3',
       task: 't3',
@@ -394,11 +394,11 @@ export function seed() {
       re: { '🎉': ['m2'] },
     },
     { id: 'c4', task: 't4', by: 'm3', at: minsAgo(400), text: 'محتوای منوی گسترده هنوز از بازاریابی نرسیده است. فعلاً متن موقت می‌گذارم.', re: {} },
-    { id: 'c5', task: 't4', by: 'm5', at: minsAgo(120), text: '@John Carter محتوا در سند مشترک قرار گرفت؛ حداکثر شش ستون.', re: { '👍': ['m3'] } },
-    { id: 'c6', task: 't9', by: 'm1', at: minsAgo(55), text: 'مهلت این مورد دیروز گذشت. @Emma Wilson مانعی برای درخواست‌های مجوز وجود دارد؟', re: {} },
+    { id: 'c5', task: 't4', by: 'm5', at: minsAgo(120), text: '@علی محمدی محتوا در سند مشترک قرار گرفت؛ حداکثر شش ستون.', re: { '👍': ['m3'] } },
+    { id: 'c6', task: 't9', by: 'm1', at: minsAgo(55), text: 'مهلت این مورد دیروز گذشت. @نگار کریمی مانعی برای درخواست‌های مجوز وجود دارد؟', re: {} },
     { id: 'c7', task: 't24', by: 'm7', at: minsAgo(700), text: 'بازگشت از Face ID به رمز در iOS 17 درست کار می‌کند؛ مرحله بعد آزمایش اندروید است.', re: {} },
     { id: 'c8', task: 't34', by: 'm2', at: minsAgo(1500), text: 'بخش مالی برای تأیید به تفکیک کانال‌ها نیاز دارد.', re: {} },
-    { id: 'c9', task: 't35', by: 'm7', at: minsAgo(200), text: 'آموزش پشتیبانی به دوشنبه منتقل شد. @Tanjim Islam لطفاً متن صفحه وضعیت را تأیید کنید.', re: {} },
+    { id: 'c9', task: 't35', by: 'm7', at: minsAgo(200), text: 'آموزش پشتیبانی به دوشنبه منتقل شد. @مهدی رضایی لطفاً متن صفحه وضعیت را تأیید کنید.', re: {} },
   ];
   const A = (by, verb, task, project, m, extra = '') => ({ id: uid('a'), by, verb, task, project, at: minsAgo(m), extra });
   const activity = [
@@ -423,7 +423,7 @@ export function seed() {
       by: 'm2',
       task: 't3',
       text: 'به شما اشاره کرد در',
-      snippet: 'در نسخه سوم به‌روز شد. @Tanjim Islam لطفاً تا پنجشنبه بررسی کنید.',
+      snippet: 'در نسخه سوم به‌روز شد. @مهدی رضایی لطفاً تا پنجشنبه بررسی کنید.',
       at: minsAgo(210),
       read: false,
     },
@@ -444,7 +444,7 @@ export function seed() {
       by: 'm7',
       task: 't35',
       text: 'به شما اشاره کرد در',
-      snippet: 'آموزش پشتیبانی به دوشنبه منتقل شد. @Tanjim Islam لطفاً متن صفحه وضعیت را تأیید کنید.',
+      snippet: 'آموزش پشتیبانی به دوشنبه منتقل شد. @مهدی رضایی لطفاً متن صفحه وضعیت را تأیید کنید.',
       at: minsAgo(200),
       read: false,
     },
@@ -507,11 +507,11 @@ export function seed() {
   const tmp = tk('t3');
   tmp!.updated = minsAgo(38);
   return {
-    ws: { name: 'Gr8r Studio', url: 'gr8rstudio', c: '#1D1C1A', brand: true },
+    ws: { name: 'استودیو آوید', url: 'gr8rstudio', c: '#1D1C1A', brand: true },
     workspaces: [
-      { id: 'w1', name: 'Gr8r Studio', c: '#1D1C1A', plan: 'تیم', brand: true },
+      { id: 'w1', name: 'استودیو آوید', c: '#1D1C1A', plan: 'تیم', brand: true },
       { id: 'w2', name: 'شخصی', c: '#3D8E5F', plan: 'رایگان' },
-      { id: 'w3', name: 'Acme Labs', c: '#3B82C4', plan: 'کسب‌وکار' },
+      { id: 'w3', name: 'تیم نوآوری', c: '#3B82C4', plan: 'کسب‌وکار' },
     ],
     me: 'm1',
     members,
@@ -526,8 +526,8 @@ export function seed() {
     savedViews: [{ id: 'v1', project: 'p1', name: 'اولویت زیاد', type: 'list', filters: [{ f: 'priority', op: 'is', v: ['urgent', 'high'] }] }],
     recentSearches: ['homepage', 'Sarah', 'wireframes'],
     sessions: [
-      { id: 'se1', dev: 'MacBook Pro · Chrome', loc: 'سان‌فرانسیسکو، آمریکا', at: 'اکنون فعال', cur: true },
-      { id: 'se2', dev: 'iPhone 15 · Gr8r app', loc: 'سان‌فرانسیسکو، آمریکا', at: '۲ ساعت پیش' },
+      { id: 'se1', dev: 'MacBook Pro · Chrome', loc: 'تهران، آمریکا', at: 'اکنون فعال', cur: true },
+      { id: 'se2', dev: 'iPhone 15 · Gr8r app', loc: 'تهران، آمریکا', at: '۲ ساعت پیش' },
       { id: 'se3', dev: 'Windows · Edge', loc: 'اوکلند، آمریکا', at: 'Sep 12' },
     ],
     invoices: [

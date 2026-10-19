@@ -8,3 +8,4 @@ __MACOSX/
 
 .output/
 .tanstack/
+.agents/skills/

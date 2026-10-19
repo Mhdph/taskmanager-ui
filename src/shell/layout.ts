@@ -84,28 +84,32 @@ export function renderSidebar() {
   const projs = visibleProjects().filter(p => p.status !== 'complete');
   const inProj = u.route === 'project' ? u.params.id : null;
   return `<nav class="side" aria-label="اصلی">
+    <div class="side-brand"><span class="hamkar-mark">${ic('layers', 26)}</span><span class="brand-copy"><b>هم‌کار</b><small>کنار هم، یک قدم جلوتر</small></span><button class="ibtn hide-m" data-a="toggleSide" aria-label="تغییر اندازه نوار کناری">${ic('panel-right', 18)}</button></div>
     <div class="side-top">
       <div class="row" style="gap:2px">
         <button class="ws grow" data-a="pop" data-pop="ws" aria-haspopup="menu" aria-label="تغییر فضای کاری">
-          ${wsLogo(d.ws, 22)}
+          ${wsLogo(d.ws, 30)}
           <span class="ws-name trunc">${esc(d.ws.name)}</span>
           <span class="chev-d faint">${ic('chevrons-up-down', 13)}</span>
         </button>
-        ${u.collapsed ? '' : `<button class="ibtn ibtn-sm hide-m" data-a="toggleSide" data-tip="جمع کردن نوار کناری  [" aria-label="جمع کردن نوار کناری">${ic('panel-left', 15)}</button>`}
+
       </div>
     </div>
+    <button class="btn btn-primary side-create" data-a="newTask">${ic('plus', 19)}<span>ایجاد کار جدید</span><kbd> N </kbd></button>
     <div class="side-scroll" data-keep="side">
       ${u.collapsed ? `<button class="sitem" data-a="toggleSide" data-tip="باز کردن نوار کناری" data-tip-pos="right" aria-label="باز کردن نوار کناری">${ic('panel-left', 16)}</button>` : ''}
-      ${sItem('home', 'خانه', 'house')}
+      ${sItem('home', 'میز کار', 'layout-dashboard')}
       ${sItem('inbox', 'صندوق ورودی', 'inbox', { ct: unreadInbox || '', dot: true })}
       ${sItem('mytasks', 'کارهای من', 'circle-check', { ct: myOpen || '' })}
-      ${sItem('favorites', 'علاقه‌مندی‌ها', 'star')}
+
       ${sItem('notifications', 'اعلان‌ها', 'bell', { ct: unreadAll || '' })}
+      ${sItem('favorites', 'علاقه‌مندی‌ها', 'star')}
       <div class="sgroup">
         <div class="sgroup-h">فضای کاری</div>
-        ${sItem('overview', 'نمای کلی', 'layout-dashboard')}
+        ${sItem('overview', 'گزارش عملکرد', 'chart-pie')}
+
         ${sItem('projects', 'پروژه‌ها', 'folder-kanban')}
-        ${sItem('tasks', 'کارها', 'list-checks')}
+        ${sItem('tasks', 'همه کارها', 'list-checks')}
         ${sItem('calendar', 'تقویم', 'calendar')}
         ${sItem('timeline', 'خط زمانی', 'chart-gantt')}
         ${sItem('members', 'اعضا', 'users')}
@@ -151,6 +155,7 @@ export function renderSidebar() {
           .join('')}
       </div>
     </div>
+    <div class="side-team-note"><span class="note-icon">${ic('users', 20)}</span><b>کار تیمی، ساده‌تر از همیشه</b><p>هم‌تیمی‌هایت را به فضای کاری دعوت کن.</p><button class="btn btn-secondary btn-block" data-a="invite">${ic('user-plus', 15)}دعوت از همکاران</button></div>
     <div class="side-bot">
       <button class="sitem" data-a="pop" data-pop="help" ${u.collapsed ? 'data-tip="Help" data-tip-pos="right"' : ''}>${ic('circle-help', 16)}<span>راهنما و منابع</span></button>
       ${sItem('settings', 'تنظیمات', 'settings')}
@@ -191,9 +196,9 @@ export function renderTopbar() {
   return `<header class="topbar">
     <button class="ibtn" data-a="openMnav" aria-label="باز کردن فهرست ناوبری" style="display:none" id="mnav-btn">${ic('menu', 17)}</button>
     <style>@media(max-width:900px){#mnav-btn{display:inline-flex!important}}</style>
-    <nav class="crumbs trunc" aria-label="مسیر صفحه">${crumbs()}</nav>
+    <span class="workspace-caption hide-m">فضای کاری تیم</span><span class="top-divider hide-m"></span><nav class="crumbs trunc" aria-label="مسیر صفحه">${crumbs()}</nav>
     <span class="sp"></span>
-    <button class="topsearch" data-a="openPalette" aria-label="جستجو و فرمان‌ها">${ic('search', 14)}<span class="lbltxt">جستجو یا رفتن به…</span><span class="kbd">${MOD}K</span></button>
+    <button class="topsearch" data-a="openPalette" aria-label="جستجو و فرمان‌ها">${ic('search', 14)}<span class="lbltxt">جستجو در هم‌کار…</span><span class="kbd">${MOD}K</span></button>
     <button class="ibtn" data-a="go" data-r="notifications" data-tip="اعلان‌ها" aria-label="اعلان‌ها">${ic('bell', 16)}${D().notifs.some(n => !n.read) ? '<span style="position:absolute;top:6px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--surface)"></span>' : ''}</button>
     <button class="btn btn-secondary btn-sm" data-a="pop" data-pop="create" aria-haspopup="menu" aria-label="ایجاد مورد جدید">${ic('plus', 14)}<span class="hide-m">جدید</span>${ic('chevron-down', 12, 'hide-m')}</button>
     <button class="ibtn hide-m" data-a="pop" data-pop="user" aria-label="فهرست حساب کاربری" style="width:auto;padding:0 2px">${av(D().me, 'md', false)}</button>
@@ -205,7 +210,7 @@ export function renderBottomNav() {
   const b = (route, label, icon, extra = '') =>
     `<button class="${r === route ? 'on' : ''}" data-a="go" data-r="${route}">${ic(icon, 19)}<span>${label}</span>${extra}</button>`;
   return `<nav class="bottomnav" aria-label="اصلی">
-    ${b('home', 'خانه', 'house')}${b('mytasks', 'کارهای من', 'circle-check')}${b('projects', 'پروژه‌ها', 'folder-kanban')}${b('inbox', 'صندوق ورودی', 'inbox', unread ? '<span class="bdot"></span>' : '')}
+    ${b('home', 'میز کار', 'layout-dashboard')}${b('mytasks', 'کارهای من', 'circle-check')}${b('projects', 'پروژه‌ها', 'folder-kanban')}${b('inbox', 'صندوق ورودی', 'inbox', unread ? '<span class="bdot"></span>' : '')}
     <button data-a="openMnav">${ic('ellipsis', 19)}<span>بیشتر</span></button>
   </nav>`;
 }

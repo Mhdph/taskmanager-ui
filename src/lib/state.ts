@@ -18,7 +18,7 @@ export const DEFAULT_PREFS = {
   motion: 'system',
   home: 'home',
   openTasks: 'drawer',
-  name: 'Tanjim Islam',
+  name: 'مهدی رضایی',
   title: 'مدیر محصول',
 };
 
