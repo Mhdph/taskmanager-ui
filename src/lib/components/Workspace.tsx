@@ -43,7 +43,7 @@ export default function Workspace() {
     const url = new URL(href, window.location.origin);
     syncRouteToStore(url.pathname, url.searchParams);
     const segment = url.pathname.split('/').filter(Boolean)[0];
-    S.ui.auth = AUTH_ROUTES.includes(segment) ? segment : null;
+    S.ui.auth = import.meta.env.VITE_DEMO === 'true' && AUTH_ROUTES.includes(segment) ? segment : null;
     if (S.ui.auth && !S.ui.af) S.ui.af = { email: 'hello@gr8rstudio.com', name: '' };
     applyPrefs();
     document.querySelector('.content')?.scrollTo(0, 0);

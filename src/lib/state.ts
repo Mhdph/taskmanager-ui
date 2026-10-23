@@ -3,7 +3,6 @@ import { browser } from '#lib/environment';
 import { TODAY, diffD, iso, parse, uid } from '../core/utils';
 import { PCOLORS, TEAMS_SEED } from '../core/constants';
 import { seed } from '../data/seed';
-import { getIdentity } from './api';
 
 export const STORE_KEY = 'gr8r.v2';
 export const DEFAULT_PREFS = {
@@ -147,10 +146,9 @@ export interface AppState {
 }
 
 function initialState() {
-  // Live mode: an API identity is configured → start from a skeleton and
-  // hydrate from the API (layout onMount). Demo mode (no identity): the
-  // localStorage snapshot or seed data runs as before.
-  const live = browser && !!getIdentity().userId;
+  // Only explicit demo builds may restore sample/persisted workspace data.
+  // Live builds stay empty until hosted sign-in and API hydration succeed.
+  const live = browser && import.meta.env.VITE_DEMO !== 'true';
   const data = saved?.data && !live ? saved.data : live ? skeletonData() : seed();
   // Lazy seeders (`teamsList`, palette recents) used to create these during
   // render; create them up front so templates never mutate state.

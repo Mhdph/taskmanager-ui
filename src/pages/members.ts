@@ -46,7 +46,7 @@ export function pageMembers() {
         const ot = allTasks().filter(t => t.assignee === m.id && t.status !== 'done').length;
         return `<tr data-ctx="member" data-id="${m.id}"><td style="padding-inline-start:14px"><button class="row" data-a="go" data-r="member" data-id="${m.id}" style="gap:10px;text-align:start">${av(m.id, 'md', false)}<span class="col"><b style="font-weight:500">${esc(m.name)}${m.id === D().me ? ' <span class="faint" style="font-weight:400">(شما)</span>' : ''}</b><span class="faint" style="font-size:12px">${esc(m.email)}</span></span></button></td>
       <td style="text-align:start">${isAdmin && m.role !== 'Owner' ? `<button class="pillbtn bordered" data-a="pop" data-pop="role" data-id="${m.id}">${displayLabel(m.role)}${ic('chevron-down', 12)}</button>` : `<span class="pillbtn">${m.role === 'Owner' ? ic('crown', 13) : ''}${displayLabel(m.role)}</span>`}</td>
-      <td style="text-align:start"><span class="row">${ic(TM[m.team].icon, 13)}${TM[m.team].name}</span></td><td class="num">${ap}</td><td class="num">${ot}</td>
+      <td style="text-align:start"><span class="row">${ic(TM[m.team].icon, 13)}${esc(TM[m.team].name)}</span></td><td class="num">${ap}</td><td class="num">${ot}</td>
       <td style="text-align:start" class="muted">${m.last == null ? '—' : m.last < 5 ? '<span style="color:var(--green)">آنلاین</span>' : ago(minsAgo(m.last))}</td>
       <td style="text-align:start">${m.status === 'invited' ? '<span class="badge amber"><span class="dot"></span>دعوت‌شده</span>' : m.status === 'deactivated' ? '<span class="badge gray">Deactivated</span>' : '<span class="badge green"><span class="dot"></span>فعال</span>'}</td>
       <td><button class="ibtn ibtn-sm" data-a="ctxBtn" data-ctx="member" data-id="${m.id}" aria-label="گزینه‌های عضو">${ic('ellipsis', 14)}</button></td></tr>`;
@@ -88,7 +88,7 @@ export function teamsGrid() {
     .map(t => {
       const ms = D().members.filter(m => m.team === t.id);
       const ps = visibleProjects().filter(p => p.team === t.id);
-      return `<div class="pcard" data-a="go" data-r="team" data-id="${t.id}" role="link" tabindex="0"><div class="row"><span class="picon" style="--c:${t.c}">${ic(t.icon, 15)}</span><b style="font-weight:600;font-size:14px">${t.name}</b></div><div class="desc">${t.desc}</div><div class="foot"><span class="row" style="gap:4px">${ic('users', 12)}${faNumber(ms.length)} عضو</span><span class="row" style="gap:4px">${ic('folder', 12)}${faNumber(ps.length)} پروژه</span><span class="sp"></span>${avStack(
+      return `<div class="pcard" data-a="go" data-r="team" data-id="${t.id}" role="link" tabindex="0"><div class="row"><span class="picon" style="--c:${esc(t.c)}">${ic(t.icon, 15)}</span><b style="font-weight:600;font-size:14px">${esc(t.name)}</b></div><div class="desc">${esc(t.desc)}</div><div class="foot"><span class="row" style="gap:4px">${ic('users', 12)}${faNumber(ms.length)} عضو</span><span class="row" style="gap:4px">${ic('folder', 12)}${faNumber(ps.length)} پروژه</span><span class="sp"></span>${avStack(
         ms.map(m => m.id),
         4,
       )}</div></div>`;
@@ -105,7 +105,7 @@ export function pageTeam() {
   const ps = visibleProjects().filter(p => p.team === t.id);
   const ts = allTasks().filter(x => ms.some(m => m.id === x.assignee) && x.status !== 'done');
   return `<div class="page">
-    <div class="ph"><div class="row" style="gap:12px"><span class="picon lg" style="--c:${t.c}">${ic(t.icon, 18)}</span><div><h1>${t.name}</h1><p style="margin:2px 0 0">${t.desc}</p></div></div><div class="acts"><button class="btn btn-secondary" data-a="editTeam" data-id="${t.id}">${ic('pencil', 14)}ویرایش تیم</button><button class="btn btn-secondary" data-a="invite">${ic('user-plus', 14)}دعوت به فضای کاری</button></div></div>
+    <div class="ph"><div class="row" style="gap:12px"><span class="picon lg" style="--c:${esc(t.c)}">${ic(t.icon, 18)}</span><div><h1>${esc(t.name)}</h1><p style="margin:2px 0 0">${esc(t.desc)}</p></div></div><div class="acts"><button class="btn btn-secondary" data-a="editTeam" data-id="${t.id}">${ic('pencil', 14)}ویرایش تیم</button><button class="btn btn-secondary" data-a="invite">${ic('user-plus', 14)}دعوت به فضای کاری</button></div></div>
     <div class="grid2"><div class="stack">
       <section class="panel"><div class="panel-h"><h2>پروژه‌ها</h2><span class="faint">${faNumber(ps.length)}</span></div>${ps.map(p => `<div class="mini" data-a="go" data-r="project" data-id="${p.id}">${pIcon(p, '', 14)}<span class="tt">${esc(p.name)}</span>${pStatus(p.status)}<span class="row" style="width:120px">${progBar(progressOf(p.id))}</span></div>`).join('') || '<div class="panel-b faint">پروژه‌ای وجود ندارد</div>'}</section>
       <section class="panel"><div class="panel-h"><h2>کارهای باز</h2><span class="faint">${faNumber(ts.length)}</span></div>${sortTasks(ts, {
@@ -134,7 +134,7 @@ export function pageMember() {
     <div class="row" style="gap:18px;margin-bottom:22px;flex-wrap:wrap;align-items:flex-start">
       ${av(m.id, 'xl ' + (m.last != null && m.last < 5 ? 'presence' : ''), false)}
       <div class="grow" style="min-width:220px"><div class="row" style="gap:10px;flex-wrap:wrap"><h1 style="font-size:var(--fs-2xl);margin:0;font-weight:600;letter-spacing:-.02em">${esc(m.name)}</h1><span class="badge">${m.role === 'Owner' ? ic('crown', 11) : ''}${displayLabel(m.role)}</span>${m.status === 'invited' ? '<span class="badge amber">در انتظار پذیرش دعوت</span>' : ''}</div>
-        <div class="muted" style="margin-top:3px">${esc(m.title)} · ${TM[m.team].name}</div>
+        <div class="muted" style="margin-top:3px">${esc(m.title)} · ${esc(TM[m.team].name)}</div>
         <div class="row faint" style="margin-top:8px;gap:14px;font-size:12.5px;flex-wrap:wrap"><span class="row" style="gap:5px">${ic('mail', 13)}<span style="user-select:all">${esc(m.email)}</span></span><span class="row" style="gap:5px">${ic('map-pin', 13)}${esc(m.tz)}</span><span class="row" style="gap:5px">${ic('clock', 13)}${m.last == null ? 'هنوز وارد نشده است' : m.last < 5 ? 'اکنون آنلاین' : 'فعال ' + ago(minsAgo(m.last))}</span></div></div>
       <div class="row"><button class="btn btn-secondary" data-a="copyText" data-text="${esc(m.email)}">${ic('copy', 14)}کپی ایمیل</button><button class="btn btn-primary" data-a="newTask" data-assignee="${m.id}">${ic('plus', 14)}تعیین مسئول کار</button><button class="ibtn" data-a="ctxBtn" data-ctx="member" data-id="${m.id}" aria-label="بیشتر">${ic('ellipsis', 16)}</button></div>
     </div>

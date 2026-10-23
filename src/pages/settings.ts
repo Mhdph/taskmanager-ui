@@ -291,7 +291,7 @@ export function settingsBody(sec, title) {
         H('مشخصاتی که دیگران از شما در فضای کاری می‌بینند.') +
         `<form data-submit="saveProfile" class="col" style="gap:16px;max-width:440px">
       <div class="row" style="gap:14px">${av(d.me, 'xl', false)}<div><div class="label" style="margin-bottom:6px">رنگ آواتار</div><div class="swatches">${['#5A67D8', '#C54B78', '#3B82C4', '#23918A', '#C48A1E', '#8662C9'].map(c => `<button type="button" class="sw ${me().c === c ? 'on' : ''}" style="--c:${c};width:22px;height:22px" data-a="avColor" data-v="${c}" aria-label="رنگ"></button>`).join('')}</div></div></div>
-      <div class="field"><label class="label" for="pf-name">نام و نام خانوادگی</label><input class="input ${err ? 'is-error' : ''}" id="pf-name" value="${esc(P.name)}">${err ? `<span class="err">${ic('circle-alert', 12)}${err}</span>` : ''}</div>
+      <div class="field"><label class="label" for="pf-name">نام و نام خانوادگی</label><input class="input ${err ? 'is-error' : ''}" id="pf-name" value="${esc(P.name)}">${err ? `<span class="err">${ic('circle-alert', 12)}${esc(err)}</span>` : ''}</div>
       <div class="field"><label class="label" for="pf-title">عنوان</label><input class="input" id="pf-title" value="${esc(P.title)}"></div>
       <div class="field"><label class="label" for="pf-email">ایمیل</label><input class="input" id="pf-email" value="${esc(me().email)}" disabled><span class="hint">برای تغییر ایمیل ورود با مالک فضای کاری تماس بگیرید.</span></div>
       <div><button class="btn btn-primary" data-a="saveProfile" id="pf-save">ذخیره پروفایل</button></div></form>`

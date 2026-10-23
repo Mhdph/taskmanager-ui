@@ -72,6 +72,10 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+function apiColor(value: unknown, fallback: string): string {
+  return typeof value === 'string' && /^#(?:[\da-f]{3}|[\da-f]{4}|[\da-f]{6}|[\da-f]{8})$/i.test(value) ? value : fallback;
+}
+
 /* ---------- estimate: seconds ↔ UI string ---------- */
 
 export function estimateFromSeconds(s: number | null | undefined): string | null {
@@ -210,13 +214,13 @@ export function teamFromApi(t: Record<string, any>): Record<string, any> {
     id: t.id,
     name: t.name,
     icon: t.icon || 'users',
-    c: t.color || '#8A867E',
+    c: apiColor(t.color, '#8A867E'),
     desc: t.description || '',
   };
 }
 
 export function labelFromApi(l: Record<string, any>): Record<string, any> {
-  return { id: l.id, name: l.name, c: l.color ? `color-mix(in srgb, ${l.color} 75%, white)` : 'var(--violet)' };
+  return { id: l.id, name: l.name, c: `color-mix(in srgb, ${apiColor(l.color, '#8662C9')} 75%, white)` };
 }
 
 export function projectFromApi(p: Record<string, any>, opts: { members?: string[]; fav?: boolean; teamId?: string | null } = {}): Record<string, any> {

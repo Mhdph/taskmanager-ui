@@ -8,6 +8,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1, viewport-fit=cover' },
       { name: 'description', content: 'فضای کاری منظم برای مدیریت پروژه‌ها و کارهای تیم.' },
+      { name: 'referrer', content: 'no-referrer' },
       { title: 'هم‌کار | مدیریت کارها و پروژه‌های تیم' },
     ],
     links: [

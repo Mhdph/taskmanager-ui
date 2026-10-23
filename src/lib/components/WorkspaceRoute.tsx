@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { HostedAuth } from './HostedAuth';
 
 // The persisted workspace and hosted identity belong to this browser. Keep their
 // module graph off the SSR render path; Start still serves the document and routes.
@@ -12,7 +13,9 @@ export function WorkspaceRoute() {
         </div>
       }
     >
-      <Workspace />
+      <HostedAuth>
+        <Workspace />
+      </HostedAuth>
     </Suspense>
   );
 }

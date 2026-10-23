@@ -6,12 +6,8 @@
    run with IDENTITY_DEV_MODE=true, where USER-ID + APP-ID alone are
    enough (see README).
 
-   Identity sources, in order of precedence:
-     1. localStorage  `gr8r.api`  → { apiKey, userId, appId }
-     2. build-time env import.meta.env.VITE_API_TOKEN / VITE_API_USER /
-        VITE_API_APP
-     3. a built-in dev identity so `pnpm dev` works out of the box
-        against an API started with IDENTITY_DEV_MODE=true.
+   Hosted identity comes from the NUP session cookies (token / id / app-id).
+   Local storage and build-time dev identities are accepted only in development.
    ===================================================================== */
 
 import { browser } from '#lib/environment';
@@ -23,6 +19,7 @@ export interface Identity {
   apiKey: string;
   userId: string;
   appId: string;
+  fromSupportMenu?: string;
 }
 
 const DEV_IDENTITY: Identity = {
@@ -31,34 +28,61 @@ const DEV_IDENTITY: Identity = {
   appId: 'dev-tenant',
 };
 
+const EMPTY_IDENTITY: Identity = { apiKey: '', userId: '', appId: '' };
+const sessionCookies = { apiKey: 'token', userId: 'id', appId: 'app-id', fromSupportMenu: 'from-support-menu' } as const;
+
+function cookie(name: string): string {
+  if (typeof document === 'undefined') return '';
+  const value = document.cookie
+    .split('; ')
+    .find(part => part.startsWith(`${name}=`))
+    ?.slice(name.length + 1);
+  try {
+    return value ? decodeURIComponent(value) : '';
+  } catch {
+    return '';
+  }
+}
+
 export function getIdentity(): Identity {
-  if (import.meta.env.VITE_DEMO === 'true') return { apiKey: '', userId: '', appId: '' };
-  if (!browser) return DEV_IDENTITY;
+  if (import.meta.env.VITE_DEMO === 'true' || !browser) return EMPTY_IDENTITY;
+  const session = Object.fromEntries(Object.entries(sessionCookies).map(([key, name]) => [key, cookie(name)])) as unknown as Identity;
+  if (session.apiKey || session.userId || session.appId) return session;
+  if (!import.meta.env.DEV) return EMPTY_IDENTITY;
   try {
     const raw = localStorage.getItem('gr8r.api');
     if (raw) {
       const j = JSON.parse(raw);
-      if (j?.userId) return { apiKey: j.apiKey || 'dev', appId: j.appId || 'dev-tenant', userId: j.userId };
+      if (j?.userId) return { apiKey: j.apiKey || 'dev', appId: j.appId || 'dev-tenant', userId: j.userId, fromSupportMenu: j.fromSupportMenu || '' };
     }
   } catch {
-    /* ignore */
+    /* Local development storage may be unavailable. */
   }
-  const env = (import.meta as any).env || {};
-  if (env.VITE_API_USER) {
-    return {
-      apiKey: env.VITE_API_TOKEN || 'dev',
-      userId: env.VITE_API_USER,
-      appId: env.VITE_API_APP || 'dev-tenant',
-    };
-  }
+  const env = import.meta.env;
+  if (env.VITE_API_USER) return { apiKey: env.VITE_API_TOKEN || 'dev', userId: env.VITE_API_USER, appId: env.VITE_API_APP || 'dev-tenant' };
   return DEV_IDENTITY;
 }
 
 export function setIdentity(id: Partial<Identity> | null) {
   if (!browser) return;
   getQueryClient().clear();
-  if (!id) localStorage.removeItem('gr8r.api');
-  else localStorage.setItem('gr8r.api', JSON.stringify(id));
+  if (typeof document !== 'undefined') {
+    const secure = window.location.protocol === 'https:' ? '; Secure' : '';
+    for (const [key, name] of Object.entries(sessionCookies)) {
+      document.cookie = `${name}=${encodeURIComponent(id?.[key] || '')}; Path=/; SameSite=Lax${secure}${id ? '' : '; Max-Age=0'}`;
+    }
+  }
+  try {
+    if (id && import.meta.env.DEV) localStorage.setItem('gr8r.api', JSON.stringify(id));
+    else localStorage.removeItem('gr8r.api');
+  } catch {
+    /* The hosted session uses cookies; storage is optional. */
+  }
+}
+
+export function identityHeaders(): Record<string, string> {
+  const id = getIdentity();
+  return { 'X-APIKEY': id.apiKey, 'USER-ID': id.userId, 'APP-ID': id.appId, 'FROM-SUPPORT-MENU': id.fromSupportMenu || '' };
 }
 
 export class ApiError extends Error {
@@ -77,12 +101,7 @@ interface RequestOpts {
 }
 
 async function request(method: string, path: string, opts: RequestOpts = {}): Promise<ResponseLike> {
-  const id = getIdentity();
-  const headers: Record<string, string> = {
-    'X-APIKEY': id.apiKey,
-    'USER-ID': id.userId,
-    'APP-ID': id.appId,
-  };
+  const headers = identityHeaders();
   if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
 
   let res: Response;
@@ -115,7 +134,7 @@ async function request(method: string, path: string, opts: RequestOpts = {}): Pr
 /** Identity is part of every key so tenants/users never share cached responses. */
 export function apiQueryKey(path?: string) {
   const id = getIdentity();
-  const scope = ['api', API_BASE, id.appId, id.userId, id.apiKey];
+  const scope = ['api', API_BASE, id.appId, id.userId, id.apiKey, id.fromSupportMenu || ''];
   return path === undefined ? scope : [...scope, path];
 }
 
@@ -147,15 +166,12 @@ export const api = {
 
   /** Multipart upload with progress (attachments). */
   upload(projectID: string, taskID: string, file: File, onProgress: (pct: number) => void): Promise<ResponseLike> {
-    const id = getIdentity();
     const form = new FormData();
     form.append('file', file, file.name);
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${API_BASE}/projects/${projectID}/tasks/${taskID}/attachments`);
-      xhr.setRequestHeader('X-APIKEY', id.apiKey);
-      xhr.setRequestHeader('USER-ID', id.userId);
-      xhr.setRequestHeader('APP-ID', id.appId);
+      for (const [name, value] of Object.entries(identityHeaders())) xhr.setRequestHeader(name, value);
       xhr.upload.onprogress = e => {
         if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
       };

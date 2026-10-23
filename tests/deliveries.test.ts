@@ -20,6 +20,7 @@ import {
 import { DeliveryCard, TaskDeliveries } from '../src/lib/components/TaskDeliveries';
 
 vi.mock('../src/lib/state', () => ({ D: () => ({ members: [] }) }));
+vi.mock('../src/lib/environment', () => ({ browser: true }));
 const task: DeliveryTask = { assigneeUserId: 'alice', createdByUserId: 'creator', archivedAt: null };
 const pending: Delivery = {
   id: 'd1',

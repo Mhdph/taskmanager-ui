@@ -139,7 +139,7 @@ export function popHtml(p) {
         LABELS.map(l => ({
           id: l.id,
           name: l.name,
-          html: `<span class="pdot" style="--c:${l.c}"></span>`,
+          html: `<span class="pdot" style="--c:${esc(l.c)}"></span>`,
           on: t?.labels.includes(l.id),
           act: 'popToggleLabel',
         })),

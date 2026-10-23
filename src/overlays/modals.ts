@@ -69,7 +69,7 @@ export function taskModal(m, H) {
   const err = S.ui.errors.title;
   return `${H(m.edit ? 'ویرایش کار' : 'کار جدید', m.edit ? `<span class="mono">${task(m.edit)?.key}</span>` : '')}
   <form class="modal-b" data-submit="submitTask" style="gap:12px">
-    <div class="field"><label class="sr" for="f-title">نام کار</label><input class="input input-lg ${err ? 'is-error' : ''}" id="f-title" data-in="form" data-f="title" value="${esc(f.title)}" placeholder="نام کار" autofocus aria-invalid="${!!err}" aria-describedby="f-title-err" style="font-size:15px;font-weight:500">${err ? `<span class="err" id="f-title-err">${ic('circle-alert', 12)}${err}</span>` : ''}</div>
+    <div class="field"><label class="sr" for="f-title">نام کار</label><input class="input input-lg ${err ? 'is-error' : ''}" id="f-title" data-in="form" data-f="title" value="${esc(f.title)}" placeholder="نام کار" autofocus aria-invalid="${!!err}" aria-describedby="f-title-err" style="font-size:15px;font-weight:500">${err ? `<span class="err" id="f-title-err">${ic('circle-alert', 12)}${esc(err)}</span>` : ''}</div>
     <div class="field"><label class="sr" for="f-desc">توضیحات</label><textarea class="textarea" id="f-desc" data-in="form" data-f="desc" placeholder="توضیحی اضافه کنید… (اختیاری)" rows="3">${esc(f.desc)}</textarea></div>
     <div class="row" style="flex-wrap:wrap;gap:6px">
       ${formChip('project', `<span class="pdot" style="--c:${pColor(p)}"></span>${esc(p?.name || 'پروژه')}`, 'پروژه')}
@@ -144,7 +144,7 @@ export function projectModal(m, H) {
   <form class="modal-b" data-submit="submitProject">
     <div class="row" style="gap:10px;align-items:flex-start">
       <button type="button" class="picon lg" style="--c:${PCOLORS[f.color]};cursor:default;flex-shrink:0;margin-top:22px" aria-hidden="true" tabindex="-1">${ic(f.icon, 18)}</button>
-      <div class="field grow"><label class="label" for="p-name">نام پروژه</label><input class="input ${err ? 'is-error' : ''}" id="p-name" data-in="pform" data-f="name" value="${esc(f.name)}" placeholder="e.g. بازطراحی وب‌سایت" autofocus aria-invalid="${!!err}">${err ? `<span class="err">${ic('circle-alert', 12)}${err}</span>` : ''}</div>
+      <div class="field grow"><label class="label" for="p-name">نام پروژه</label><input class="input ${err ? 'is-error' : ''}" id="p-name" data-in="pform" data-f="name" value="${esc(f.name)}" placeholder="e.g. بازطراحی وب‌سایت" autofocus aria-invalid="${!!err}">${err ? `<span class="err">${ic('circle-alert', 12)}${esc(err)}</span>` : ''}</div>
     </div>
     <div class="field"><label class="label" for="p-desc">توضیحات</label><textarea class="textarea" id="p-desc" data-in="pform" data-f="desc" rows="2" placeholder="موضوع این پروژه چیست؟">${esc(f.desc)}</textarea></div>
     <div class="row" style="gap:16px;align-items:flex-start;flex-wrap:wrap">
@@ -160,7 +160,7 @@ export function projectModal(m, H) {
     </div>
     <div class="row" style="gap:12px;flex-wrap:wrap">
       <div class="field" style="flex:1;min-width:150px"><label class="label" for="p-team">تیم</label><select class="select" id="p-team" data-in="pform" data-f="team">${teamsList()
-        .map(t => `<option value="${t.id}" ${f.team === t.id ? 'selected' : ''}>${t.name}</option>`)
+        .map(t => `<option value="${t.id}" ${f.team === t.id ? 'selected' : ''}>${esc(t.name)}</option>`)
         .join('')}</select></div>
       <div class="field" style="flex:1;min-width:150px"><label class="label" for="p-lead">سرپرست</label><select class="select" id="p-lead" data-in="pform" data-f="lead">${D()
         .members.filter(x => x.status === 'active')
@@ -218,10 +218,10 @@ export function inviteModal(m, H) {
   const err = S.ui.errors.invite;
   return `${H('دعوت به ' + esc(D().ws.name), 'برای افراد دعوت‌شده، ایمیلی با پیوند عضویت ارسال می‌شود.')}
   <form class="modal-b" data-submit="submitInvite">
-    <div class="field"><label class="label" for="inv-emails">نشانی‌های ایمیل</label><textarea class="textarea ${err ? 'is-error' : ''}" id="inv-emails" placeholder="name@company.com, another@company.com" rows="3" autofocus>${esc(S.ui.inviteDraft || '')}</textarea>${err ? `<span class="err">${ic('circle-alert', 12)}${err}</span>` : '<span class="hint">نشانی‌های متعدد را با ویرگول جدا کنید.</span>'}</div>
+    <div class="field"><label class="label" for="inv-emails">نشانی‌های ایمیل</label><textarea class="textarea ${err ? 'is-error' : ''}" id="inv-emails" placeholder="name@company.com, another@company.com" rows="3" autofocus>${esc(S.ui.inviteDraft || '')}</textarea>${err ? `<span class="err">${ic('circle-alert', 12)}${esc(err)}</span>` : '<span class="hint">نشانی‌های متعدد را با ویرگول جدا کنید.</span>'}</div>
     <div class="row" style="gap:12px"><div class="field grow"><label class="label" for="inv-role">نقش</label><select class="select" id="inv-role">${['Member', 'Admin', 'Guest'].map(r => `<option value="${r}">${displayLabel(r)}</option>`).join('')}</select></div>
     <div class="field grow"><label class="label" for="inv-team">تیم</label><select class="select" id="inv-team">${teamsList()
-      .map(t => `<option value="${t.id}">${t.name}</option>`)
+      .map(t => `<option value="${t.id}">${esc(t.name)}</option>`)
       .join('')}</select></div></div>
     <div class="alert info">${ic('info', 14)}<span><b>Guests</b> فقط پروژه‌هایی را می‌بینند که به آن‌ها اضافه شده‌اند و نمی‌توانند پروژه بسازند.</span></div>
   </form>

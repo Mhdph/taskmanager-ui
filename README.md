@@ -59,14 +59,30 @@ works in development and production. Configure the upstream with server-side
 `localhost` must be replaced with the actual backend address.
 
 Alternatively, set build-time `VITE_API_URL` to use a directly reachable API URL;
-that backend must allow browser CORS requests. Browser identity headers come from:
+that backend must allow browser CORS requests. Hosted authentication follows the NUP admin app contract:
 
-1. `localStorage.gr8r.api` containing `{"apiKey","userId","appId"}`;
-2. build-time `VITE_API_TOKEN`, `VITE_API_USER`, and `VITE_API_APP`;
-3. the built-in local development identity.
+1. Open the app with the platform's single-use `?tt=<bridge-token>` parameter.
+2. Before mounting the workspace, the UI removes `tt` from the address bar and
+   posts it once to `/api/auth/bridge`. The Go backend exchanges it with
+   `nupConfirmBridgeToken` at its configured `HOSTED_GRAPHQL_ENDPOINT`.
+3. The UI writes session cookies `token`, `app-id`, `id`, and
+   `from-support-menu` (Path `/`, SameSite=Lax, Secure on HTTPS).
+4. REST requests and uploads read those cookies and send `X-APIKEY`, `APP-ID`,
+   `USER-ID`, and `FROM-SUPPORT-MENU`. The backend validates identities against
+   the hosted profile endpoint. Existing platform cookies also restore a session.
+5. Sign-out clears these cookies and the query cache. An unauthenticated
+   production visit asks the user to open the app from the main panel; the local
+   login/signup screens are demo-only.
 
-`VITE_*` values are public browser configuration. Use the hosted platform's
-identity integration for production users.
+Production never falls back to `localStorage.gr8r.api`, build-time tokens, or the
+built-in dev admin. Local `npm run dev` still accepts `gr8r.api` and
+`VITE_API_TOKEN` / `VITE_API_USER` / `VITE_API_APP`, then the built-in dev identity
+when there are no platform cookies. `VITE_*` settings are public browser values;
+never put a shared production credential in them.
+
+The UI remains standalone: it does not import modules from `nup-panel-ui`.
+The Go backend is the only component that needs `HOSTED_GRAPHQL_ENDPOINT`.
+Use `APP_ENV=production` and `IDENTITY_DEV_MODE=false` for deployed backends.
 
 The UI loads projects, tasks, statuses, members, teams, labels, comments,
 attachments, dependencies, favorites, activity, and saved views through the API.

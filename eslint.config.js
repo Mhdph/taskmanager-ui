@@ -3,7 +3,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['dist/', '.output/', '.tanstack/', 'src/routeTree.gen.ts', '.vercel/'] },
+  { ignores: ['dist/', '.output/', '.tanstack/', 'src/routeTree.gen.ts', '.vercel/', '.agents/'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

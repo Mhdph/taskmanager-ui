@@ -1,4 +1,4 @@
-import { API_BASE, ApiError, api, getIdentity } from './api';
+import { API_BASE, ApiError, api, identityHeaders } from './api';
 import { conversationPath } from './features-api';
 
 export interface ChatAttachment {
@@ -61,12 +61,11 @@ export function streamUrl(token: string, origin: string) {
   return url.href;
 }
 export async function uploadChatAttachment(conversationId: string, file: File): Promise<ChatAttachment> {
-  const identity = getIdentity();
   const body = new FormData();
   body.append('file', file);
   const response = await fetch(`${API_BASE}${conversationPath(conversationId)}/attachments`, {
     method: 'POST',
-    headers: { 'X-APIKEY': identity.apiKey, 'USER-ID': identity.userId, 'APP-ID': identity.appId },
+    headers: identityHeaders(),
     body,
   });
   if (!response.ok) throw new ApiError(response.status, 'بارگذاری فایل ناموفق بود.');

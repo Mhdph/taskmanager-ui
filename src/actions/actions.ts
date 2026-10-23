@@ -20,6 +20,7 @@ import { strengthMeter } from '../pages/settings';
 import { fillTaskDetail, hydrateWorkspace, rebuildFiles } from '#lib/hydrate';
 import * as sync from '#lib/sync';
 import type { ActionTable } from '#lib/types';
+import { setIdentity } from '#lib/api';
 /* SSR_GUARD: TanStack Start may import this module during builds; DOM listeners attach in browsers only. */
 const SSR_GUARD = typeof document !== 'undefined';
 
@@ -1905,6 +1906,11 @@ A.newWorkspace = () => {
   render();
 };
 A.signOut = () => {
+  if (import.meta.env.VITE_DEMO !== 'true') {
+    setIdentity(null);
+    location.reload();
+    return;
+  }
   S.ui.pop = null;
   S.ui.palette = null;
   S.ui.drawer = null;

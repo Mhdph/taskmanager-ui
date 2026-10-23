@@ -37,7 +37,11 @@ export const FIELDS = {
         .filter(canSee)
         .map(p => ({ id: p.id, name: p.name, html: `<span class="pdot" style="--c:${pColor(p)}"></span>` })),
   },
-  labels: { name: 'برچسب‌ها', icon: 'tag', opts: () => LABELS.map(l => ({ id: l.id, name: l.name, html: `<span class="pdot" style="--c:${l.c}"></span>` })) },
+  labels: {
+    name: 'برچسب‌ها',
+    icon: 'tag',
+    opts: () => LABELS.map(l => ({ id: l.id, name: l.name, html: `<span class="pdot" style="--c:${esc(l.c)}"></span>` })),
+  },
   created: {
     name: 'تاریخ ایجاد',
     icon: 'calendar-plus',

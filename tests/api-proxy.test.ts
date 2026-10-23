@@ -31,3 +31,27 @@ describe('Start API proxy', () => {
     expect((await response.json()).message).toContain('Cannot reach');
   });
 });
+
+it('prevents shared caching and forwards support context', async () => {
+  const fetch = vi.fn().mockResolvedValue(new Response('{}', { headers: { 'cache-control': 'public, max-age=3600' } }));
+  vi.stubGlobal('fetch', fetch);
+  const response = await proxyApi(new Request('http://ui/api/me', { headers: { 'from-support-menu': 'true' } }));
+  expect(fetch.mock.calls[0][1].headers.get('from-support-menu')).toBe('true');
+  expect(fetch.mock.calls[0][1].cache).toBe('no-store');
+  expect(response.headers.get('cache-control')).toBe('no-store');
+  expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+});
+
+it.each([true, false])('rejects oversized uploads before forwarding (content length: %s)', async declared => {
+  const fetch = vi.fn();
+  vi.stubGlobal('fetch', fetch);
+  const request = new Request('http://ui/api/upload', {
+    method: 'POST',
+    headers: declared ? { 'content-length': String(27 * 1024 * 1024) } : {},
+    body: new Uint8Array(27 * 1024 * 1024),
+  });
+  const response = await proxyApi(request);
+  expect(response.status).toBe(413);
+  expect(response.headers.get('cache-control')).toBe('no-store');
+  expect(fetch).not.toHaveBeenCalled();
+});
