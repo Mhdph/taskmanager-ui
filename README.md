@@ -71,6 +71,49 @@ identity integration for production users.
 The UI loads projects, tasks, statuses, members, teams, labels, comments,
 attachments, dependencies, favorites, activity, and saved views through the API.
 Mutations retain the existing optimistic UI behavior and error toasts.
+
+The Members → **ظرفیت و بار کار** tab and member profiles expose backend capacity
+schedules and workload reports (requires API migration 24). Workspace managers can
+set daily hours, ISO working days and an IANA time zone, or clear a schedule.
+Reports include date ranges up to 92 days, paginated workspace members, daily
+capacity/overload and unestimated, unscheduled and overdue work. Ordinary members
+see their own report, scoped to accessible projects. Unconfigured capacity stays
+unknown; zero hours and empty working days explicitly mean no availability.
+Project tabs also include **اسپرینت‌ها**, **اتوماسیون**, and **گفتگو**:
+
+- Sprints: create/edit, plan tasks from the backlog, start, complete with carryover,
+  and read live or frozen reports. Project managers administer sprints; members
+  can plan unfinished tasks. Requires migration 20.
+- Automation: create/edit rules with the four supported triggers and up to five
+  ordered assignment/notification actions; enable, disable, or delete rules.
+  Project managers administer rules; other project members can read them.
+  Requires migration 21. Notification delivery requires `NOTIFICATION_SERVICE_URL`.
+- Chat: `/chat` lists direct, group, and project conversations; the project chat
+  tab opens its decision thread. Supports messages, paginated history, attachments,
+  editing/deletion, read cursors, group members, mentions, notification preferences,
+  typing and presence. Sending retries use the same client message ID. WebSocket
+  reconnects use a fresh one-time ticket, open before REST replay, and reload the
+  latest page for missed edits/deletes. REST polling every ten seconds also keeps
+  the open thread current when the stream is unavailable.
+
+The Nitro WebSocket proxy forwards `/api/chat/stream` to the same
+`API_URL_INTERNAL` backend as REST. No separate browser URL is needed with the
+normal Node deployment. On hosts without WebSocket support, REST polling still
+works; typing and live presence need a WebSocket-capable host. With a direct
+`VITE_API_URL`, the client connects to that API's `/chat/stream` using its one-time
+ticket; configure the backend's `CHAT_WS_ORIGINS` for the UI origin. Apply all
+backend chat migrations through 19 before testing.
+
+Task and subtask drawers include **تحویل و تأیید کار** (requires migration 22).
+The assignee, creator of an unassigned task, project manager, or hosted admin can
+submit a version with output notes, an optional HTTP(S) link, and another current
+project member/manager as reviewer. Only that designated reviewer can approve or
+request changes; a reason is required for changes. Submitters and managers can
+withdraw a pending submission. The panel keeps paginated version history and
+allows a new submission once the previous one is resolved. Approval does not
+change the task's board status or mark it complete. The panel refreshes every
+15 seconds and offers a manual refresh. Task reminders remain API-only.
+
 Notifications, invitations, calendar events, invoices, and files-page example
 uploads remain demonstration features from the original UI.
 
@@ -105,7 +148,7 @@ existing tables and charts remain in the view modules.
 | URL                                                                | Content                                   |
 | ------------------------------------------------------------------ | ----------------------------------------- |
 | `/`                                                                | Home dashboard                            |
-| `/inbox`, `/my-tasks`, `/favorites`, `/notifications`              | Personal queues                           |
+| `/inbox`, `/chat`, `/my-tasks`, `/favorites`, `/notifications`     | Personal queues                           |
 | `/overview`, `/projects`, `/tasks`, `/calendar`, `/timeline`       | Workspace pages                           |
 | `/members`, `/teams`, `/activity`, `/archive`                      | People, teams, history, archive           |
 | `/projects/$id/{-$tab}`                                            | Optional project tab, defaulting to board |

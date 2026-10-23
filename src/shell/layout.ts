@@ -100,6 +100,7 @@ export function renderSidebar() {
       ${u.collapsed ? `<button class="sitem" data-a="toggleSide" data-tip="باز کردن نوار کناری" data-tip-pos="right" aria-label="باز کردن نوار کناری">${ic('panel-left', 16)}</button>` : ''}
       ${sItem('home', 'میز کار', 'layout-dashboard')}
       ${sItem('inbox', 'صندوق ورودی', 'inbox', { ct: unreadInbox || '', dot: true })}
+      ${sItem('chat', 'گفتگوها', 'message-square')}
       ${sItem('mytasks', 'کارهای من', 'circle-check', { ct: myOpen || '' })}
 
       ${sItem('notifications', 'اعلان‌ها', 'bell', { ct: unreadAll || '' })}

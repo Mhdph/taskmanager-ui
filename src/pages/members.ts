@@ -23,15 +23,18 @@ export function pageMembers() {
       ['members', 'اعضا'],
       ['teams', 'تیم‌ها'],
       ['roles', 'نقش‌ها و دسترسی‌ها'],
+      ['workload', 'ظرفیت و بار کار'],
     ]
       .map(([k, n]) => `<button class="tab ${tab === k ? 'on' : ''}" data-a="set" data-k="membersTab" data-v="${k}">${n}</button>`)
       .join('')}</div>
     ${
-      tab === 'teams'
-        ? `<div class="row" style="margin-bottom:12px"><span class="muted" style="font-size:13px">${faNumber(teamsList().length)} teams</span><span class="sp"></span><button class="btn btn-secondary btn-sm" data-a="newTeam">${ic('plus', 13)}تیم جدید</button></div>${teamsGrid()}`
-        : tab === 'roles'
-          ? permsTable()
-          : `
+      tab === 'workload'
+        ? ''
+        : tab === 'teams'
+          ? `<div class="row" style="margin-bottom:12px"><span class="muted" style="font-size:13px">${faNumber(teamsList().length)} teams</span><span class="sp"></span><button class="btn btn-secondary btn-sm" data-a="newTeam">${ic('plus', 13)}تیم جدید</button></div>${teamsGrid()}`
+          : tab === 'roles'
+            ? permsTable()
+            : `
     <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap"><div class="inwrap">${ic('search', 13)}<input class="input search-sm" id="mem-q" data-in="memQ" placeholder="جستجو با نام یا ایمیل" value="${esc(u.memQ || '')}" aria-label="جستجوی اعضا"></div>
       <div class="seg">${['all', ...ROLES].map(r => `<button class="${role === r ? 'on' : ''}" data-a="set" data-k="memRole" data-v="${r}">${r === 'all' ? 'همه' : displayLabel(r)}</button>`).join('')}</div></div>
     <div class="panel" style="overflow-x:auto">${

@@ -19,6 +19,7 @@ import type { RouteParams } from './types';
 
 export const ROUTE_NAMES = {
   home: 'خانه',
+  chat: 'گفتگوها',
   inbox: 'صندوق ورودی',
   mytasks: 'کارهای من',
   favorites: 'علاقه‌مندی‌ها',
@@ -43,6 +44,7 @@ export const ROUTE_NAMES = {
 export const ROUTE_ICONS = {
   home: 'house',
   inbox: 'inbox',
+  chat: 'message-square',
   mytasks: 'circle-check',
   favorites: 'star',
   notifications: 'bell',
@@ -65,6 +67,7 @@ export const ROUTE_ICONS = {
 export const ROUTE_SLUGS = {
   home: '/',
   inbox: '/inbox',
+  chat: '/chat',
   mytasks: '/my-tasks',
   favorites: '/favorites',
   notifications: '/notifications',

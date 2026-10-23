@@ -133,10 +133,12 @@ async function mutate(method: string, path: string, body?: any) {
 }
 
 export const api = {
-  get: (path: string) =>
+  streamToken: () => request('POST', '/chat/stream-token', { body: {} }),
+  get: (path: string, fresh = false) =>
     getQueryClient().fetchQuery({
       queryKey: apiQueryKey(path),
       queryFn: () => request('GET', path),
+      ...(fresh ? { staleTime: 0 } : {}),
     }),
   post: (path: string, body?: any) => mutate('POST', path, body ?? {}),
   patch: (path: string, body?: any) => mutate('PATCH', path, body ?? {}),

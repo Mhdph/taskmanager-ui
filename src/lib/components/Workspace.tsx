@@ -1,9 +1,14 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { Html } from './Html';
+import { Workload } from './Workload';
+import { Sprints } from './Sprints';
+import { Automation } from './Automation';
+import { Chat } from './Chat';
+import { TaskDeliveryPortal } from './TaskDeliveryPortal';
 import { useRouter, useRouterState } from '@tanstack/react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSelector } from '@tanstack/react-store';
-import { S, workspaceStore } from '../state';
+import { S, workspaceStore, proj, canSee, task } from '../state';
 import { bindNavigation, syncRouteToStore } from '../router';
 import { configureQueryClient } from '../query-client';
 import { apiQueryKey, getIdentity } from '../api';
@@ -81,6 +86,9 @@ export default function Workspace() {
     }
   }, []);
 
+  const drawerTask = S.ui.drawer ? task(S.ui.drawer) : null;
+  const drawerSubtask = drawerTask && S.ui.subOpen?.tid === drawerTask.id ? drawerTask.subtasks.find(subtask => subtask.id === S.ui.subOpen.sid) : null;
+
   return (
     <>
       <button className="skip" data-a="skipToContent">
@@ -122,13 +130,29 @@ export default function Workspace() {
               </div>
             )}
             <div className={`content ${S.ui.fx.route ? 'fx-route' : ''}`} id="main-content" tabIndex={-1}>
-              <Html html={S.ui.loading ? skeleton() : renderPage()} />
+              <Html html={S.ui.loading ? skeleton() : S.ui.route === 'chat' ? '' : renderPage()} />
+              {!S.ui.loading && S.ui.route === 'chat' && <Chat />}
+              {!S.ui.loading &&
+                S.ui.route === 'project' &&
+                proj(S.ui.params.id) &&
+                canSee(proj(S.ui.params.id)) &&
+                (S.ui.params.tab === 'sprints' ? (
+                  <Sprints key={S.ui.params.id} projectId={S.ui.params.id} />
+                ) : S.ui.params.tab === 'automation' ? (
+                  <Automation key={S.ui.params.id} projectId={S.ui.params.id} />
+                ) : S.ui.params.tab === 'chat' ? (
+                  <Chat key={S.ui.params.id} projectId={S.ui.params.id} />
+                ) : null)}
+              {!S.ui.loading && (S.ui.route === 'member' || (S.ui.route === 'members' && S.ui.membersTab === 'workload')) && (
+                <Workload key={S.ui.route + (S.ui.params.id || '')} userId={S.ui.route === 'member' ? S.ui.params.id : undefined} />
+              )}
             </div>
           </main>
           <Html html={renderBottomNav()} />
         </div>
       )}
       <Html html={renderLayer()} />
+      {drawerTask && <TaskDeliveryPortal key={drawerSubtask?.id || drawerTask.id} projectId={drawerTask.project} taskId={drawerSubtask?.id || drawerTask.id} />}
       <div id="toasts" aria-live="polite" />
       <div id="sr-live" className="sr" aria-live="polite" />
     </>

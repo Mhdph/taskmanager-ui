@@ -21,6 +21,7 @@ export function subtaskHtml(t, s) {
     </dl>
     <div class="dsec"><div class="dsec-h"><h3 id="s-note-l">یادداشت‌ها</h3></div>
       <textarea class="textarea" id="s-note" data-in="subNote" data-id="${t.id}" data-sid="${s.id}" rows="4" placeholder="جزئیات، پیوندها یا معیارهای پذیرش را اضافه کنید…" aria-labelledby="s-note-l">${esc(s.note || '')}</textarea></div>
+    <div id="task-deliveries-${esc(s.id)}" data-react-root></div>
     <div class="dsec row" style="gap:6px;flex-wrap:wrap">
       <button class="btn btn-secondary btn-sm" data-a="promoteSub" data-id="${t.id}" data-sid="${s.id}">${ic('arrow-up-right', 13)}تبدیل به کار</button>
       <span class="sp"></span>

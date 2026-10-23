@@ -14,6 +14,7 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as ActivityRouteImport } from './routes/activity'
 import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as CalendarRouteImport } from './routes/calendar'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as ForgotRouteImport } from './routes/forgot'
 import { Route as InboxRouteImport } from './routes/inbox'
@@ -62,6 +63,11 @@ const ArchiveRoute = ArchiveRouteImport.update({
 const CalendarRoute = CalendarRouteImport.update({
   id: '/calendar',
   path: '/calendar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FavoritesRoute = FavoritesRouteImport.update({
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/activity': typeof ActivityRoute
   '/archive': typeof ArchiveRoute
   '/calendar': typeof CalendarRoute
+  '/chat': typeof ChatRoute
   '/favorites': typeof FavoritesRoute
   '/forgot': typeof ForgotRoute
   '/inbox': typeof InboxRoute
@@ -223,6 +230,7 @@ export interface FileRoutesByTo {
   '/activity': typeof ActivityRoute
   '/archive': typeof ArchiveRoute
   '/calendar': typeof CalendarRoute
+  '/chat': typeof ChatRoute
   '/favorites': typeof FavoritesRoute
   '/forgot': typeof ForgotRoute
   '/inbox': typeof InboxRoute
@@ -255,6 +263,7 @@ export interface FileRoutesById {
   '/activity': typeof ActivityRoute
   '/archive': typeof ArchiveRoute
   '/calendar': typeof CalendarRoute
+  '/chat': typeof ChatRoute
   '/favorites': typeof FavoritesRoute
   '/forgot': typeof ForgotRoute
   '/inbox': typeof InboxRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/archive'
     | '/calendar'
+    | '/chat'
     | '/favorites'
     | '/forgot'
     | '/inbox'
@@ -319,6 +329,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/archive'
     | '/calendar'
+    | '/chat'
     | '/favorites'
     | '/forgot'
     | '/inbox'
@@ -350,6 +361,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/archive'
     | '/calendar'
+    | '/chat'
     | '/favorites'
     | '/forgot'
     | '/inbox'
@@ -382,6 +394,7 @@ export interface RootRouteChildren {
   ActivityRoute: typeof ActivityRoute
   ArchiveRoute: typeof ArchiveRoute
   CalendarRoute: typeof CalendarRoute
+  ChatRoute: typeof ChatRoute
   FavoritesRoute: typeof FavoritesRoute
   ForgotRoute: typeof ForgotRoute
   InboxRoute: typeof InboxRoute
@@ -443,6 +456,13 @@ declare module '@tanstack/react-router' {
       path: '/calendar'
       fullPath: '/calendar'
       preLoaderRoute: typeof CalendarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/favorites': {
@@ -622,6 +642,7 @@ const rootRouteChildren: RootRouteChildren = {
   ActivityRoute: ActivityRoute,
   ArchiveRoute: ArchiveRoute,
   CalendarRoute: CalendarRoute,
+  ChatRoute: ChatRoute,
   FavoritesRoute: FavoritesRoute,
   ForgotRoute: ForgotRoute,
   InboxRoute: InboxRoute,

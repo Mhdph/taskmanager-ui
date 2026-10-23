@@ -103,6 +103,7 @@ export function drawerHtml(t) {
         ${t.attachments.length ? `<div class="att">${t.attachments.map(f => `<div class="attc" data-a="filePreview" data-tid="${t.id}" data-aid="${f.id}" role="button" tabindex="0">${filePrev(f)}<div class="fi"><div class="trunc" style="font-weight:500">${esc(f.name)}</div><div class="faint">${FT[f.type]?.n || 'فایل'} · ${f.size}</div></div><button class="ibtn ibtn-xs x" data-a="rmAttach" data-id="${t.id}" data-aid="${f.id}" aria-label="حذف پیوست">${ic('x', 12)}</button></div>`).join('')}</div>` : !ups.length ? `<label class="dropzone" style="padding:12px" data-dropzone-task="${t.id}">${ic('paperclip', 15)}<span>فایل‌ها را رها کنید یا برای پیوست کلیک کنید</span><input type="file" multiple hidden data-in="uploadFiles" data-task="${t.id}" data-project="${t.project}"></label>` : ''}
       </div>
 
+      <div id="task-deliveries-${esc(t.id)}" data-react-root></div>
       <div class="dsec">
         <div class="tabs" style="margin-bottom:6px">${[
           ['comments', `دیدگاه‌ها`, cs.length],

@@ -41,6 +41,7 @@
     "@tanstack/react-router": "^1.170.45",
     "@tanstack/react-start": "^1.169.3",
     "@tanstack/react-store": "^0.11.2",
+    "crossws": "^0.4.15",
     "morphdom": "^2.7.8",
     "nitro": "3.0.260903-beta",
     "react": "^19.3.1",

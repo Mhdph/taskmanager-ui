@@ -21,6 +21,8 @@ export function Html({ html }: { html: string }) {
     morphdom(root, `<div>${html}</div>`, {
       childrenOnly: true,
       onBeforeElUpdated: (current, next) => {
+        // Portal contents belong to React; preserve them when the legacy shell updates.
+        if (current.hasAttribute('data-react-root') && current.id === next.id && next.hasAttribute('data-react-root')) return false;
         // Keep the browser's live editing selection inside rich-text fields.
         if (current === document.activeElement && current.hasAttribute('contenteditable')) return false;
         return !current.isEqualNode(next);

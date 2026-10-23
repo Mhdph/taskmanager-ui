@@ -25,6 +25,9 @@ export const PTABS = [
   ['timeline', 'خط زمانی', 'chart-gantt'],
   ['files', 'فایل‌ها', 'paperclip'],
   ['activity', 'فعالیت‌ها', 'activity'],
+  ['sprints', 'اسپرینت‌ها', 'list-checks'],
+  ['automation', 'اتوماسیون', 'workflow'],
+  ['chat', 'گفتگو', 'message-square'],
 ];
 
 export function pageProject() {
@@ -49,6 +52,7 @@ export function pageProject() {
       body = taskViewBody(sv.type, applyView(ts, viewOf(k)), k, p);
     }
   } else if (tab === 'overview') body = projOverview(p);
+  else if (['sprints', 'automation', 'chat'].includes(tab)) body = '';
   else if (tab === 'files') body = filesHtml(p.id);
   else if (tab === 'activity') body = projActivity(p);
   else body = taskViewBody(tab, applyView(ts, viewOf(key)), key, p);

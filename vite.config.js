@@ -55,7 +55,12 @@ export default defineConfig({
   // Concurrent demo/live servers must not invalidate each other's optimized modules.
   cacheDir: process.env.VITE_DEMO === 'true' ? 'node_modules/.vite-demo' : 'node_modules/.vite',
   resolve: { alias: { '#lib': path.resolve('src/lib') } },
-  plugins: [lucideSubset(), tanstackStart(), nitro(), react()],
+  plugins: [
+    lucideSubset(),
+    tanstackStart(),
+    nitro({ features: { websocket: true }, handlers: [{ route: '/api/chat/stream', handler: './src/server/chat-stream.ts' }] }),
+    react(),
+  ],
   server: {
     port: 5173,
   },
